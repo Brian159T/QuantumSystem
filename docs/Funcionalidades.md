@@ -1,0 +1,137 @@
+# Funcionalidades - Quantum / Voltus
+
+Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil** (`Mobile/`) y el **frontend web** (`Frontend/`).
+
+Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
+
+> **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones y Talleres consumen la **API real**. Detalle por pantalla al final.
+
+---
+
+## Roles y acceso
+
+| Rol | Flags | Descripcion |
+|-----|-------|-------------|
+| **Invitado** (sin login) | `esInvitado` | Usuario sin cuenta; ve catalogo, vehiculos y reservas |
+| **Cliente** / usuario con vehiculo electrico | `esCliente` | Usuario logueado con rol Cliente: carga, talleres, emergencias |
+| **Administrador** | `esAdministrador` | Usuario logueado con rol Administrador: panel y gestion de usuarios |
+
+---
+
+## 1. Funcionalidades del INVITADO
+
+### 1.1 Inicio (Movil: `InicioScreen.tsx` / Web: `PaginaInicio.tsx`)
+- Hero de bienvenida con la marca Voltus.
+- Estadisticas rapidas.
+- **Catalogo** de modelos destacados (movil: `CAR_MODELS` mock; web: desde la API con fallback a mock).
+- **Planes de pago flexibles**.
+- **Banner de test drive**.
+- Boton para ver los vehiculos (web: `alVerVehiculos`).
+
+### 1.2 Catalogo de Vehiculos (Movil: `VehiculosScreen.tsx` / Web: `PaginaVehiculos.tsx`)
+- Listado del catalogo (`CAR_MODELS` mock en ambos).
+- **Vista de detalle** por modelo: selector de **colores**, **ficha tecnica** (autonomia, 0-100 km/h, velocidad maxima, carga, asientos, traccion).
+- Sombras/colores calculados en JS para las tarjetas.
+- Web: boton para **reservar** un vehiculo (pasa el vehiculo a la pantalla de reservas).
+
+### 1.3 Reservas (Movil: `ReservasScreen.tsx` / Web: `PaginaReservas.tsx`)
+- Seleccion de **modelo**, **color**, y form de **datos personales**.
+- **Modal de confirmacion** de reserva con:
+  - Precio base / descuento.
+  - **Pago QR simulado** (`PAGO QR` / "Codigo QR de Pago - Se anadira proximamente").
+  - Boton **"EFECTUAR PAGO Y CONFIRMAR"**.
+  - Nota "El precio de reserva es reembolsable".
+- Genera **codigo de confirmacion** al confirmar.
+- Movil: es un **class component** (unico en el proyecto).
+
+---
+
+## 2. Funcionalidades del CLIENTE (usuario con vehiculo electrico)
+
+### 2.1 Inicio del Cliente (Movil: `InicioScreen_usuario_vehiculo.tsx` / Web: `PaginaInicioCliente.tsx`)
+- **Panel del vehiculo propio** con **anillo de bateria** (colores segun nivel: verde ≥50%, naranja ≥20%, rojo <20%).
+- **Acciones rapidas**.
+- **Carrusel de estaciones cercanas** (mock `NEARBY_STATIONS`), con tarjetas que marcan estaciones llenas (`available === 0`).
+- **Historial de cargas** (mock `HISTORY`).
+- Web: ademas banner de ruta inteligente.
+
+### 2.2 Estaciones de Carga (Movil: `EstacionesScreen_usuario_vehiculo.tsx` / Web: `PaginaEstaciones.tsx`)
+- **Integrado con la API real** (`EstacionesService.obtenerEstaciones`).
+- **Ubicacion del usuario** (expo-location).
+- **Mapa** con las estaciones (react-native-maps en movil; mapa placeholder en web).
+- **Buscador** y **filtros por tipo de conector** (CCS, CHAdeMO, Tipo 2, Tesla).
+- Toggle de **solo disponibles/abiertas** y **estadisticas** (total, activas).
+- Tarjetas de servicio con disponibilidad, precio, rating, conectores, 24 horas.
+
+### 2.3 Talleres Autorizados (Movil: `TalleresScreen_usuario_vehiculo.tsx` / Web: `PaginaTalleres.tsx`)
+- **Integrado con la API real** (`TalleresService.obtenerTalleres` + `useTalleresViewModel`).
+- **Ubicacion del usuario** (permiso + coordenadas).
+- **Mapa** con talleres; se resalta el **taller mas cercano** (calculo Haversine) y el **taller seleccionado para ruta**.
+- **Buscador** por direccion y toggle **"solo abiertos/disponibles"** (`Estado === 'disponible'`).
+- **Estadisticas**: total, disponibles, con telefono.
+- Tarjetas con estado abierto/cerrado, tiempo de espera, especialidades, rating.
+
+### 2.4 Emergencias (Movil: `EmergenciasScreen_usuario_vehiculo.tsx` / Web: `PaginaEmergencias.tsx`)
+- **Boton SOS** con animacion de pulso.
+- **Tarjeta de servicio de salud**.
+- **Contactos de emergencia**.
+- **Consejo de seguridad**.
+
+---
+
+## 3. Funcionalidades del ADMINISTRADOR
+
+### 3.1 Panel / Inicio del Administrador (Movil: `Interfaz_Administrador_Inicio.tsx` / Web: `PaginaPanel.tsx`)
+- **Banner de bienvenida**.
+- **Estadisticas** (totales: vehiculos, estaciones, usuarios).
+- **Gestion de contenido** en tarjetas (cada una con enlace "Gestionar").
+- **Actividad reciente** (mock `RECENT_ACTIVITY`).
+
+### 3.2 Gestion de Usuarios (Movil: `Interfaz_Administrador_usuarios.tsx` / Web: `PaginaUsuarios.tsx`)
+- CRUD **mock** de usuarios (`INITIAL_USERS` / `USERS`): **buscar**, **filtrar por estado** (Todos/Activo/Suspendido), **suspender** (toggle de estado), **editar**, **eliminar** (con confirmacion), y **agregar** usuario.
+- **Estadisticas**: usuarios activos, administradores.
+- Tarjetas expandibles con acciones.
+
+---
+
+## 4. Estado de integracion con la API (por pantalla)
+
+### App movil (`Mobile/`)
+
+| Pantalla | Uso de API |
+|----------|-----------|
+| `InicioScreen.tsx` | Mock (`CAR_MODELS`) |
+| `VehiculosScreen.tsx` | Mock (`CAR_MODELS`) |
+| `ReservasScreen.tsx` | Mock (`MODELOS`, `COLORES`) |
+| `InicioScreen_usuario_vehiculo.tsx` | Mock (`VEHICLE`, `NEARBY_STATIONS`, `HISTORY`) |
+| `EstacionesScreen_usuario_vehiculo.tsx` | **Real API** + ubicacion |
+| `TalleresScreen_usuario_vehiculo.tsx` | **Real API** + ubicacion |
+| `EmergenciasScreen_usuario_vehiculo.tsx` | Mock |
+| `Interfaz_Administrador_Inicio.tsx` | Mock (`OVERVIEW`, `MANAGEMENT_SECTIONS`, `RECENT_ACTIVITY`) |
+| `Interfaz_Administrador_usuarios.tsx` | Mock (`INITIAL_USERS`) |
+| Login / Registro (`AuthService`) | **Real API** |
+
+### Frontend web (`Frontend/`)
+
+| Pagina | Uso de API |
+|--------|-----------|
+| `PaginaInicio.tsx` | API `/vehiculos` (fallback mock) |
+| `PaginaVehiculos.tsx` | Via repositorio (fallback mock) |
+| `PaginaReservas.tsx` | Mock |
+| `PaginaInicioCliente.tsx` | Mock |
+| `PaginaEstaciones.tsx` | API `/estaciones-carga` (fallback mock) |
+| `PaginaTalleres.tsx` | API `/servicios-tecnicos` (fallback mock) |
+| `PaginaEmergencias.tsx` | Mock |
+| `PaginaPanel.tsx` | API (stats dinamicas) con fallback |
+| `PaginaUsuarios.tsx` | API `/usuarios` (fallback mock) |
+| Login / Registro (`AuthRepositoryImpl`) | **Real API** |
+
+---
+
+## 5. Funcionalidades transversales
+
+- **Autenticacion** (login/registro) con JWT; estado en contexto (`useAuth`).
+- **Logout** (vuelve a flujo de invitado).
+- **Saludo** con iniciales y rol del usuario logueado.
+- **Navegacion por tabs/rol** (movil: react-navigation; web: navegacion por estado).
+- **Geolocalizacion** (movil): permisos, coordenadas, distancia Haversine. Usado en Estaciones y Talleres.

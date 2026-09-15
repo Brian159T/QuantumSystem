@@ -1,0 +1,1419 @@
+/* =========================================================
+   Estilos por página · Diseño Quantum (estilo Tesla)
+   ========================================================= */
+
+/* ---------- Hero (Inicio invitado) ---------- */
+.hero {
+  position: relative;
+  min-height: 620px;
+  border-radius: 26px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  background: var(--gradiente-encabezado);
+  color: var(--blanco);
+  box-shadow: var(--sombra-fuerte);
+}
+
+.hero__imagen {
+  position: absolute;
+  inset: 0;
+}
+
+.hero__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero__lienzo {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+      90deg,
+      rgba(8, 13, 26, 0.96) 0%,
+      rgba(8, 13, 26, 0.78) 45%,
+      rgba(8, 13, 26, 0.25) 100%
+    ),
+    radial-gradient(circle at 12% 88%, rgba(47, 182, 118, 0.22), transparent 42%),
+    radial-gradient(circle at 85% 20%, rgba(77, 159, 255, 0.18), transparent 45%);
+}
+
+.hero__contenido {
+  position: relative;
+  max-width: 640px;
+  padding: 60px 56px;
+}
+
+.hero__insignia {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 16px;
+  border-radius: var(--radio-pastilla);
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-transparente);
+  color: var(--verde);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  margin-bottom: 22px;
+}
+
+.hero__titulo {
+  font-size: clamp(40px, 6vw, 62px);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -1px;
+}
+
+.hero__titulo span {
+  color: var(--verde);
+}
+
+.hero__subtitulo {
+  margin-top: 14px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 440px;
+}
+
+.hero__acciones {
+  display: flex;
+  gap: 14px;
+  margin-top: 30px;
+  flex-wrap: wrap;
+}
+
+.hero__acciones .boton {
+  padding: 14px 34px;
+  border-radius: 6px;
+  font-size: 14px;
+  letter-spacing: 0.6px;
+}
+
+.hero__decoracion {
+  position: absolute;
+  right: 40px;
+  bottom: -70px;
+  width: 320px;
+  height: 320px;
+  border-radius: 50%;
+  background: linear-gradient(160deg, var(--verde), var(--azul));
+  opacity: 0.14;
+  filter: blur(8px);
+}
+
+/* ---------- Estadisticas rapidas ---------- */
+.fila-estadisticas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px;
+  margin-top: 26px;
+}
+
+.tarjeta-estadistica {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 16px 18px;
+  transition: border-color var(--velocidad-transicion);
+}
+
+.tarjeta-estadistica:hover {
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-estadistica__icono {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.tarjeta-estadistica__valor {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--texto-principal);
+  line-height: 1.1;
+}
+
+.tarjeta-estadistica__etiqueta {
+  font-size: 11px;
+  color: var(--texto-suave);
+  font-weight: 500;
+}
+
+/* ---------- Secciones y carrusel ---------- */
+.seccion {
+  margin-top: 40px;
+}
+
+.seccion--centrada {
+  text-align: center;
+}
+
+.carrusel {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 320px;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 6px 2px 16px;
+  scroll-snap-type: x mandatory;
+}
+
+.carrusel__item {
+  scroll-snap-align: start;
+}
+
+.tarjeta-modelo {
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+  transition: transform var(--velocidad-transicion), box-shadow var(--velocidad-transicion),
+    border-color var(--velocidad-transicion);
+}
+
+.tarjeta-modelo:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-modelo__imagen {
+  position: relative;
+  height: 170px;
+  background: var(--navy);
+}
+
+.tarjeta-modelo__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tarjeta-modelo__insignia {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+}
+
+.tarjeta-modelo__cuerpo {
+  padding: 16px;
+}
+
+.tarjeta-modelo__nombre {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-modelo__tipo {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-bottom: 12px;
+}
+
+.tarjeta-modelo__datos {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--fondo-claro);
+  border-radius: 10px;
+  padding: 9px 12px;
+  margin-bottom: 12px;
+}
+
+.dato-rapido {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--texto-medio);
+  font-weight: 500;
+}
+
+.dato-rapido + .dato-rapido {
+  border-left: 1px solid var(--borde-claro);
+  padding-left: 10px;
+}
+
+.tarjeta-modelo__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tarjeta-modelo__precio {
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-modelo__precio span {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+/* ---------- Planes de pago ---------- */
+.rejilla-planes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.tarjeta-plan {
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 24px;
+  transition: border-color var(--velocidad-transicion), transform var(--velocidad-transicion);
+}
+
+.tarjeta-plan:hover {
+  border-color: var(--verde-transparente);
+  transform: translateY(-3px);
+}
+
+.tarjeta-plan__icono {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  margin-bottom: 16px;
+}
+
+.tarjeta-plan__etiqueta {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.tarjeta-plan__precio {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--texto-principal);
+  margin: 6px 0 14px;
+}
+
+.tarjeta-plan__precio small {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--texto-suave);
+}
+
+.tarjeta-plan__caracteristica {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--texto-medio);
+  margin: 8px 0;
+}
+
+.tarjeta-plan__accion {
+  margin-top: 18px;
+}
+
+/* ---------- Banner promocional ---------- */
+.banner {
+  position: relative;
+  border-radius: 22px;
+  overflow: hidden;
+  background: var(--gradiente-tarjeta);
+  color: var(--blanco);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 38px 42px;
+  box-shadow: var(--sombra-media);
+}
+
+.banner__lienzo {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 88% 50%, rgba(47, 182, 118, 0.28), transparent 52%),
+    radial-gradient(circle at 10% 90%, rgba(77, 159, 255, 0.16), transparent 45%);
+}
+
+.banner__contenido {
+  position: relative;
+}
+
+.banner__ceja {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+  color: var(--verde);
+}
+
+.banner__titulo {
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.18;
+  margin: 6px 0;
+  letter-spacing: -0.4px;
+}
+
+.banner__subtitulo {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 13px;
+  margin-bottom: 18px;
+}
+
+.banner__icono {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  display: grid;
+  place-items: center;
+  border-radius: 26px;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-transparente);
+  color: var(--verde);
+  flex-shrink: 0;
+}
+
+/* ---------- Vehiculos: lista y detalle ---------- */
+.rejilla-vehiculos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+}
+
+.tarjeta-vehiculo {
+  display: flex;
+  gap: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 16px;
+  transition: transform var(--velocidad-transicion), box-shadow var(--velocidad-transicion),
+    border-color var(--velocidad-transicion);
+  text-align: left;
+  width: 100%;
+}
+
+.tarjeta-vehiculo:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-vehiculo__indice {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--texto-suave);
+}
+
+.tarjeta-vehiculo__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.tarjeta-vehiculo__fila-nombre {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.tarjeta-vehiculo__nombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-vehiculo__especificacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--texto-medio);
+  margin-top: 4px;
+}
+
+.swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--navy);
+  box-shadow: 0 0 0 1px var(--borde-claro);
+  transition: transform var(--velocidad-transicion);
+}
+
+.swatch:hover {
+  transform: scale(1.15);
+}
+
+.swatch--seleccionado {
+  box-shadow: 0 0 0 2px var(--verde);
+  transform: scale(1.15);
+}
+
+.tarjeta-vehiculo__imagen {
+  width: 130px;
+  height: 96px;
+  border-radius: 12px;
+  background: var(--navy);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.tarjeta-vehiculo__precio {
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--verde);
+}
+
+/* Detalle de vehiculo */
+.detalle-vehiculo__encabezado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.detalle-vehiculo__imagen {
+  height: 320px;
+  border-radius: 22px;
+  background: var(--gradiente-tarjeta);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  margin-bottom: 20px;
+  border: 1px solid var(--borde-claro);
+}
+
+.detalle-vehiculo__imagen img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.ficha-tecnica {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px;
+}
+
+.ficha-tecnica__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio-suave);
+  padding: 14px;
+}
+
+.ficha-tecnica__icono {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.ficha-tecnica__etiqueta {
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.ficha-tecnica__valor {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.precio-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 22px 24px;
+  margin-top: 20px;
+}
+
+.precio-cta__valor {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--texto-principal);
+}
+
+.precio-cta__original {
+  font-size: 14px;
+  color: var(--texto-suave);
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+/* ---------- Reservas ---------- */
+.formulario-reserva {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 26px;
+}
+
+.formulario-reserva__columna {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.opcion-modelo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radio-suave);
+  border: 1.5px solid var(--borde-claro);
+  background: var(--superficie);
+  text-align: left;
+  width: 100%;
+  transition: all var(--velocidad-transicion);
+}
+
+.opcion-modelo:hover {
+  border-color: var(--verde);
+}
+
+.opcion-modelo--seleccionado {
+  border-color: var(--verde);
+  background: var(--verde-suave);
+}
+
+.opcion-modelo__icono {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--fondo-claro);
+  color: var(--verde);
+  flex-shrink: 0;
+}
+
+.opcion-modelo__nombre {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--texto-principal);
+}
+
+.opcion-modelo__precio {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.opcion-modelo__precio strong {
+  color: var(--verde);
+}
+
+.rejilla-colores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.opcion-color {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 72px;
+}
+
+.opcion-color__circulo {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid var(--navy);
+  box-shadow: 0 0 0 1px var(--borde-claro);
+  transition: all var(--velocidad-transicion);
+}
+
+.opcion-color__circulo:hover {
+  transform: scale(1.08);
+}
+
+.opcion-color--seleccionado .opcion-color__circulo {
+  box-shadow: 0 0 0 2px var(--verde);
+}
+
+.opcion-color__nombre {
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.opcion-color--seleccionado .opcion-color__nombre {
+  color: var(--verde);
+  font-weight: 600;
+}
+
+.fila-precio-reserva {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-transparente);
+  border-radius: var(--radio-suave);
+  padding: 14px 18px;
+}
+
+.fila-precio-reserva__etiqueta {
+  font-weight: 600;
+  color: var(--texto-principal);
+  font-size: 14px;
+}
+
+.fila-precio-reserva__valor {
+  font-weight: 800;
+  color: var(--verde);
+  font-size: 18px;
+}
+
+/* ---------- Inicio cliente: bateria ---------- */
+.vehiculo-propio__superior {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vehiculo-propio__placa {
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+.anillo-bateria {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: conic-gradient(var(--verde) 68%, rgba(255, 255, 255, 0.08) 0);
+  position: relative;
+}
+
+.anillo-bateria__centro {
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  background: var(--gradiente-tarjeta);
+  display: grid;
+  place-items: center;
+  text-align: center;
+}
+
+.anillo-bateria__porcentaje {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--blanco);
+}
+
+.anillo-bateria__etiqueta {
+  font-size: 10px;
+  color: var(--texto-suave);
+}
+
+.vehiculo-propio__bateria {
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.vehiculo-propio__datos {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.barra-bateria {
+  height: 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  overflow: hidden;
+}
+
+.barra-bateria__relleno {
+  height: 100%;
+  border-radius: 8px;
+  background: var(--gradiente-verde);
+}
+
+.acciones-rapidas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.accion-rapida {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 10px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  text-align: center;
+  transition: transform var(--velocidad-transicion), border-color var(--velocidad-transicion);
+}
+
+.accion-rapida:hover {
+  transform: translateY(-3px);
+  border-color: var(--verde-transparente);
+}
+
+.accion-rapida__icono {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+}
+
+.accion-rapida__etiqueta {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--texto-principal);
+  white-space: pre-line;
+}
+
+/* ---------- Estaciones y talleres ---------- */
+.buscador {
+  display: flex;
+  gap: 12px;
+}
+
+.buscador__campo {
+  flex: 1;
+  position: relative;
+}
+
+.buscador__icono {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--texto-suave);
+}
+
+.buscador__entrada {
+  width: 100%;
+  padding: 13px 16px 13px 44px;
+  border-radius: var(--radio-suave);
+  border: 1.5px solid var(--borde-claro);
+  background: var(--fondo-claro);
+  font-size: 14px;
+  color: var(--texto-principal);
+  transition: all var(--velocidad-transicion);
+}
+
+.buscador__entrada:focus {
+  outline: none;
+  border-color: var(--verde);
+  box-shadow: 0 0 0 4px var(--verde-suave);
+}
+
+.buscador__entrada::placeholder {
+  color: var(--texto-suave);
+}
+
+.mapa-lugar {
+  display: grid;
+  place-items: center;
+  gap: 8px;
+  padding: 40px;
+  border-radius: var(--radio);
+  border: 1.5px dashed var(--borde-claro);
+  background: var(--superficie);
+  text-align: center;
+  color: var(--texto-suave);
+}
+
+.fila-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--texto-medio);
+  user-select: none;
+}
+
+.interruptor__caja {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: 6px;
+  border: 1.5px solid var(--borde-claro);
+  background: var(--fondo-claro);
+  color: #06231a;
+  transition: all var(--velocidad-transicion);
+}
+
+.interruptor__caja--activa {
+  background: var(--gradiente-verde);
+  border-color: transparent;
+}
+
+.lista-resultados {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.tarjeta-servicio {
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: border-color var(--velocidad-transicion);
+}
+
+.tarjeta-servicio:hover {
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-servicio__superior {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.tarjeta-servicio__icono {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  flex-shrink: 0;
+}
+
+.tarjeta-servicio__nombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-servicio__direccion {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+.tarjeta-servicio__distancia {
+  margin-left: auto;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.tarjeta-servicio__distancia-valor {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-servicio__distancia-unidad {
+  font-size: 11px;
+  color: var(--texto-suave);
+}
+
+.tarjeta-servicio__fila {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.tarjeta-servicio__pie {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--borde-claro);
+  padding-top: 12px;
+}
+
+.tarjeta-servicio__calificacion {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--texto-medio);
+}
+
+/* ---------- Banner emergencia (talleres) ---------- */
+.banner-emergencia {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border-radius: 20px;
+  padding: 24px 28px;
+  background: linear-gradient(135deg, rgba(129, 140, 248, 0.14), rgba(77, 159, 255, 0.1));
+  border: 1px solid rgba(129, 140, 248, 0.28);
+}
+
+.banner-emergencia__contenido {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.banner-emergencia__icono {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: rgba(239, 68, 68, 0.14);
+  color: var(--rojo);
+  flex-shrink: 0;
+}
+
+.banner-emergencia__titulo {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.banner-emergencia__subtitulo {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+/* ---------- Emergencias: SOS ---------- */
+.boton-sos {
+  position: relative;
+  width: 190px;
+  height: 190px;
+  margin: 0 auto;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  color: var(--blanco);
+  background: linear-gradient(150deg, #ef4444, #b91c1c);
+  box-shadow: 0 0 0 12px rgba(239, 68, 68, 0.12), 0 24px 50px rgba(239, 68, 68, 0.4);
+  transition: transform var(--velocidad-transicion);
+  overflow: hidden;
+}
+
+.boton-sos:hover {
+  transform: scale(1.04);
+}
+
+.boton-sos--activo {
+  background: linear-gradient(150deg, #22c55e, #15803d);
+  box-shadow: 0 0 0 12px rgba(34, 197, 94, 0.14), 0 24px 50px rgba(34, 197, 94, 0.4);
+}
+
+.boton-sos__pulso {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  animation: pulsar 2s ease-out infinite;
+}
+
+.boton-sos--activo .boton-sos__pulso {
+  display: none;
+}
+
+@keyframes pulsar {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.boton-sos__etiqueta {
+  font-size: 34px;
+  font-weight: 800;
+  letter-spacing: 4px;
+}
+
+.boton-sos__estado {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: var(--radio-pastilla);
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.ayuda-texto {
+  margin-top: 22px;
+  font-size: 13px;
+  color: var(--texto-suave);
+}
+
+/* ---------- Emergencias: contactos ---------- */
+.tarjeta-contacto {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio-suave);
+  padding: 14px 16px;
+  box-shadow: var(--sombra);
+  transition: border-color var(--velocidad-transicion);
+}
+
+.tarjeta-contacto:hover {
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-contacto__icono {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--azul-suave);
+  color: var(--azul);
+  flex-shrink: 0;
+}
+
+.tarjeta-contacto__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tarjeta-contacto__nombre {
+  font-weight: 600;
+  color: var(--texto-principal);
+  font-size: 14px;
+}
+
+.tarjeta-contacto__numero {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.tarjeta-contacto__accion {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  color: var(--verde);
+}
+
+.consejo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: var(--radio-suave);
+  background: var(--azul-suave);
+  border: 1px solid rgba(77, 159, 255, 0.28);
+  color: var(--azul);
+  font-size: 13px;
+}
+
+.consejo__icono {
+  flex-shrink: 0;
+}
+
+/* ---------- Administrador: gestion ---------- */
+.rejilla-gestion {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 16px;
+}
+
+.tarjeta-gestion {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  padding: 20px;
+  text-align: left;
+  transition: transform var(--velocidad-transicion), box-shadow var(--velocidad-transicion),
+    border-color var(--velocidad-transicion);
+}
+
+.tarjeta-gestion:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--sombra-media);
+  border-color: var(--verde-transparente);
+}
+
+.tarjeta-gestion__icono {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+}
+
+.tarjeta-gestion__titulo {
+  font-weight: 700;
+  color: var(--texto-principal);
+  font-size: 15px;
+}
+
+.tarjeta-gestion__detalle {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.tarjeta-gestion__cantidad {
+  margin-left: auto;
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--verde);
+}
+
+.fila-actividad {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio-suave);
+  padding: 12px 16px;
+}
+
+.fila-actividad__icono {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  flex-shrink: 0;
+}
+
+.fila-actividad__accion {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--texto-principal);
+}
+
+.fila-actividad__detalle {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+/* ---------- Usuarios (admin): tabla ---------- */
+.formulario-nuevo-usuario {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  padding: 20px;
+  box-shadow: var(--sombra);
+  align-items: end;
+}
+
+.tabla-usuarios {
+  background: var(--superficie);
+  border: 1px solid var(--borde-claro);
+  border-radius: var(--radio);
+  box-shadow: var(--sombra);
+  overflow: hidden;
+}
+
+.tabla-usuarios__fila {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--borde-claro);
+  font-size: 13px;
+}
+
+.tabla-usuarios__fila:last-child {
+  border-bottom: none;
+}
+
+.tabla-usuarios__fila--encabezado {
+  background: var(--fondo-claro);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  color: var(--texto-suave);
+}
+
+.tabla-usuarios__fila--expandida {
+  background: var(--verde-suave);
+}
+
+.tabla-usuarios__nombre {
+  font-weight: 600;
+  color: var(--texto-principal);
+}
+
+.tabla-usuarios__correo {
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.tabla-usuarios__acciones {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tabla-usuarios__detalle {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--borde-claro);
+  background: var(--fondo-claro);
+  font-size: 13px;
+}
+
+.tabla-usuarios__detalle .campo__etiqueta {
+  display: block;
+  margin-bottom: 2px;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--gradiente-verde);
+  color: #06231a;
+  font-weight: 700;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+
+/* ---------- Scrollbars de carrusel ---------- */
+.carrusel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.carrusel::-webkit-scrollbar-thumb {
+  background: #253352;
+  border-radius: 8px;
+}
+
+@media (max-width: 860px) {
+  .hero {
+    min-height: 480px;
+  }
+
+  .hero__contenido {
+    padding: 40px 28px;
+  }
+
+  .formulario-reserva {
+    grid-template-columns: 1fr;
+  }
+
+  .precio-cta {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .vehiculo-propio__bateria {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .banner {
+    padding: 28px 26px;
+  }
+
+  .banner-emergencia {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .tabla-usuarios__fila {
+    grid-template-columns: 1.4fr 0.8fr 1fr;
+  }
+
+  .tabla-usuarios__fila > span:nth-child(2) {
+    display: none;
+  }
+
+  .tabla-usuarios__fila--encabezado {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero__acciones .boton {
+    width: 100%;
+  }
+
+  .fila-estadisticas {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .carrusel {
+    grid-auto-columns: 260px;
+  }
+}
