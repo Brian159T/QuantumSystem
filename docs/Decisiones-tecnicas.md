@@ -88,7 +88,7 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 4. **Auth context con flags derivados de rol** (`esInvitado/esCliente/esAdministrador`) para navegacion por tabs.
 5. **Estilos por pantalla** en `*.styles.ts` con paleta compartida; NativeWind instalado pero **inactivo** (`global.css` comentado en movil).
 6. **Frontend-web separado** (Vite) como app independiente, con arquitectura limpia (domain/data/infra/presentation) y fallback a mocks si la API falla.
-7. **Deteccion automatica de IP** en el movil (`Config/api.ts`) usando `Constants.expoConfig?.hostUri` para construir `API_URL` (en vez de IP fija).
+7. **Deteccion automatica de IP** en el movil (`Config/api.ts`): usa `Constants.expoConfig?.hostUri` para construir `API_URL`, con **fallback a `http://localhost:4000/api`** cuando no hay `hostUri` (p. ej. en web). En web, `react-native-maps` se sustituye por un **stub** (`src/stubs/react-native-maps.web.tsx`) via alias en `metro.config.js`.
 
 ---
 

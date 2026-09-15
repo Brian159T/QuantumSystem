@@ -14,7 +14,14 @@ Roles (1) ──── (N) Usuarios
       Usuarios_Reservas       Usuarios_Vehiculos
               │                       │
               ▼                       ▼
-          Reservas              Vehiculos ──── (N) ──── Colores (1)
+          Reservas               Vehiculos
+              │                       │
+              │  color (FK)           │  id_color (FK, N:1)
+              ▼                       ▼
+      Colores ◄────── Vehiculos_Colores (N:M) ────► Vehiculos
+                          (id_vehiculo, id_color)
+
+Reservas ──────────────────► Colores (1)  (color → id_color)
 
 Estaciones_Carga  (independiente)
 Servicios_Tecnicos (independiente)
@@ -61,15 +68,31 @@ Servicios_Tecnicos (independiente)
 | `Traccion` | VARCHAR(50) | NOT NULL |
 | `Nro_Asientos` | VARCHAR(20) | NOT NULL |
 | `id_color` | INT | FK → Colores(id_color), NOT NULL |
+| `Precio_USD` | DECIMAL(10,2) | NOT NULL — precio del modelo en dolares (renombrado de `Precio_Bs`). No hay columna de imagen: la app muestra un placeholder de foto |
+
+### Vehiculos_Colores (N:M)
+
+Relacion muchos-a-muchos entre Vehiculos y Colores: un modelo puede ofrecerse en varios colores y un color aparece en varios modelos.
+
+| Columna | Tipo | Restricciones |
+|---------|------|---------------|
+| `id_vehiculo` | INT | PK compuesto, FK → Vehiculos(id_vehiculo), NOT NULL |
+| `id_color` | INT | PK compuesto, FK → Colores(id_color), NOT NULL |
+
+> **Con endpoints**: existe el modulo `Vehiculos_Colores` en el backend (`/api/vehiculos-colores`, ver `docs/Api.md`). El `GET /api/vehiculos` tambien devuelve un array `colores` por vehiculo con los colores de la tabla N:M.
 
 ### Reservas
 
 | Columna | Tipo | Restricciones |
 |---------|------|---------------|
 | `id_reserva` | INT | PK, AUTO_INCREMENT, NOT NULL |
-| `Monto_Reserva` | FLOAT | NOT NULL |
 | `Fecha_Reserva` | DATE | NOT NULL |
 | `Estado` | VARCHAR(50) | NOT NULL |
+| `nombres` | VARCHAR(50) | NOT NULL |
+| `apellidos` | VARCHAR(50) | NOT NULL |
+| `cedula_identidad` | VARCHAR(20) | NOT NULL |
+| `modelo` | VARCHAR(50) | NOT NULL |
+| `color` | INT | FK → Colores(id_color) |
 
 ### Usuarios_Reservas (N:M)
 

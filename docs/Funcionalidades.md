@@ -4,7 +4,7 @@ Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil*
 
 Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
 
-> **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones y Talleres consumen la **API real**. Detalle por pantalla al final.
+> **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
 
 ---
 
@@ -29,20 +29,23 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 - Boton para ver los vehiculos (web: `alVerVehiculos`).
 
 ### 1.2 Catalogo de Vehiculos (Movil: `VehiculosScreen.tsx` / Web: `PaginaVehiculos.tsx`)
-- Listado del catalogo (`CAR_MODELS` mock en ambos).
-- **Vista de detalle** por modelo: selector de **colores**, **ficha tecnica** (autonomia, 0-100 km/h, velocidad maxima, carga, asientos, traccion).
-- Sombras/colores calculados en JS para las tarjetas.
+- **Integrado con la API real** (movil: `VehiculosService.obtenerVehiculos` + `ColoresService.obtenerColores`).
+- Listado del catalogo con datos de la tabla `Vehiculos` (nombre, tipo, autonomia, carga rapida, precio `Precio_USD`).
+- **Espacio reservado para la foto** de cada modelo (placeholder con icono; las imagenes se agregaran despues; la tabla no tiene columna de imagen aun).
+- **Vista de detalle** por modelo: selector de **colores** (array `colores` de la API desde la tabla N:M `Vehiculos_Colores`; si viene vacio cae al `id_color`), **ficha tecnica** (autonomia, bateria, velocidad maxima, carga, asientos, traccion).
+- Sombras/colores con opacidad calculados en JS.
 - Web: boton para **reservar** un vehiculo (pasa el vehiculo a la pantalla de reservas).
 
 ### 1.3 Reservas (Movil: `ReservasScreen.tsx` / Web: `PaginaReservas.tsx`)
-- Seleccion de **modelo**, **color**, y form de **datos personales**.
+- Seleccion de **modelo** (desde la API `GET /vehiculos`, muestra precio) y **color** (colores **desde la API** `GET /colores`), con form de **datos personales** (nombres, apellidos, cedula).
+- **Validacion de campos** con errores por campo (nombres/apellidos ≥2 caracteres, cedula 6-10 digitos, modelo y color requeridos).
 - **Modal de confirmacion** de reserva con:
-  - Precio base / descuento.
-  - **Pago QR simulado** (`PAGO QR` / "Codigo QR de Pago - Se anadira proximamente").
+  - Datos del cliente y del vehiculo (modelo, color, precio).
   - Boton **"EFECTUAR PAGO Y CONFIRMAR"**.
   - Nota "El precio de reserva es reembolsable".
-- Genera **codigo de confirmacion** al confirmar.
+- Al confirmar **guarda la reserva en la API** (`POST /reservas`) con nombres, apellidos, cedula, modelo y color (FK). Genera **codigo de confirmacion**.
 - Movil: es un **class component** (unico en el proyecto).
+- **No hay QR**: el pago se simula directamente con el boton de confirmar.
 
 ---
 
@@ -100,9 +103,9 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 
 | Pantalla | Uso de API |
 |----------|-----------|
-| `InicioScreen.tsx` | Mock (`CAR_MODELS`) |
-| `VehiculosScreen.tsx` | Mock (`CAR_MODELS`) |
-| `ReservasScreen.tsx` | Mock (`MODELOS`, `COLORES`) |
+| Inicio `InicioScreen.tsx` | Mock (`CAR_MODELS`) |
+| `VehiculosScreen.tsx` | **Real API** (GET /vehiculos + GET /colores) |
+| `ReservasScreen.tsx` | **Real API** (POST /reservas, GET /colores, GET /vehiculos) |
 | `InicioScreen_usuario_vehiculo.tsx` | Mock (`VEHICLE`, `NEARBY_STATIONS`, `HISTORY`) |
 | `EstacionesScreen_usuario_vehiculo.tsx` | **Real API** + ubicacion |
 | `TalleresScreen_usuario_vehiculo.tsx` | **Real API** + ubicacion |

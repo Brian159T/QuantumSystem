@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native'
+import { StyleSheet } from 'react-native';
 export const COLORS = {
   primary: '#2fb676',
   primaryDark: '#239a61',
@@ -13,7 +13,7 @@ export const COLORS = {
   grayText: '#6b7a99',
   dark: '#0a1628',
   cardBg: '#f0f4ff',
-}
+};
 
 export const styles = StyleSheet.create({
   // Root / header / scroll
@@ -453,11 +453,22 @@ export const styles = StyleSheet.create({
   },
 
   refundNote: {
-    marginBottom: 16,
     textAlign: 'center',
     fontSize: 12,
     fontWeight: '600',
     color: '#2fb676',
+  },
+  refundNoteRow: {
+    marginBottom: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  fieldError: {
+    marginBottom: 12,
+    marginTop: -10,
+    fontSize: 12,
+    color: '#dc2626',
   },
 
   primaryButton: {
@@ -550,4 +561,4 @@ export const styles = StyleSheet.create({
     fontSize: 13,
     color: '#0A0F1E',
   },
-})
+});

@@ -1,6 +1,6 @@
 # AGENTS.md - QuantumApp
 
-Contexto permanente del proyecto. **Leelo antes de modificar codigo.** No hay repo git en la raiz (MPer: cada subproyecto puede tener el suyo propio).
+Contexto permanente del proyecto. **Leelo antes de modificar codigo.** Repo git **unico en la raiz** (monorepo, rama `main`, publicado en GitHub).
 
 ---
 
@@ -55,11 +55,11 @@ REST JSON. Respuestas siempre con el sobre:
 
 MySQL `quantumappdb` (configurable via `.env` de Backend, puerto 4000). **El esquema completo esta documentado en `docs/base-datos.md`.** Resumen de tablas:
 
-- **Roles**, **Usuarios** (PK `id_usuario`, FK `id_rol`), **Colores**, **Vehiculos** (FK `id_color`), **Reservas**
-- **Usuarios_Reservas** (N:M Usuarios↔Reservas), **Usuarios_Vehiculos** (N:M Usuarios↔Vehiculos)
+- **Roles**, **Usuarios** (PK `id_usuario`, FK `id_rol`), **Colores**, **Vehiculos** (FK `id_color`, columna `Precio_USD`; sin columna de imagen), **Reservas**
+- **Vehiculos_Colores** (N:M Vehiculos↔Colores, **con endpoints** `/api/vehiculos-colores`), **Usuarios_Reservas** (N:M Usuarios↔Reservas), **Usuarios_Vehiculos** (N:M Usuarios↔Vehiculos)
 - **Estaciones_Carga**, **Servicios_Tecnicos**
 
-El backend solo tiene CRUD para Usuarios, Vehiculos, Estaciones_Carga y Servicios_Tecnicos (mas `Clientes`, que usa la tabla `roles` por error). **No hay modulos para Colores, Reservas, Usuarios_Reservas ni Usuarios_Vehiculos** (tablas sin endpoints).
+El backend tiene CRUD para Usuarios, Vehiculos, Estaciones_Carga, Servicios_Tecnicos, **Colores**, **Reservas** y **Vehiculos_Colores** (N:M, con rutas propias `/api/vehiculos-colores`), mas `Clientes` que usa la tabla `roles` por error. **No hay modulos para Usuarios_Reservas ni Usuarios_Vehiculos** (tablas sin endpoints). El POST de Reservas usa defaults `Fecha_Reserva`=hoy y `Estado`='Pendiente'. El GET de Vehiculos **enriquece** cada fila con un array `colores` (N:M `Vehiculos_Colores` JOIN `Colores`, vacio si no hay relaciones) y los POST/PUT persisten `Precio_USD`.
 
 ## Endpoints (lista resumida)
 
@@ -71,17 +71,19 @@ Base `/api`. **Detalle completo en `docs/Api.md`.**
 - `GET|POST|PUT|DELETE /api/vehiculos[/:id]`.
 - `GET|POST|PUT|DELETE /api/servicios-tecnicos[/:id]`.
 - `GET|POST|PUT|DELETE /api/estaciones-carga[/:id]`.
+- `GET|POST|PUT|DELETE /api/colores[/:id]` y `GET|POST|PUT|DELETE /api/reservas[/:id]`.
+- `/api/vehiculos-colores`: `GET /` (listar), `GET /vehiculo/:id` (colores de un vehiculo), `GET /color/:id` (vehiculos de un color), `POST /` (crear N:M), `DELETE /:idVehiculo/color/:idColor`.
 - Los frontends llaman a `/api/auth/registro` pero **el backend no define esa ruta** (solo `login`). El web lo resuelve con `POST /usuarios` + `POST /auth/login`.
 
 ## Tipos de usuario y funcionalidades
 
 Roles determinados por `Roles.Nombre` (string) y flags de `useAuth()`; las tabs/paginas cambian segun rol. **Detalle por pantalla en `docs/Funcionalidades.md`.**
 
-- **Invitado** (sin login): Inicio (catalogo Voltus, planes, test drive), Vehiculos (detalle + colores), Reservas (formulario + pago QR simulado).
+- **Invitado** (sin login): Inicio (catalogo Voltus, planes, test drive), Vehiculos (API real: listado + detalle con colores N:M y placeholder de foto), Reservas (formulario validado, modelos/colores desde API y guardado via API real, sin QR).
 - **Cliente** (usuario con vehiculo electrico): Inicio (bateria, estaciones cercanas, historial), Estaciones de Carga (API real), Talleres Autorizados (API real), Emergencias (SOS, contactos).
 - **Administrador**: Inicio (stats, gestion de contenido, actividad reciente) y Usuarios (CRUD mock: buscar, filtrar, suspender, editar, eliminar).
 
-La mayoria de pantallas usa **datos mock hardcodeados**; solo login/registro y (en movil) Estaciones y Talleres tocan la API real.
+La mayoria de pantallas usa **datos mock hardcodeados**; solo login/registro y (en movil) Estaciones, Talleres, Vehiculos y Reservas tocan la API real (Vehiculos y Reservas tambien consumen `/colores` y `/vehiculos`).
 
 ## Convenciones de codigo
 
@@ -109,7 +111,7 @@ Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de desplie
 4. Contexto de auth con flags derivados de rol para navegacion por tabs.
 5. Estilos por pantalla en `*.styles.ts` con paleta compartida; NativeWind instalado pero inactivo (`global.css` comentado).
 6. Frontend-web separado (Vite) como app independiente, con arquitectura limpia y fallback a mocks.
-7. Deteccion automatica de IP para `API_URL` en la app movil (`Mobile/src/Config/api.ts`).
+7. Deteccion automatica de IP para `API_URL` en la app movil (`Mobile/src/Config/api.ts`) con **fallback a `localhost:4000`** en web. En web `react-native-maps` usa un stub (`Mobile/src/stubs/react-native-maps.web.tsx`) via `metro.config.js`.
 
 ## Gotchas
 

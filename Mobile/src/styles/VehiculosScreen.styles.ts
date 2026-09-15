@@ -1,10 +1,10 @@
-import { StyleSheet } from 'react-native'
-export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const BG_DARK = '#0A0F1E'
-export const WHITE = '#ffffff'
-export const TEXT_DARK = '#0d1b3e'
-export const TEXT_SOFT = '#8a94b0'
+import { StyleSheet } from 'react-native';
+export const GREEN = '#2fb676';
+export const BLUE = '#4D9FFF';
+export const BG_DARK = '#0A0F1E';
+export const WHITE = '#ffffff';
+export const TEXT_DARK = '#0d1b3e';
+export const TEXT_SOFT = '#8a94b0';
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -62,6 +62,17 @@ export const styles = StyleSheet.create({
   detailImage: {
     height: 200,
     width: '100%',
+  },
+  detailPhotoPlaceholder: {
+    height: 200,
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  detailPhotoLabel: {
+    fontSize: 13,
+    color: '#8a94b0',
   },
   discountBadge: {
     position: 'absolute',
@@ -372,6 +383,23 @@ export const styles = StyleSheet.create({
     height: 70,
     width: 120,
   },
+  modelPhotoBox: {
+    height: 70,
+    width: 120,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 2,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#e2e6f0',
+    backgroundColor: '#f7f9fc',
+  },
+  modelPhotoLabel: {
+    fontSize: 9,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    color: '#8a94b0',
+  },
   modelPriceBadge: {
     borderRadius: 10,
     borderWidth: 1,
@@ -383,4 +411,17 @@ export const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#2fb676',
   },
-})
+
+  // Estados de carga/error
+  centerState: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 24,
+  },
+  errorText: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#8a94b0',
+  },
+});

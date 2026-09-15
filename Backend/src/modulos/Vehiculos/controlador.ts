@@ -27,26 +27,61 @@ interface Vehiculo {
 
     id_color: number;
 
+    Precio_USD: number;
+
 }
 
 export default function (dbInyectada?: any) {
 
     const db = dbInyectada || dbMysql;
 
-    function todos() {
-
-        return db.todos(TABLA);
-
+    async function todos() {
+        const vehiculos = await db.todos(TABLA);
+        return enriquecerConColores(vehiculos);
     }
 
-    function uno(id: number) {
-
-        return db.uno(
+    async function uno(id: number) {
+        const vehiculo = await db.uno(
             TABLA,
             CAMPO_ID,
             id
         );
+        if (!vehiculo) {
+            return vehiculo;
+        }
+        const colores = await db.ejecutar(
+            `SELECT c.id_color, c.Color
+             FROM Vehiculos_Colores vc
+             INNER JOIN Colores c ON c.id_color = vc.id_color
+             WHERE vc.id_vehiculo = ?`,
+            [id]
+        );
+        return { ...vehiculo, colores };
+    }
 
+    async function enriquecerConColores(vehiculos: any[]) {
+        if (!vehiculos.length) {
+            return [];
+        }
+        const relaciones = await db.ejecutar(
+            `SELECT vc.id_vehiculo, c.id_color, c.Color
+             FROM Vehiculos_Colores vc
+             INNER JOIN Colores c ON c.id_color = vc.id_color`
+        );
+        const coloresPorVehiculo = new Map<number, any[]>();
+        relaciones.forEach((r: any) => {
+            if (!coloresPorVehiculo.has(r.id_vehiculo)) {
+                coloresPorVehiculo.set(r.id_vehiculo, []);
+            }
+            coloresPorVehiculo.get(r.id_vehiculo)!.push({
+                id_color: r.id_color,
+                Color: r.Color,
+            });
+        });
+        return vehiculos.map((v: any) => ({
+            ...v,
+            colores: coloresPorVehiculo.get(v.id_vehiculo) || [],
+        }));
     }
 
     function eliminar(id: number) {
@@ -85,6 +120,8 @@ export default function (dbInyectada?: any) {
 
             id_color: body.id_color,
 
+            Precio_USD: body.Precio_USD,
+
         };
 
         return db.agregar(
@@ -120,6 +157,8 @@ export default function (dbInyectada?: any) {
             Nro_Asientos: body.Nro_Asientos,
 
             id_color: body.id_color,
+
+            Precio_USD: body.Precio_USD,
 
         };
 

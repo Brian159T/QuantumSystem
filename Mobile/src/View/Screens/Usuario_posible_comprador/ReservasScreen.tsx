@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   View,
   Text,
@@ -9,29 +9,46 @@ import {
   SafeAreaView,
   StatusBar,
   Dimensions,
-  StyleSheet,
-} from 'react-native'
-import LoginButton from '../../components/LoginButton'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+  ActivityIndicator,
+  Alert,
+} from 'react-native';
+import LoginButton from '../../components/LoginButton';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import ColoresService from '../../../Model/ColoresService';
+import ReservasService from '../../../Model/ReservasService';
+import VehiculosService from '../../../Model/VehiculosService';
+import { styles, COLORS } from '../../../styles/ReservasScreen.styles';
 
-const { width } = Dimensions.get('window')
-import { styles, COLORS } from '../../../styles/ReservasScreen.styles'
+const { width } = Dimensions.get('window');
 
-const MODELOS = [
-  { id: '1', nombre: 'Voltus Neo Compact', precio: '$27,920', descuento: '-$6,980', base: '$34,900' },
-  { id: '2', nombre: 'Voltus Neo Sport', precio: '$39,500', descuento: '-$4,500', base: '$44,000' },
-  { id: '3', nombre: 'Voltus Neo SUV', precio: '$52,800', descuento: '-$7,200', base: '$60,000' },
-]
+interface Modelo {
+  id: string;
+  nombre: string;
+  precio: string;
+}
 
-const COLORES = [
-  { id: '1', nombre: 'Deep Blue', hex: '#1e4fd8' },
-  { id: '2', nombre: 'Midnight Black', hex: '#0a1628' },
-  { id: '3', nombre: 'Pearl White', hex: '#f0f4ff', border: true },
-  { id: '4', nombre: 'Voltus Green', hex: '#2fb676' },
-  { id: '5', nombre: 'Silver Mist', hex: '#9ca3af' },
-]
+interface ColorDisponible {
+  id_color: number;
+  Color: string;
+  hex: string;
+}
 
-const COLOR_ITEM_WIDTH = (width - 80) / 5
+function formatearPrecio(precio: number | null | undefined): string {
+  const valor = Number(precio);
+  return Number.isNaN(valor) ? '—' : `$${valor.toLocaleString('en-US')}`;
+}
+
+const HEX_POR_NOMBRE: Record<string, string> = {
+  Blanco: '#f0f4ff',
+  Negro: '#0a1628',
+  Gris: '#9ca3af',
+  Rojo: '#dc2626',
+  Azul: '#1e4fd8',
+  Verde: '#2fb676',
+  Amarillo: '#facc15',
+};
+
+const COLOR_ITEM_WIDTH = (width - 80) / 5;
 
 // sombras reutilizadas
 const shadowForm = {
@@ -39,29 +56,71 @@ const shadowForm = {
   shadowOpacity: 0.08,
   shadowRadius: 20,
   elevation: 4,
-}
+};
 const shadowColorDot = {
   shadowColor: '#000',
   shadowOpacity: 0.15,
   shadowRadius: 6,
   elevation: 3,
-}
+};
 
 interface FormData {
-  nombre: string
-  ci: string
-  modelo: (typeof MODELOS)[0] | null
-  color: (typeof COLORES)[0] | null
+  nombres: string;
+  apellidos: string;
+  cedula: string;
+  modelo: Modelo | null;
+  color: ColorDisponible | null;
+}
+
+interface ErroresForm {
+  nombres?: string;
+  apellidos?: string;
+  cedula?: string;
+  modelo?: string;
+  color?: string;
+}
+
+function validarCampos(form: FormData): ErroresForm {
+  const errores: ErroresForm = {};
+
+  if (!form.nombres.trim()) {
+    errores.nombres = 'Los nombres son obligatorios';
+  } else if (form.nombres.trim().length < 2) {
+    errores.nombres = 'Mínimo 2 caracteres';
+  }
+
+  if (!form.apellidos.trim()) {
+    errores.apellidos = 'Los apellidos son obligatorios';
+  } else if (form.apellidos.trim().length < 2) {
+    errores.apellidos = 'Mínimo 2 caracteres';
+  }
+
+  if (!form.cedula.trim()) {
+    errores.cedula = 'La cédula de identidad es obligatoria';
+  } else if (!/^\d{6,10}$/.test(form.cedula.trim())) {
+    errores.cedula = 'Cédula inválida (6-10 dígitos)';
+  }
+
+  if (!form.modelo) {
+    errores.modelo = 'Selecciona un modelo';
+  }
+
+  if (!form.color) {
+    errores.color = 'Selecciona un color';
+  }
+
+  return errores;
 }
 
 interface ReservaModalProps {
-  visible: boolean
-  form: FormData
-  onClose: () => void
-  onConfirm: () => void
+  visible: boolean;
+  form: FormData;
+  guardando: boolean;
+  onClose: () => void;
+  onConfirm: () => void;
 }
 
-function ReservaModal({ visible, form, onClose, onConfirm }: ReservaModalProps) {
+function ReservaModal({ visible, form, guardando, onClose, onConfirm }: ReservaModalProps) {
   return (
     <Modal visible={visible} animationType="slide" transparent>
       <View style={styles.modalOverlay}>
@@ -71,146 +130,238 @@ function ReservaModal({ visible, form, onClose, onConfirm }: ReservaModalProps) 
             <View style={styles.modalHeaderBar} />
             <Text style={styles.modalTitle}>Confirmar Reserva</Text>
             <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
-              <Text style={styles.modalCloseText}>{'✕'}</Text>
+              <MaterialCommunityIcons name="close" size={14} color={COLORS.grayText} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 20 }}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 20 }}>
             {/* Car placeholder */}
             <View style={styles.carPlaceholder}>
-              <Text style={styles.carEmoji}>{'🚗'}</Text>
+              <MaterialCommunityIcons name="car" size={48} color={COLORS.blue} />
               <Text style={styles.carPlaceholderLabel}>{'Imagen del vehículo'}</Text>
             </View>
 
             {/* Datos del cliente */}
             <View style={styles.infoSection}>
-              <Text style={styles.sectionLabel}>
-                {'DATOS DEL CLIENTE'}
-              </Text>
+              <Text style={styles.sectionLabel}>{'DATOS DEL CLIENTE'}</Text>
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{'Nombre Completo'}</Text>
-                <Text style={styles.infoValue}>
-                  {form.nombre || '—'}
-                </Text>
+                <Text style={styles.infoLabel}>{'Nombres'}</Text>
+                <Text style={styles.infoValue}>{form.nombres || '—'}</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.infoRow}>
+                <Text style={styles.infoLabel}>{'Apellidos'}</Text>
+                <Text style={styles.infoValue}>{form.apellidos || '—'}</Text>
               </View>
               <View style={styles.divider} />
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>{'Cédula de Identidad'}</Text>
-                <Text style={styles.infoValue}>{form.ci || '—'}</Text>
+                <Text style={styles.infoValue}>{form.cedula || '—'}</Text>
               </View>
             </View>
 
             {/* Datos del vehículo */}
             <View style={styles.infoSection}>
-              <Text style={styles.sectionLabel}>
-                {'VEHÍCULO SELECCIONADO'}
-              </Text>
+              <Text style={styles.sectionLabel}>{'VEHÍCULO SELECCIONADO'}</Text>
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>{'Modelo'}</Text>
-                <Text style={styles.infoValue}>
-                  {form.modelo?.nombre || '—'}
-                </Text>
+                <Text style={styles.infoValue}>{form.modelo?.nombre || '—'}</Text>
               </View>
               <View style={styles.divider} />
               <View style={styles.infoRow}>
                 <Text style={styles.infoLabel}>{'Color'}</Text>
                 <View style={styles.colorValueRow}>
                   {form.color && (
-                    <View
-                      style={[styles.colorDot, { backgroundColor: form.color.hex }]}
-                    />
+                    <View style={[styles.colorDot, { backgroundColor: form.color.hex }]} />
                   )}
-                  <Text style={styles.infoValue}>
-                    {form.color?.nombre || '—'}
-                  </Text>
+                  <Text style={styles.infoValue}>{form.color?.Color || '—'}</Text>
                 </View>
               </View>
               <View style={styles.divider} />
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{'Precio Base'}</Text>
-                <Text style={styles.infoValue}>
-                  {form.modelo?.base || '—'}
-                </Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>{'Descuento'}</Text>
-                <Text style={styles.infoValueGreen}>
-                  {form.modelo?.descuento || '—'}
-                </Text>
-              </View>
-              <View style={styles.divider} />
-              <View style={styles.infoRow}>
-                <Text style={styles.totalLabel}>{'Total'}</Text>
-                <Text style={styles.totalValue}>
-                  {form.modelo?.precio || '—'}
-                </Text>
+                <Text style={styles.totalLabel}>{'Precio'}</Text>
+                <Text style={styles.totalValue}>{form.modelo?.precio || '—'}</Text>
               </View>
             </View>
 
-            {/* QR Section */}
-            <View style={styles.infoSection}>
-              <Text style={styles.sectionLabel}>{'PAGO QR'}</Text>
-              <View style={styles.qrCenter}>
-                <View style={styles.qrBox}>
-                  <View style={[styles.qrCornerBase, styles.qrCornerTL]} />
-                  <View style={[styles.qrCornerBase, styles.qrCornerTR]} />
-                  <View style={[styles.qrCornerBase, styles.qrCornerBL]} />
-                  <View style={[styles.qrCornerBase, styles.qrCornerBR]} />
-                  <Text style={styles.qrPlaceholderIcon}>{'⬛'}</Text>
-                  <Text style={styles.qrText}>{'Código QR de Pago'}</Text>
-                  <Text style={styles.qrSubtext}>{'Se añadirá próximamente'}</Text>
-                </View>
-              </View>
+            <View style={styles.refundNoteRow}>
+              <MaterialCommunityIcons
+                name="check-circle-outline"
+                size={18}
+                color={COLORS.primary}
+              />
+              <Text style={[styles.refundNote, { marginBottom: 0, marginLeft: 6 }]}>
+                {'El precio de reserva es reembolsable'}
+              </Text>
             </View>
-
-            <Text style={styles.refundNote}>
-              {'✓ El precio de reserva es reembolsable'}
-            </Text>
 
             {/* Botones */}
-            <TouchableOpacity style={styles.primaryButton} onPress={onConfirm}>
-              <Text style={styles.primaryButtonText}>{'EFECTUAR PAGO Y CONFIRMAR'}</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={onConfirm} disabled={guardando}>
+              {guardando ? (
+                <ActivityIndicator color={COLORS.white} />
+              ) : (
+                <Text style={styles.primaryButtonText}>{'EFECTUAR PAGO Y CONFIRMAR'}</Text>
+              )}
             </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onClose} disabled={guardando}>
               <Text style={styles.cancelButtonText}>{'Cancelar'}</Text>
             </TouchableOpacity>
           </ScrollView>
         </View>
       </View>
     </Modal>
-  )
+  );
 }
 
 interface State {
-  form: FormData
-  modalVisible: boolean
-  exitoVisible: boolean
-  confirmacion: string
+  form: FormData;
+  modalVisible: boolean;
+  exitoVisible: boolean;
+  confirmacion: string;
+  colores: ColorDisponible[];
+  cargandoColores: boolean;
+  errorColores: string | null;
+  modelos: Modelo[];
+  cargandoModelos: boolean;
+  errorModelos: string | null;
+  errores: ErroresForm;
+  intentado: boolean;
+  guardandoReserva: boolean;
 }
 
-export class ReservasScreen extends Component<{}, State> {
+export class ReservasScreen extends Component<object, State> {
   state: State = {
-    form: { nombre: '', ci: '', modelo: null, color: null },
+    form: { nombres: '', apellidos: '', cedula: '', modelo: null, color: null },
     modalVisible: false,
     exitoVisible: false,
     confirmacion: '',
+    colores: [],
+    cargandoColores: true,
+    errorColores: null,
+    modelos: [],
+    cargandoModelos: true,
+    errorModelos: null,
+    errores: {},
+    intentado: false,
+    guardandoReserva: false,
+  };
+
+  componentDidMount() {
+    this.cargarColores();
+    this.cargarModelos();
   }
+
+  cargarColores = async () => {
+    try {
+      this.setState({ cargandoColores: true, errorColores: null });
+      const data = await ColoresService.obtenerColores();
+      const colores: ColorDisponible[] = data.map((c) => ({
+        id_color: c.id_color,
+        Color: c.Color,
+        hex: HEX_POR_NOMBRE[c.Color] || '#94a3b8',
+      }));
+      this.setState({ colores, cargandoColores: false });
+    } catch {
+      this.setState({ cargandoColores: false, errorColores: 'No se pudieron cargar los colores' });
+    }
+  };
+
+  cargarModelos = async () => {
+    try {
+      this.setState({ cargandoModelos: true, errorModelos: null });
+      const data = await VehiculosService.obtenerVehiculos();
+      const modelos: Modelo[] = data.map((v) => ({
+        id: String(v.id_vehiculo),
+        nombre: v.Nombre_Modelo,
+        precio: formatearPrecio(v.Precio_USD),
+      }));
+      this.setState({ modelos, cargandoModelos: false });
+    } catch {
+      this.setState({ cargandoModelos: false, errorModelos: 'No se pudieron cargar los modelos' });
+    }
+  };
+
+  handleChange = (campo: 'nombres' | 'apellidos' | 'cedula', valor: string) => {
+    this.setState((prev) => {
+      const form = { ...prev.form, [campo]: valor };
+      const errores = prev.intentado ? validarCampos(form) : prev.errores;
+      return { form, errores };
+    });
+  };
+
+  handleSeleccionarModelo = (modelo: Modelo) => {
+    this.setState((prev) => {
+      const form = { ...prev.form, modelo };
+      const errores = prev.intentado ? validarCampos(form) : prev.errores;
+      return { form, errores };
+    });
+  };
+
+  handleSeleccionarColor = (color: ColorDisponible) => {
+    this.setState((prev) => {
+      const form = { ...prev.form, color };
+      const errores = prev.intentado ? validarCampos(form) : prev.errores;
+      return { form, errores };
+    });
+  };
 
   handleReservar = () => {
-    const { form } = this.state
-    if (!form.nombre || !form.ci || !form.modelo || !form.color) return
-    this.setState({ modalVisible: true })
-  }
+    const errores = validarCampos(this.state.form);
+    if (Object.keys(errores).length > 0) {
+      this.setState({ errores, intentado: true });
+      return;
+    }
+    this.setState({ modalVisible: true, errores: {} });
+  };
 
-  handleConfirmar = () => {
-    const codigo = 'VT-' + Math.floor(1000 + Math.random() * 9000) + '-ABC'
-    this.setState({ modalVisible: false, exitoVisible: true, confirmacion: codigo })
-  }
+  handleConfirmar = async () => {
+    const { form } = this.state;
+    this.setState({ guardandoReserva: true });
+    try {
+      await ReservasService.crearReserva({
+        nombres: form.nombres.trim(),
+        apellidos: form.apellidos.trim(),
+        cedula_identidad: form.cedula.trim(),
+        modelo: form.modelo!.nombre,
+        color: form.color!.id_color,
+      });
+      const codigo = 'VT-' + Math.floor(1000 + Math.random() * 9000) + '-ABC';
+      this.setState({
+        modalVisible: false,
+        guardandoReserva: false,
+        exitoVisible: true,
+        confirmacion: codigo,
+      });
+    } catch {
+      this.setState({ guardandoReserva: false });
+      Alert.alert('Error', 'No se pudo guardar la reserva. Intenta de nuevo.');
+    }
+  };
 
   render() {
-    const { form, modalVisible, exitoVisible, confirmacion } = this.state
-    const isFormValid = form.nombre && form.ci && form.modelo && form.color
+    const {
+      form,
+      modalVisible,
+      exitoVisible,
+      confirmacion,
+      colores,
+      cargandoColores,
+      errorColores,
+      modelos,
+      cargandoModelos,
+      errorModelos,
+      errores,
+      guardandoReserva,
+    } = this.state;
+    const hayErrorres = Object.keys(errores).length > 0;
+    const isFormValid =
+      form.nombres.trim() &&
+      form.apellidos.trim() &&
+      /^\d{6,10}$/.test(form.cedula.trim()) &&
+      form.modelo &&
+      form.color;
 
     return (
       <SafeAreaView style={styles.root}>
@@ -224,17 +375,12 @@ export class ReservasScreen extends Component<{}, State> {
         <ScrollView
           style={styles.scroll}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 120 }}
-        >
+          contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Banner */}
           <View style={styles.banner}>
             <View style={styles.bannerText}>
-              <Text style={styles.bannerTitle}>
-                {'Reserva ahora,\nmaneja el futuro'}
-              </Text>
-              <Text style={styles.bannerSubtitle}>
-                {'Garantiza tu lugar con\nsolo $1,000 USD'}
-              </Text>
+              <Text style={styles.bannerTitle}>{'Reserva ahora,\nmaneja el futuro'}</Text>
+              <Text style={styles.bannerSubtitle}>{'Garantiza tu lugar con\nsolo $1,000 USD'}</Text>
             </View>
             <View style={styles.bannerIconWrap}>
               <MaterialCommunityIcons name="car-sports" size={70} color={COLORS.primary} />
@@ -243,18 +389,27 @@ export class ReservasScreen extends Component<{}, State> {
 
           {/* Formulario */}
           <View style={[styles.formCard, shadowForm]}>
-            <Text style={styles.formSectionTitle}>
-              {'Datos Personales'}
-            </Text>
+            <Text style={styles.formSectionTitle}>{'Datos Personales'}</Text>
 
-            <Text style={styles.inputLabel}>{'Nombre Completo'}</Text>
+            <Text style={styles.inputLabel}>{'Nombres'}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="Ej. Juan Pérez Mamani"
+              placeholder="Ej. Juan"
               placeholderTextColor={COLORS.grayMid}
-              value={form.nombre}
-              onChangeText={v => this.setState({ form: { ...form, nombre: v } })}
+              value={form.nombres}
+              onChangeText={(v) => this.handleChange('nombres', v)}
             />
+            {errores.nombres && <Text style={styles.fieldError}>{errores.nombres}</Text>}
+
+            <Text style={styles.inputLabel}>{'Apellidos'}</Text>
+            <TextInput
+              style={styles.textInput}
+              placeholder="Ej. Pérez Mamani"
+              placeholderTextColor={COLORS.grayMid}
+              value={form.apellidos}
+              onChangeText={(v) => this.handleChange('apellidos', v)}
+            />
+            {errores.apellidos && <Text style={styles.fieldError}>{errores.apellidos}</Text>}
 
             <Text style={styles.inputLabel}>{'Cédula de Identidad'}</Text>
             <TextInput
@@ -262,100 +417,107 @@ export class ReservasScreen extends Component<{}, State> {
               placeholder="Ej. 12345678"
               placeholderTextColor={COLORS.grayMid}
               keyboardType="number-pad"
-              value={form.ci}
-              onChangeText={v => this.setState({ form: { ...form, ci: v } })}
+              value={form.cedula}
+              onChangeText={(v) => this.handleChange('cedula', v)}
             />
+            {errores.cedula && <Text style={styles.fieldError}>{errores.cedula}</Text>}
 
             <Text style={[styles.formSectionTitle, styles.formSectionTitleMt]}>
               {'Selecciona tu Modelo'}
             </Text>
-            {MODELOS.map(m => {
-              const selected = form.modelo?.id === m.id
-              return (
-                <TouchableOpacity
-                  key={m.id}
-                  style={[
-                    styles.modelOption,
-                    selected ? styles.modelOptionSelected : styles.modelOptionUnselected,
-                  ]}
-                  onPress={() => this.setState({ form: { ...form, modelo: m } })}
-                >
-                  <View style={styles.modelEmojiWrap}>
-                    <Text style={styles.modelEmoji}>{'🚙'}</Text>
-                  </View>
-                  <View style={styles.modelOptionInfo}>
-                    <Text
-                      style={[
-                        styles.modelOptionName,
-                        selected ? styles.modelOptionNameSelected : styles.modelOptionNameUnselected,
-                      ]}
-                    >
-                      {m.nombre}
-                    </Text>
-                    <Text style={styles.modelBasePrice}>
-                      {m.base}
-                      <Text style={styles.modelDiscount}>{' ' + m.descuento}</Text>
-                    </Text>
-                    <Text style={styles.modelTotalPrice}>{'Total: ' + m.precio}</Text>
-                  </View>
-                  <View
+            {cargandoModelos ? (
+              <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 16 }} />
+            ) : errorModelos ? (
+              <Text style={styles.fieldError}>{errorModelos}</Text>
+            ) : (
+              modelos.map((m) => {
+                const selected = form.modelo?.id === m.id;
+                return (
+                  <TouchableOpacity
+                    key={m.id}
                     style={[
-                      styles.radioCircle,
-                      selected ? styles.radioCircleSelected : styles.radioCircleUnselected,
+                      styles.modelOption,
+                      selected ? styles.modelOptionSelected : styles.modelOptionUnselected,
                     ]}
-                  >
-                    {selected && <View style={styles.radioDot} />}
-                  </View>
-                </TouchableOpacity>
-              )
-            })}
+                    onPress={() => this.handleSeleccionarModelo(m)}>
+                    <View style={styles.modelEmojiWrap}>
+                      <MaterialCommunityIcons name="car" size={36} color={COLORS.blue} />
+                    </View>
+                    <View style={styles.modelOptionInfo}>
+                      <Text
+                        style={[
+                          styles.modelOptionName,
+                          selected
+                            ? styles.modelOptionNameSelected
+                            : styles.modelOptionNameUnselected,
+                        ]}>
+                        {m.nombre}
+                      </Text>
+                      <Text style={styles.modelTotalPrice}>{m.precio}</Text>
+                    </View>
+                    <View
+                      style={[
+                        styles.radioCircle,
+                        selected ? styles.radioCircleSelected : styles.radioCircleUnselected,
+                      ]}>
+                      {selected && <View style={styles.radioDot} />}
+                    </View>
+                  </TouchableOpacity>
+                );
+              })
+            )}
+            {errores.modelo && <Text style={styles.fieldError}>{errores.modelo}</Text>}
 
             <Text style={[styles.formSectionTitle, styles.formSectionTitleMt]}>
               {'Elige tu Color'}
             </Text>
-            <View style={styles.colorsWrap}>
-              {COLORES.map(c => {
-                const selected = form.color?.id === c.id
-                return (
-                  <TouchableOpacity
-                    key={c.id}
-                    style={[styles.colorOption, { width: COLOR_ITEM_WIDTH }]}
-                    onPress={() => this.setState({ form: { ...form, color: c } })}
-                  >
-                    <View
-                      style={[
-                        styles.colorDotCircle,
-                        shadowColorDot,
-                        { backgroundColor: c.hex },
-                        c.border && styles.colorDotBorder,
-                        selected && styles.colorDotSelected,
-                      ]}
-                    >
-                      {selected && (
-                        <Text
-                          style={styles.colorCheckmark}
-                          
-                        >
-                          {'✓'}
-                        </Text>
-                      )}
-                    </View>
-                    <Text
-                      style={[
-                        styles.colorLabel,
-                        selected ? styles.colorLabelSelected : styles.colorLabelUnselected,
-                      ]}
-                    >
-                      {c.nombre}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              })}
-            </View>
+            {cargandoColores ? (
+              <ActivityIndicator color={COLORS.primary} style={{ marginVertical: 16 }} />
+            ) : errorColores ? (
+              <Text style={styles.fieldError}>{errorColores}</Text>
+            ) : (
+              <View style={styles.colorsWrap}>
+                {colores.map((c) => {
+                  const selected = form.color?.id_color === c.id_color;
+                  return (
+                    <TouchableOpacity
+                      key={c.id_color}
+                      style={[styles.colorOption, { width: COLOR_ITEM_WIDTH }]}
+                      onPress={() => this.handleSeleccionarColor(c)}>
+                      <View
+                        style={[
+                          styles.colorDotCircle,
+                          shadowColorDot,
+                          { backgroundColor: c.hex },
+                          styles.colorDotBorder,
+                          selected && styles.colorDotSelected,
+                        ]}>
+                        {selected && <MaterialCommunityIcons name="check" size={18} color="#fff" />}
+                      </View>
+                      <Text
+                        style={[
+                          styles.colorLabel,
+                          selected ? styles.colorLabelSelected : styles.colorLabelUnselected,
+                        ]}>
+                        {c.Color}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+            {errores.color && <Text style={styles.fieldError}>{errores.color}</Text>}
 
             {/* Precio reserva */}
             <View style={styles.reservePriceRow}>
-              <Text style={styles.reservePriceLabel}>{'💳  Precio de Reserva'}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <MaterialCommunityIcons
+                  name="credit-card-outline"
+                  size={20}
+                  color={COLORS.primary}
+                />
+                <Text style={styles.reservePriceLabel}>{'Precio de Reserva'}</Text>
+              </View>
               <Text style={styles.reservePriceValue}>{'$1,000 USD'}</Text>
             </View>
 
@@ -365,15 +527,12 @@ export class ReservasScreen extends Component<{}, State> {
                 isFormValid ? styles.submitButtonActive : styles.submitButtonDisabled,
               ]}
               onPress={this.handleReservar}
-              disabled={!isFormValid}
-            >
+              disabled={!isFormValid}>
               <Text style={styles.primaryButtonText}>{'CONFIRMAR Y PAGAR RESERVA'}</Text>
             </TouchableOpacity>
 
-            {!isFormValid && (
-              <Text style={styles.helperText}>
-                {'Completa todos los campos para continuar'}
-              </Text>
+            {!isFormValid && !hayErrorres && (
+              <Text style={styles.helperText}>{'Completa todos los campos para continuar'}</Text>
             )}
           </View>
         </ScrollView>
@@ -382,6 +541,7 @@ export class ReservasScreen extends Component<{}, State> {
         <ReservaModal
           visible={modalVisible}
           form={form}
+          guardando={guardandoReserva}
           onClose={() => this.setState({ modalVisible: false })}
           onConfirm={this.handleConfirmar}
         />
@@ -391,29 +551,23 @@ export class ReservasScreen extends Component<{}, State> {
           <View style={styles.modalOverlay}>
             <View style={styles.successSheet}>
               <View style={styles.successIconWrap}>
-                <Text style={styles.successIconText}>{'✓'}</Text>
+                <MaterialCommunityIcons name="check" size={30} color={COLORS.white} />
               </View>
-              <Text style={styles.successTitle}>
-                {'¡RESERVA EXITOSA!'}
-              </Text>
+              <Text style={styles.successTitle}>{'¡RESERVA EXITOSA!'}</Text>
 
               <View style={styles.successCarPlaceholder}>
-                <Text style={styles.successCarEmoji}>{'🚗'}</Text>
+                <MaterialCommunityIcons name="car" size={56} color={COLORS.blue} />
               </View>
 
               <View style={styles.infoSection}>
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>{'Vehículo'}</Text>
-                  <Text style={styles.infoValue}>
-                    {form.modelo?.nombre}
-                  </Text>
+                  <Text style={styles.infoValue}>{form.modelo?.nombre}</Text>
                 </View>
                 <View style={styles.divider} />
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>{'Color'}</Text>
-                  <Text style={styles.infoValue}>
-                    {form.color?.nombre}
-                  </Text>
+                  <Text style={styles.infoValue}>{form.color?.Color}</Text>
                 </View>
                 <View style={styles.divider} />
                 <View style={styles.infoRow}>
@@ -430,23 +584,29 @@ export class ReservasScreen extends Component<{}, State> {
               <View style={styles.nextStepsBox}>
                 <Text style={styles.nextStepsTitle}>{'Próximos Pasos'}</Text>
                 <Text style={styles.nextStepsItem}>{'• Revisa tu correo para más detalles'}</Text>
-                <Text style={styles.nextStepsItem}>{'• Un asesor de Voltus se pondrá en contacto'}</Text>
+                <Text style={styles.nextStepsItem}>
+                  {'• Un asesor de Voltus se pondrá en contacto'}
+                </Text>
               </View>
 
               <TouchableOpacity
                 style={styles.primaryButton}
-                onPress={() => this.setState({ exitoVisible: false, form: { nombre: '', ci: '', modelo: null, color: null } })}
-              >
+                onPress={() =>
+                  this.setState({
+                    exitoVisible: false,
+                    form: { nombres: '', apellidos: '', cedula: '', modelo: null, color: null },
+                    errores: {},
+                    intentado: false,
+                  })
+                }>
                 <Text style={styles.primaryButtonText}>{'IR A INICIO'}</Text>
               </TouchableOpacity>
             </View>
           </View>
         </Modal>
       </SafeAreaView>
-    )
+    );
   }
 }
 
-
-
-export default ReservasScreen
+export default ReservasScreen;

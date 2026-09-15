@@ -79,6 +79,9 @@ HTTP request
 | `modulos/Vehiculos/` | CRUD Vehiculos |
 | `modulos/Estaciones_Carga/` | CRUD Estaciones_Carga |
 | `modulos/Servicios_Tecnicos/` | CRUD Servicios_Tecnicos |
+| `modulos/Colores/` | CRUD Colores |
+| `modulos/Reservas/` | CRUD Reservas (POST con defaults Fecha_Reserva=hoy, Estado='Pendiente') |
+| `modulos/Vehiculos_Colores/` | CRUD N:M Vehiculos↔Colores (listar, por vehiculo, por color, crear, eliminar) |
 | `modulos/Clientes/` | CRUD que apunta a la tabla `roles` (modulo con bug, ver gotchas) |
 
 ### 2.4 Detalle de la capa DB (`src/DB/mysql.ts`)
@@ -138,9 +141,24 @@ Los errores se loguean con `red/errors.ts` (`console.log('[error]', err)`) y res
 
 #### Modulo `Vehiculos`
 - CRUD completo, campos snake_case que reflejan la tabla. Incluye `console.log` de debug en agregar/actualizar/eliminar.
+- **GET (todos/uno) enriquece** cada vehiculo con un array `colores` obtenido de la tabla N:M `Vehiculos_Colores` (JOIN con `Colores`). POST/PUT **persisten `Precio_USD`** (renombrado de `Precio_Bs` y agregado al controlador).
+
+#### Modulo `Vehiculos_Colores` (N:M)
+- CRUD para la tabla `Vehiculos_Colores` (PK compuesta `id_vehiculo`+`id_color`), que **no se ajusta al CRUD generico** de un solo `CAMPO_ID`:
+  - `todos()` → lista pares.
+  - `coloresDeVehiculo(id)` → JOIN con `Colores` (`SELECT c.id_color, c.Color`).
+  - `vehiculosDeColor(id)` → JOIN con `Vehiculos` (`id_vehiculo`, `Nombre_Modelo`).
+  - `agregar(body)` → upsert (`db.agregar`, sin duplicados).
+  - `eliminar(idVehiculo, idColor)` → DELETE por par exacto (usa `db.ejecutar`).
 
 #### Modulo `Estaciones_Carga` / `Servicios_Tecnicos`
 - CRUD completo, ambos id�nticos en estructura (mismos campos: direccion, latitud, longitud, horarios, telefono, Estado).
+
+#### Modulo `Colores`
+- CRUD completo sobre la tabla `Colores` (`id_color`, `Color`).
+
+#### Modulo `Reservas`
+- CRUD completo sobre la tabla `Reservas`. El POST usa defaults `Fecha_Reserva`=hoy y `Estado`='Pendiente' si no vienen. Campos: `nombres`, `apellidos`, `cedula_identidad`, `modelo`, `color` (FK → `Colores.id_color`).
 
 #### Modulo `Clientes` (con bug)
 - CRUD sobre la tabla **`roles`** (error: deberia ser una tabla de clientes). No tiene PUT. El frontend no lo consume.
@@ -175,7 +193,10 @@ Mobile/src/
 │   ├── Usuario.ts                 # Tipos (Usuario, AuthResponse, Credenciales)
 │   ├── AuthService.ts             # axios → /auth/login, /auth/registro
 │   ├── EstacionesService.ts       # axios → /estaciones-carga
-│   └── TalleresService.ts         # axios → /servicios-tecnicos
+│   ├── TalleresService.ts         # axios → /servicios-tecnicos
+│   ├── ColoresService.ts          # axios → /colores
+│   ├── VehiculosService.ts        # axios → /vehiculos (GET lista, incluye Precio_USD)
+│   └── ReservasService.ts         # axios → /reservas (POST guarda reserva)
 ├── ViewModel/                     # Hooks de logica/estado
 │   ├── AuthViewModel.tsx          # AuthContext + useAuth()
 │   └── Usetalleresviewmodel.ts    # useTalleresViewModel (ubicacion, filtros, distancia)
@@ -191,7 +212,8 @@ Mobile/src/
 
 ### 3.2 Detalle de capas y datos
 
-- **Config/api.ts**: usa `Constants.expoConfig?.hostUri` para **detectar automaticamente la IP del servidor de desarrollo** y construye `API_URL = http://<host>:4000/api`. (Mejora vs. el IP hardcodeado que menciona el AGENTS.md; el IP estatico ya fue reemplazado.)
+- **Config/api.ts**: usa `Constants.expoConfig?.hostUri` para **detectar automaticamente la IP del servidor de desarrollo** y construye `API_URL = http://<host>:4000/api`. Si no hay `hostUri` (p. ej. en web), **cae a `http://localhost:4000/api`**. (Mejora vs. el IP hardcodeado que menciona el AGENTS.md; el IP estatico ya fue reemplazado.)
+- **Stub de mapas en web**: `react-native-maps` es nativo y no existe en web; `metro.config.js` lo redirige (solo en plataforma `web`) a `src/stubs/react-native-maps.web.tsx`, que renderiza un placeholder. Las pantallas no se modifican.
 - **Model/**: servicios axios delgados. Cada uno retorna `response.data.body` (el sobre de la API). `interfaces` reflejan fielmente las columnas de la BD.
 - **ViewModel/**: `AuthViewModel` expone `AuthContext` + hook `useAuth()` con `usuario`, `token`, `login`, `registro`, `logout` y flags derivados `esInvitado`, `esCliente`, `esAdministrador`.
 
@@ -216,8 +238,8 @@ Iconos con `@expo/vector-icons` (MaterialCommunityIcons). `SafeAreaProvider` env
 | Pantalla (dir Lender) | Uso de API | Notas |
 |-----------------------|-----------|-------|
 | `InicioScreen.tsx` (Invitado) | **Mock** (CAR_MODELS) | Catalogo Voltus |
-| `VehiculosScreen.tsx` (Invitado) | **Mock** | Detalle + colores |
-| `ReservasScreen.tsx` (Invitado) | **Mock** | Formulario + pago QR simulado (class component) |
+| `VehiculosScreen.tsx` (Invitado) | **Real API** (VehiculosService GET /vehiculos + ColoresService GET /colores) | Listado + detalle; colores desde `colores[]` N:M (fallback a id_color); sin foto (placeholder) |
+| `ReservasScreen.tsx` (Invitado) | **Real API** (ReservasService POST /reservas, ColoresService GET /colores, VehiculosService GET /vehiculos) | Formulario validado; modelos desde /vehiculos; sin QR (class component) |
 | `InicioScreen_usuario_vehiculo.tsx` (Cliente) | **Mock** | Bateria, estaciones cercanas, historial |
 | `EstacionesScreen_usuario_vehiculo.tsx` (Cliente) | **Real API** (EstacionesService) + ubicacion | Mapa, filtros, listado real |
 | `TalleresScreen_usuario_vehiculo.tsx` (Cliente) | **Real API** (TalleresService + useTalleresViewModel) | Mapa, filtros, cercanos |

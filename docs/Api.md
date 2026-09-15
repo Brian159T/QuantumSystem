@@ -22,6 +22,21 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | POST | `/api/clientes` | Clientes | Crear (tabla `roles`) |
 | GET | `/api/clientes/:id` | Clientes | Obtener uno (tabla `roles`) |
 | DELETE | `/api/clientes/:id` | Clientes | Eliminar (tabla `roles`) |
+| GET | `/api/colores` | Colores | Listar colores |
+| POST | `/api/colores` | Colores | Crear color |
+| GET | `/api/colores/:id` | Colores | Obtener color |
+| PUT | `/api/colores/:id` | Colores | Actualizar color |
+| DELETE | `/api/colores/:id` | Colores | Eliminar color |
+| GET | `/api/reservas` | Reservas | Listar reservas |
+| POST | `/api/reservas` | Reservas | Crear reserva |
+| GET | `/api/reservas/:id` | Reservas | Obtener reserva |
+| PUT | `/api/reservas/:id` | Reservas | Actualizar reserva |
+| DELETE | `/api/reservas/:id` | Reservas | Eliminar reserva |
+| GET | `/api/vehiculos-colores` | Vehiculos_Colores | Listar relaciones N:M |
+| GET | `/api/vehiculos-colores/vehiculo/:id` | Vehiculos_Colores | Colores de un vehiculo |
+| GET | `/api/vehiculos-colores/color/:id` | Vehiculos_Colores | Vehiculos de un color |
+| POST | `/api/vehiculos-colores` | Vehiculos_Colores | Crear relacion (N:M) |
+| DELETE | `/api/vehiculos-colores/:idVehiculo/color/:idColor` | Vehiculos_Colores | Eliminar relacion |
 | GET | `/api/usuarios` | Usuarios | Listar usuarios |
 | POST | `/api/usuarios` | Usuarios | Crear usuario |
 | GET | `/api/usuarios/:id` | Usuarios | Obtener usuario |
@@ -43,7 +58,7 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | PUT | `/api/servicios-tecnicos/:id` | Servicios_Tecnicos | Actualizar taller |
 | DELETE | `/api/servicios-tecnicos/:id` | Servicios_Tecnicos | Eliminar taller |
 
-> **No existen** endpoints para: `Colores`, `Reservas`, `Usuarios_Reservas`, `Usuarios_Vehiculos` (tablas sin CRUD en backend). Tampoco existe `POST /api/auth/registro` (aunque los frontends lo consumen).
+> **No existen** endpoints para: `Usuarios_Reservas`, `Usuarios_Vehiculos` (tablas sin CRUD en backend). Tampoco existe `POST /api/auth/registro` (aunque los frontends lo consumen).
 
 ---
 
@@ -105,11 +120,30 @@ El resto de modulos siguen la misma convencion CRUD. Se listan a continuacion co
 
 ### `/api/vehiculos`
 
-Campos (tabla `Vehiculos`): `Velocidad_Maxima`, `Autonomia`, `Tipo`, `Carga_Rapida`, `Nombre_Modelo`, `Capacidad_Bateria`, `Tiempo_Carga_Normal`, `Traccion`, `Nro_Asientos` (todos string) y `id_color` (number).
+Campos (tabla `Vehiculos`): `Velocidad_Maxima`, `Autonomia`, `Tipo`, `Carga_Rapida`, `Nombre_Modelo`, `Capacidad_Bateria`, `Tiempo_Carga_Normal`, `Traccion`, `Nro_Asientos` (todos string), `id_color` (number) y `Precio_USD` (DECIMAL).
 
-- GET `/api/vehiculos` / GET `/api/vehiculos/:id`
-- POST `/api/vehiculos` (201) / PUT `/api/vehiculos/:id` (200) / DELETE `/api/vehiculos/:id` (200)
+- GET `/api/vehiculos` / GET `/api/vehiculos/:id` — **cada vehiculo incluye un array `colores`** con los colores de la tabla N:M `Vehiculos_Colores` (JOIN con `Colores` → `{id_color, Color}`). Si el vehiculo no tiene relaciones, `colores` es `[]`.
+- POST `/api/vehiculos` (201) / PUT `/api/vehiculos/:id` (200) / DELETE `/api/vehiculos/:id` (200) — POST/PUT **persisten `Precio_USD`** (corregido).
 - Los handlers de Vehiculos imprimen `console.log` de debug (headers/body/id).
+
+### `/api/vehiculos-colores`
+
+Relaciones N:M entre la tabla `Vehiculos` y la tabla `Colores` (modulo `Vehiculos_Colores`). Tabla: `Vehiculos_Colores` (PK compuesta `id_vehiculo` + `id_color`).
+
+- **GET `/api/vehiculos-colores`** → lista todas las relaciones:
+  ```json
+  { "id_vehiculo": 8, "id_color": 4 }
+  ```
+- **GET `/api/vehiculos-colores/vehiculo/:idVehiculo`** → colores de un vehiculo (JOIN con `Colores`):
+  ```json
+  [ { "id_color": 4, "Color": "Rojo" }, { "id_color": 5, "Color": "Azul" } ]
+  ```
+- **GET `/api/vehiculos-colores/color/:idColor`** → vehiculos que tienen un color (JOIN con `Vehiculos`):
+  ```json
+  [ { "id_vehiculo": 8, "Nombre_Modelo": "TROOPER" } ]
+  ```
+- **POST `/api/vehiculos-colores`** (201) — body `{ "id_vehiculo": 8, "id_color": 1 }` (upsert, sin duplicados). Respuesta: mensaje.
+- **DELETE `/api/vehiculos-colores/:idVehiculo/color/:idColor`** (200) — elimina el par exacto. Respuesta: mensaje.
 
 ### `/api/estaciones-carga`
 
@@ -122,6 +156,29 @@ Campos: `direccion`, `latitud` (number), `longitud` (number), `horarios`, `telef
 Campos (identicos a estaciones): `direccion`, `latitud`, `longitud`, `horarios`, `telefono` (opcional), `Estado`.
 
 - GET `/api/servicios-tecnicos` / GET `:id` / POST (201) / PUT `:id` (200) / DELETE `:id` (200)
+
+### `/api/colores`
+
+Campos: `id_color`, `Color` (string). Tabla `Colores`.
+
+- GET `/api/colores` / GET `:id` / POST (201) / PUT `:id` (200) / DELETE `:id` (200)
+
+### `/api/reservas`
+
+Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `apellidos`, `cedula_identidad`, `modelo` (string), `color` (number, FK → `Colores.id_color`).
+
+- GET `/api/reservas` / GET `:id` / POST (201) / PUT `:id` (200) / DELETE `:id` (200)
+- **POST** body:
+  ```json
+  {
+    "nombres": "str",
+    "apellidos": "str",
+    "cedula_identidad": "str",
+    "modelo": "str",
+    "color": 3
+  }
+  ```
+  Si no se envian `Fecha_Reserva` ni `Estado`, se usan por defecto la **fecha de hoy** y **"Pendiente"**.
 
 ### `/api/clientes` (con bug)
 
@@ -150,6 +207,9 @@ Campos (identicos a estaciones): `direccion`, `latitud`, `longitud`, `horarios`,
 - `AuthService.registro` → `POST /auth/registro` (endpoint inexistente en backend).
 - `EstacionesService.obtenerEstaciones` → `GET /estaciones-carga`, devuelve `response.data.body`.
 - `TalleresService.obtenerTalleres` → `GET /servicios-tecnicos`, devuelve `response.data.body`.
+- `ColoresService.obtenerColores` → `GET /colores`, devuelve `response.data.body`.
+- `VehiculosService.obtenerVehiculos` → `GET /vehiculos`, devuelve `response.data.body`.
+- `ReservasService.crearReserva` → `POST /reservas`, guarda la reserva del invitado.
 
 ### Web (`Frontend/src/infraestructura/http/ApiClient.ts`)
 - `peticion(ruta, opciones)` usa `fetch`, parse el sobre `{error, status, body}` y devuelve `body`; lanza `Error` si `error === true`.
