@@ -7,6 +7,7 @@ const router = Router();
 router.get('/', todos);
 router.get('/:id', uno);
 router.post('/', agregar);
+router.put('/:id', actualizar);
 router.delete('/:id', eliminar);
 
 async function todos(
@@ -63,6 +64,33 @@ async function agregar(
     }
 }
 
+async function actualizar(
+    req: Request,
+    res: Response,
+    next: NextFunction
+): Promise<void> {
+    try {
+        const id = Number(req.params.id);
+
+        const body = req.body;
+
+        await controlador.actualizar(
+            id,
+            body
+        );
+
+        respuesta.success(
+            req,
+            res,
+            'Item actualizado satisfactoriamente',
+            200
+        );
+
+    } catch (error) {
+        next(error);
+    }
+}
+
 async function eliminar(
     req: Request,
     res: Response,
@@ -71,9 +99,9 @@ async function eliminar(
     try {
         const id = Number(req.params.id);
 
-        await controlador.eliminar({
+        await controlador.eliminar(
             id
-        });
+        );
 
         respuesta.success(
             req,

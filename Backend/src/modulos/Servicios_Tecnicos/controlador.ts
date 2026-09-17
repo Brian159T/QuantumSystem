@@ -1,4 +1,5 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
+import embeddings from '../../embeddings';
 
 const TABLA = 'Servicios_Tecnicos';
 const CAMPO_ID = 'id_servicio';
@@ -23,7 +24,7 @@ interface ServicioTecnico {
 
 export default function (dbInyectada?: any) {
 
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     function todos() {
 
@@ -51,9 +52,9 @@ export default function (dbInyectada?: any) {
 
     }
 
-    function agregar(body: ServicioTecnico) {
+    async function agregar(body: ServicioTecnico) {
 
-        const servicio = {
+        const servicio: any = {
 
             id_servicio: body.id_servicio,
 
@@ -71,6 +72,9 @@ export default function (dbInyectada?: any) {
 
         };
 
+        const literal = await embeddings.embeddingDeObjeto(servicio);
+        if (literal) servicio.embedding = { vector: literal };
+
         return db.agregar(
             TABLA,
             servicio
@@ -78,12 +82,12 @@ export default function (dbInyectada?: any) {
 
     }
 
-    function actualizar(
+    async function actualizar(
         id: number,
         body: ServicioTecnico
     ) {
 
-        const servicio = {
+        const servicio: any = {
 
             direccion: body.direccion,
 
@@ -98,6 +102,14 @@ export default function (dbInyectada?: any) {
             Estado: body.Estado,
 
         };
+
+        const actual = (await db.uno(
+            TABLA,
+            CAMPO_ID,
+            id
+        )) || {};
+        const literal = await embeddings.embeddingDeActualizacion(actual, servicio);
+        if (literal) servicio.embedding = { vector: literal };
 
         return db.actualizar(
             TABLA,

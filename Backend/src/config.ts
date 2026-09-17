@@ -9,11 +9,12 @@ const config = {
 
 
     },
-    mysql:{
-        host:process.env.MYSQL_HOST || 'localhost',
-        user:process.env.MYSQL_USER || 'root',
-        password:process.env.MYSQL_PASSWORD || '',
-        database:process.env.MYSQL_DATABASE || 'quantumdb',
+    pg:{
+        host:process.env.PGHOST || 'localhost',
+        user:process.env.PGUSER || 'postgres',
+        password:process.env.PGPASSWORD || '',
+        database:process.env.PGDATABASE || 'QuantumSystemDB',
+        port:Number(process.env.PGPORT) || 5432,
     }
 };
 //aqui lo traemos desde las varibles de entorno y si no existele damos el puerto 4000

@@ -1,5 +1,6 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
 import bcrypt from 'bcrypt';
+import embeddings from '../../embeddings';
 
 const TABLA = 'Usuarios';
 const CAMPO_ID = 'id_usuario';
@@ -20,7 +21,7 @@ interface Usuario {
 
 export default function (dbInyectada?: any) {
 
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     function todos() {
 
@@ -50,7 +51,7 @@ export default function (dbInyectada?: any) {
 
     async function agregar(body: Usuario) {
 
-        const usuario = {
+        const usuario: any = {
 
             id_usuario: body.id_usuario,
 
@@ -66,6 +67,9 @@ export default function (dbInyectada?: any) {
             id_rol: body.id_rol,
 
         };
+
+        const literal = await embeddings.embeddingDeObjeto(usuario);
+        if (literal) usuario.embedding = { vector: literal };
 
         return db.agregar(
             TABLA,
@@ -97,6 +101,14 @@ export default function (dbInyectada?: any) {
             );
 
         }
+
+        const actual = (await db.uno(
+            TABLA,
+            CAMPO_ID,
+            id
+        )) || {};
+        const literal = await embeddings.embeddingDeActualizacion(actual, usuario);
+        if (literal) usuario.embedding = { vector: literal };
 
         return db.actualizar(
             TABLA,

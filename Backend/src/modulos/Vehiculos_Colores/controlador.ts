@@ -1,8 +1,6 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
 
 const TABLA = 'Vehiculos_Colores';
-const TABLA_VEHICULOS = 'Vehiculos';
-const TABLA_COLORES = 'Colores';
 
 interface RelacionVehiculoColor {
     id_vehiculo: number;
@@ -10,7 +8,7 @@ interface RelacionVehiculoColor {
 }
 
 export default function (dbInyectada?: any) {
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     function todos() {
         return db.todos(TABLA);
@@ -18,21 +16,21 @@ export default function (dbInyectada?: any) {
 
     function coloresDeVehiculo(idVehiculo: number) {
         return db.ejecutar(
-            `SELECT c.id_color, c.Color
-             FROM ?? vc
-             INNER JOIN ?? c ON c.id_color = vc.id_color
-             WHERE vc.?? = ?`,
-            [TABLA, TABLA_COLORES, 'id_vehiculo', idVehiculo]
+            `SELECT c."id_color", c."Color"
+             FROM "Vehiculos_Colores" vc
+             INNER JOIN "Colores" c ON c."id_color" = vc."id_color"
+             WHERE vc."id_vehiculo" = ?`,
+            [idVehiculo]
         );
     }
 
     function vehiculosDeColor(idColor: number) {
         return db.ejecutar(
-            `SELECT v.id_vehiculo, v.Nombre_Modelo
-             FROM ?? vc
-             INNER JOIN ?? v ON v.?? = vc.?? 
-             WHERE vc.?? = ?`,
-            [TABLA, TABLA_VEHICULOS, 'id_vehiculo', 'id_vehiculo', 'id_color', idColor]
+            `SELECT v."id_vehiculo", v."Nombre_Modelo"
+             FROM "Vehiculos_Colores" vc
+             INNER JOIN "Vehiculos" v ON v."id_vehiculo" = vc."id_vehiculo"
+             WHERE vc."id_color" = ?`,
+            [idColor]
         );
     }
 
@@ -46,8 +44,8 @@ export default function (dbInyectada?: any) {
 
     function eliminar(idVehiculo: number, idColor: number) {
         return db.ejecutar(
-            'DELETE FROM ?? WHERE ?? = ? AND ?? = ?',
-            [TABLA, 'id_vehiculo', idVehiculo, 'id_color', idColor]
+            'DELETE FROM "Vehiculos_Colores" WHERE "id_vehiculo" = ? AND "id_color" = ?',
+            [idVehiculo, idColor]
         );
     }
 

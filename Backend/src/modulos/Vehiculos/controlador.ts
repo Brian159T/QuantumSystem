@@ -1,4 +1,5 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
+import embeddings from '../../embeddings';
 
 const TABLA = 'Vehiculos';
 const CAMPO_ID = 'id_vehiculo';
@@ -33,7 +34,7 @@ interface Vehiculo {
 
 export default function (dbInyectada?: any) {
 
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     async function todos() {
         const vehiculos = await db.todos(TABLA);
@@ -50,10 +51,10 @@ export default function (dbInyectada?: any) {
             return vehiculo;
         }
         const colores = await db.ejecutar(
-            `SELECT c.id_color, c.Color
-             FROM Vehiculos_Colores vc
-             INNER JOIN Colores c ON c.id_color = vc.id_color
-             WHERE vc.id_vehiculo = ?`,
+            `SELECT c."id_color", c."Color"
+             FROM "Vehiculos_Colores" vc
+             INNER JOIN "Colores" c ON c."id_color" = vc."id_color"
+             WHERE vc."id_vehiculo" = $1`,
             [id]
         );
         return { ...vehiculo, colores };
@@ -64,9 +65,9 @@ export default function (dbInyectada?: any) {
             return [];
         }
         const relaciones = await db.ejecutar(
-            `SELECT vc.id_vehiculo, c.id_color, c.Color
-             FROM Vehiculos_Colores vc
-             INNER JOIN Colores c ON c.id_color = vc.id_color`
+            `SELECT vc."id_vehiculo", c."id_color", c."Color"
+             FROM "Vehiculos_Colores" vc
+             INNER JOIN "Colores" c ON c."id_color" = vc."id_color"`
         );
         const coloresPorVehiculo = new Map<number, any[]>();
         relaciones.forEach((r: any) => {
@@ -94,9 +95,9 @@ export default function (dbInyectada?: any) {
 
     }
 
-    function agregar(body: Vehiculo) {
+    async function agregar(body: Vehiculo) {
 
-        const vehiculo = {
+        const vehiculo: any = {
 
             id_vehiculo: body.id_vehiculo,
 
@@ -124,6 +125,9 @@ export default function (dbInyectada?: any) {
 
         };
 
+        const literal = await embeddings.embeddingDeObjeto(vehiculo);
+        if (literal) vehiculo.embedding = { vector: literal };
+
         return db.agregar(
             TABLA,
             vehiculo
@@ -131,12 +135,12 @@ export default function (dbInyectada?: any) {
 
     }
 
-    function actualizar(
+    async function actualizar(
         id: number,
         body: Vehiculo
     ) {
 
-        const vehiculo = {
+        const vehiculo: any = {
 
             Velocidad_Maxima: body.Velocidad_Maxima,
 
@@ -161,6 +165,14 @@ export default function (dbInyectada?: any) {
             Precio_USD: body.Precio_USD,
 
         };
+
+        const actual = (await db.uno(
+            TABLA,
+            CAMPO_ID,
+            id
+        )) || {};
+        const literal = await embeddings.embeddingDeActualizacion(actual, vehiculo);
+        if (literal) vehiculo.embedding = { vector: literal };
 
         return db.actualizar(
             TABLA,

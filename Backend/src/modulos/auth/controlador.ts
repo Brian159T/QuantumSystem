@@ -1,4 +1,4 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
 import bcrypt from 'bcrypt';
 import auth from '../../auth';
 
@@ -12,7 +12,7 @@ interface UsuarioLogin {
 
 export default function (dbInyectada?: any) {
 
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     async function login(
         correo: string,
@@ -21,16 +21,16 @@ export default function (dbInyectada?: any) {
 
         const sql = `
             SELECT
-                u.id_usuario,
-                u.nombre_usuario,
-                u.correo,
-                u.contrasena,
-                r.id_rol,
-                r.Nombre AS rol
-            FROM Usuarios u
-            INNER JOIN Roles r
-                ON u.id_rol = r.id_rol
-            WHERE u.correo = ?
+                u."id_usuario",
+                u."nombre_usuario",
+                u."correo",
+                u."contrasena",
+                r."id_rol",
+                r."Nombre" AS rol
+            FROM "Usuarios" u
+            INNER JOIN "Roles" r
+                ON u."id_rol" = r."id_rol"
+            WHERE u."correo" = $1
         `;
 
         const resultado = await db.ejecutar(sql, [correo]);

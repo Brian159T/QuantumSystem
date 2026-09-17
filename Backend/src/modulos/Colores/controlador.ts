@@ -1,4 +1,4 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
 
 const TABLA = 'Colores';
 const CAMPO_ID = 'id_color';
@@ -9,7 +9,7 @@ interface Color {
 }
 
 export default function (dbInyectada?: any) {
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     function todos() {
         return db.todos(TABLA);

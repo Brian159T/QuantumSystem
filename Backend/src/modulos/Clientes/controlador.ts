@@ -1,31 +1,42 @@
-import dbMysql from '../../DB/mysql';
+import dbPg from '../../DB/pg';
 
-const TABLA = 'roles';
+const TABLA = 'Roles';
+const CAMPO_ID = 'id_rol';
 
 interface Rol {
-    id: number;
-    nombre?: string;
-    descripcion?: string;
+    id_rol?: number;
+    Nombre: string;
 }
 
 export default function (dbInyectada?: any) {
 
-    const db = dbInyectada || dbMysql;
+    const db = dbInyectada || dbPg;
 
     function todos() {
         return db.todos(TABLA);
     }
 
     function uno(id: number) {
-        return db.uno(TABLA, id);
+        return db.uno(TABLA, CAMPO_ID, id);
     }
 
-    function eliminar(body: { id: number }) {
-        return db.eliminar(TABLA, body);
+    function eliminar(id: number) {
+        return db.eliminar(TABLA, CAMPO_ID, id);
     }
 
     function agregar(body: Rol) {
-        return db.agregar(TABLA, body);
+        const rol = {
+            id_rol: body.id_rol,
+            Nombre: body.Nombre,
+        };
+        return db.agregar(TABLA, rol);
+    }
+
+    function actualizar(id: number, body: Rol) {
+        const rol = {
+            Nombre: body.Nombre,
+        };
+        return db.actualizar(TABLA, CAMPO_ID, id, rol);
     }
 
     return {
@@ -33,5 +44,6 @@ export default function (dbInyectada?: any) {
         uno,
         eliminar,
         agregar,
+        actualizar,
     };
 }
