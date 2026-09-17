@@ -12,16 +12,16 @@ Monorepo con **tres subproyectos separados** (cada uno muy independiente, con su
 
 | Carpeta | Tipo | Stack | Estado |
 |---------|------|-------|--------|
-| `Backend/` | API REST | Node.js + Express 5 + TypeScript + MySQL | **Activo**, conectado a la BD |
+| `Backend/` | API REST | Node.js + Express 5 + TypeScript + PostgreSQL | **Activo**, conectado a la BD |
 | `Mobile/` | App movil (la app real) | Expo SDK 54 + React Native + TypeScript | **Activo**, consume la API |
 | `Frontend/` | Frontend web (SPA) | Vite + React 19 + TypeScript | Parcialmente construido, consume la API |
 | `docs/` | Documentacion | Markdown | Documentacion de contexto |
 
-**Comunicacion**: `Mobile/` y `Frontend/` llaman a `Backend/` via **REST JSON** (axios en Mobile, fetch en Frontend-web). El backend es la unica fuente de verdad contra MySQL.
+**Comunicacion**: `Mobile/` y `Frontend/` llaman a `Backend/` via **REST JSON** (axios en Mobile, fetch en Frontend-web). El backend es la unica fuente de verdad contra la BD.
 
-**DB**: MySQL `quantumappdb` (ver `docs/base-datos.md`).
+**DB**: el backend consume **PostgreSQL `QuantumSystemDB`** (driver `pg`, puerto 5432; ver `docs/base-datos.md`).
 
-> **Migracion planificada**: el plan es migrar la BD a **PostgreSQL + pgvector** de manera local y luego subirla a **Supabase** (plan Free) cuando esté lista. El backend pasaria del driver `mysql` al driver `pg`. Ver seccion 6 de `docs/Decisiones-tecnicas.md`.
+> **Estado de la migracion**: la base se migro a **PostgreSQL `QuantumSystemDB` + pgvector** de manera **local** (embeddings de Gemini poblados) y el **backend ya la consume** via la capa `src/DB/pg.ts` (ex `mysql.ts`). Pendiente: subir a Supabase (plan Free) y conectar el backend en Render (seccion 6 de `docs/Decisiones-tecnicas.md`).
 
 ---
 
@@ -42,7 +42,7 @@ src/modulos/<Entidad>/
 **Patron de inyeccion de DB**: el controlador recibe la DB como parametro (`dbInyectada`), permitiendo pasar una DB mock en tests. El `index.ts` de cada modulo siempre hace:
 
 ```ts
-import db from '../../DB/mysql';
+import db from '../../DB/pg';
 import crearControlador from './controlador';
 const controlador = crearControlador(db);
 export default controlador;
@@ -57,8 +57,8 @@ HTTP request
    → app.ts (middleware globales: morgan, express.json)
    → rutas.ts del modulo (express.Router)
    → controlador.ts (logica, usa TABLA/CAMPO_ID)
-   → DB/mysql.ts (helpers promisificados sobre la conexion)
-   → MySQL
+   → DB/pg.ts (helpers promisificados sobre el pool)
+   → PostgreSQL
    → la respuesta se envuelve en red/respuestas (sobre JSON uniforme)
 ```
 
@@ -68,8 +68,8 @@ HTTP request
 |---------|-----|
 | `index.ts` | Entry point: lee `port` de la app y levanta el servidor |
 | `app.ts` | Crea la app Express, monta middlewares y TODAS las rutas, monta el manejador global de errores al final |
-| `config.ts` | Lee `.env` (PORT, MYSQL_*, JET_SECRET). Usa `dotenv` |
-| `DB/mysql.ts` | Conexion MySQL unica + 7 helpers genericos de query |
+| `config.ts` | Lee `.env` (PORT, PG*, JET_SECRET). Usa `dotenv` |
+| `DB/pg.ts` | Pool PostgreSQL + 7 helpers genericos de query |
 | `auth/index.ts` | JWT: `asignarToken`, `chequearToken` |
 | `middleware/errors.ts` | Fabrica de errores con `statusCode` opcional |
 | `red/respuestas.ts` | Sobre de respuesta `success`/`error` |
@@ -82,27 +82,28 @@ HTTP request
 | `modulos/Colores/` | CRUD Colores |
 | `modulos/Reservas/` | CRUD Reservas (POST con defaults Fecha_Reserva=hoy, Estado='Pendiente') |
 | `modulos/Vehiculos_Colores/` | CRUD N:M Vehiculos↔Colores (listar, por vehiculo, por color, crear, eliminar) |
-| `modulos/Clientes/` | CRUD que apunta a la tabla `roles` (modulo con bug, ver gotchas) |
+| `modulos/Clientes/` | CRUD sobre la tabla `Roles` (apunta a Roles; ver gotchas) |
 
-### 2.4 Detalle de la capa DB (`src/DB/mysql.ts`)
+### 2.4 Detalle de la capa DB (`src/DB/pg.ts`)
 
-Una **unica conexion** MySQL (no pool) con reconexion automatica:
-- Si `connect` falla, reintenta cada **2 segundos**.
-- Si el evento `error` es `PROTOCOL_CONNECTION_LOST`, reconecta; si no, lanza.
-
-Helpers exportados (todos promisificados con `mysql` y queries parametrizadas):
+Un **pool** PostgreSQL con los mismos 7 helpers que tenia la capa MySQL (misma interfaz, misma inyeccion de DB):
+- Los **identificadores** (tablas/columnas) se citan con **comillas dobles** (`"Vehiculos"`, `"Nombre_Modelo"`), obligatorio en Postgres por los nombres mixtos.
+- Los **valores** usan parametros posicionales `$1, $2...`. En las queries en crudo, `??` se convierte en identificador y `?` en parametro (misma escritura que antes).
+- `agregar` hace `INSERT ... ON CONFLICT DO NOTHING` (equivalente al upsert de MySQL) e ignora valores `undefined`.
+- El tipo `DATE` se devuelve como texto `YYYY-MM-DD`.
+- Si `connect` falla, reintenta cada **2 segundos** (`pool` con auto-reconexion).
 
 | Funcion | SQL resultante |
 |---------|----------------|
-| `todos(tabla)` | `SELECT * FROM ??` |
-| `uno(tabla, campoId, id)` | `SELECT * FROM ?? WHERE ?? = ?` (devuelve `result[0]`) |
-| `agregar(tabla, data)` | `INSERT INTO ?? SET ? ON DUPLICATE KEY UPDATE ?` (upsert) |
-| `actualizar(tabla, campoId, id, data)` | `UPDATE ?? SET ? WHERE ?? = ?` |
-| `eliminar(tabla, campoId, id)` | `DELETE FROM ?? WHERE ?? = ?` |
-| `query(tabla, consulta)` | `SELECT * FROM ?? WHERE ?` (devuelve `result[0]`) |
-| `ejecutar(sql, valores)` | Query libre (usado por auth/login para el JOIN) |
+| `todos(tabla)` | `SELECT * FROM "tabla"` |
+| `uno(tabla, campoId, id)` | `SELECT * FROM "tabla" WHERE "campoId" = $1` (devuelve la primera fila) |
+| `agregar(tabla, data)` | `INSERT INTO "tabla" (cols) VALUES ($1..) ON CONFLICT DO NOTHING` |
+| `actualizar(tabla, campoId, id, data)` | `UPDATE "tabla" SET "col" = $1.. WHERE "campoId" = $n` |
+| `eliminar(tabla, campoId, id)` | `DELETE FROM "tabla" WHERE "campoId" = $1` |
+| `query(tabla, consulta)` | `SELECT * FROM "tabla" WHERE "col" = $1..` (devuelve la primera fila) |
+| `ejecutar(sql, valores)` | Query libre (auth/login JOIN, Vehiculos_Colores) |
 
-Uso de `??` para identificadores (tablas/columnas) y `?` para valores: **antisiSQL-injection**.
+Uso de `??` para identificadores y `?` para valores: **antisiSQL-injection**.
 
 ### 2.5 Autenticacion (JWT)
 
@@ -160,20 +161,21 @@ Los errores se loguean con `red/errors.ts` (`console.log('[error]', err)`) y res
 #### Modulo `Reservas`
 - CRUD completo sobre la tabla `Reservas`. El POST usa defaults `Fecha_Reserva`=hoy y `Estado`='Pendiente' si no vienen. Campos: `nombres`, `apellidos`, `cedula_identidad`, `modelo`, `color` (FK → `Colores.id_color`).
 
-#### Modulo `Clientes` (con bug)
-- CRUD sobre la tabla **`roles`** (error: deberia ser una tabla de clientes). No tiene PUT. El frontend no lo consume.
+#### Modulo `Clientes`
+- CRUD sobre la tabla **`Roles`** (`id_rol`, `Nombre`). Antes apuntaba a la tabla `roles` con firmas rotas; quedaron alineadas con el resto de modulos (incluye PUT). El frontend no lo consume.
 
 ### 2.8 Configuracion (`config.ts` + `.env`)
 
 ```env
 PORT=4000
-MYSQL_HOST=localhost
-MYSQL_USER=root
-MYSQL_PASSWORD=
-MYSQL_DATABASE=quantumappdb
+PGHOST=localhost
+PGUSER=postgres
+PGPASSWORD=123456
+PGDATABASE=QuantumSystemDB
+PGPORT=5432
 ```
 
-Defaults del codigo (si falta la var): puerto `4000`, host `localhost`, user `root`, password `''`, db `quantumdb`.
+Defaults del codigo (si falta la var): puerto HTTP `4000`, host `localhost`, user `postgres`, password `''`, db `QuantumSystemDB`, puerto PG `5432`.
 
 `dotenv` esta en **devDependencies** y se carga con `require('dotenv').config()` (podria fallar en produccion con `--production`).
 

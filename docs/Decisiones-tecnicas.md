@@ -11,7 +11,7 @@ Registro del **stack**, **herramientas** y **decisiones de diseno** tomadas en e
 |---------|----------|
 | Runtime | Node.js + TypeScript (ts-node / nodemon) |
 | Framework | Express 5 |
-| Base de datos | MySQL (driver `mysql`) |
+| Base de datos | PostgreSQL `QuantumSystemDB` (driver `pg`) — **activo**; `pgvector` + embeddings Gemini poblados |
 | Autenticacion | JWT (`jsonwebtoken`) + `bcrypt` (salt 5) |
 | Logging | `morgan` ('dev') |
 | Variables de entorno | `dotenv` (via `.env`, cargado con `require('dotenv').config()`) |
@@ -89,16 +89,17 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 5. **Estilos por pantalla** en `*.styles.ts` con paleta compartida; NativeWind instalado pero **inactivo** (`global.css` comentado en movil).
 6. **Frontend-web separado** (Vite) como app independiente, con arquitectura limpia (domain/data/infra/presentation) y fallback a mocks si la API falla.
 7. **Deteccion automatica de IP** en el movil (`Config/api.ts`): usa `Constants.expoConfig?.hostUri` para construir `API_URL`, con **fallback a `http://localhost:4000/api`** cuando no hay `hostUri` (p. ej. en web). En web, `react-native-maps` se sustituye por un **stub** (`src/stubs/react-native-maps.web.tsx`) via alias en `metro.config.js`.
+8. **Backend con PostgreSQL**: el backend **ya corre con el driver `pg`** contra `QuantumSystemDB` local. La capa `src/DB/pg.ts` preserva la interfaz de la anterior `mysql.ts` (misma inyeccion de DB), usando identificadores entre comillas dobles (`"Vehiculos"`), parametros `$n` (`??` = identificador, `?` = valor en queries en crudo) y upsert con `ON CONFLICT DO NOTHING`.
 
 ---
 
 ## 5. Gotchas / errores conocidos (importante para la IA)
 
 1. **`config.ts` lee `process.env.JET_SECRET`** (typo de "JWT"), no `JWT_SECRET`. El `.env` no la define, asi que el secret siempre cae a `'notasecreta!'`.
-2. **`.env` del backend** no esta versionado. Defaults de `config.ts`: puerto 4000, host localhost, user root, db `quantumdb`.
+2. **`.env` del backend** no esta versionado. Defaults de `config.ts`: puerto HTTP 4000, host `localhost`, user `postgres`, password `''`, db `QuantumSystemDB`, puerto PG `5432`.
 3. **`Mobile/cesconfig.jsonc`**: archivo de debug de NativeWind, ignorable/eliminable.
 4. **`tsconfigPaths` (alias `@/*`)** habilitado en Expo, pero las pantallas importan por **ruta relativa**.
-5. **`Modulo Clientes`** apunta a la tabla **`roles`** por error y no tiene PUT; no lo consume el frontend.
+5. **`Modulo Clientes`** apunta a la tabla **`Roles`** (nombre heredado del modulo; es el CRUD de roles). No lo consume el frontend.
 6. **No existe `POST /api/auth/registro`** en el backend. El movil lo llama (fallaria); el web lo resuelve con `POST /usuarios` + `POST /auth/login`.
 7. **El token JWT se guarda pero no se envia** en peticiones reales (solo login/registro hacen requests).
 8. **`Roles.Nombre` se compara como string** en el movil (`rol === 'cliente'` / `'administrador'` en minuscula); depende del dato en la BD.
@@ -109,39 +110,43 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 
 ## 6. Plan de despliegue / hoja de ruta (Roadmap)
 
-Plan acordado para publicar el proyecto en la nube. **Pendiente de ejecutar**; cada paso se hace "cuando llegue el momento".
+Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026**: los pasos 1, 2 y 3 estan **completados en local**; los demas estan pendientes.
 
-1. **Migrar la base de datos de MySQL a PostgreSQL de manera local**.
-   - Usar **pgloader**: `pgloader mysql://... quantumappdb postgresql://... quantumdb`.
-   - Al quedar en el mismo motor (Postgres) que Supabase, la subida posterior no tiene fricción (mismos tipos, extensiones y esquema).
-2. **Configurar los campos vectoriales (`pgvector`) localmente**:
-   - `CREATE EXTENSION vector;`.
-   - Añadir **tablas/columnas vectoriales** para:
-     - **Documentos de la empresa** (PDFs).
-     - **Imagenes de la empresa** (catalogo de vehiculos, etc.).
-   - Generar embeddings (con Gemini free tier) y poblar las tablas en local.
-   - Si se requiere, **modificar las tablas originales** (agregar/ajustar columnas, p. ej. tabla `Imagenes` con metadatos + storage).
-3. **Subir la base de datos a Supabase (plan Free) cuando este lista**.
+1. **Migrar la base de datos de MySQL a PostgreSQL de manera local** — ✅ **HECHO**.
+   - No se uso pgloader; se creo el esquema y se cargaron los datos en la base `QuantumSystemDB` (PostgreSQL 17) con un script SQL de una sola ejecucion (ya eliminado).
+   - Quedo en el mismo motor (Postgres) que Supabase, la subida posterior no tiene fricción (mismos tipos, extensiones y esquema).
+   - Detalle de tipos, tablas y estado migrado: ver `docs/base-datos.md`.
+2. **Configurar los campos vectoriales (`pgvector`) localmente** — ✅ **HECHO** (parcial: solo las tablas de la app).
+   - `CREATE EXTENSION vector;` (extension `pgvector` ya instalada a nivel de sistema en PostgreSQL 17 Windows; el instalador de una sola ejecucion se elimino tras reproducirla).
+   - Columnas `"embedding" vector(768)` en **Usuarios, Vehiculos, Reservas, Servicios_Tecnicos y Estaciones_Carga**.
+   - **Embeddings generados con Gemini** (`gemini-embedding-001`, dimension 768) y poblados via `Backend/scripts/vectorizar_datos.ts` (lee la clave `API_KEY_GOOGLE_AI_STUDIO` de `Backend/.env`; fallback local sin IA si no hay clave).
+   - Pendiente (cuando corresponda): documentos de la empresa (PDFs) e imagenes (catalogo) en tablas/columnas adicionales.
+3. **Adaptar el backend a PostgreSQL local** — ✅ **HECHO** (septiembre 2026).
+   - Nueva capa `Backend/src/DB/pg.ts` con la **misma interfaz** que tenia `mysql.ts` (se elimino) y mismos modulos/rutas (arquitectura intacta).
+   - `config.ts` expone `config.pg` (`PGHOST/PGUSER/PGPASSWORD/PGDATABASE/PGPORT`) y el `.env` apunta a `QuantumSystemDB` (puerto 5432).
+   - SQL en crudo ajustado a sintaxis Postgres (identificadores mixtos entre comillas dobles, parametros `$n`).
+   - Detalle completo de los cambios: `docs/base-datos.md` (seccion "Migracion del backend a PostgreSQL").
+4. **Subir la base de datos a Supabase (plan Free)** — pendiente.
    - Opcion A (recomendada): **Dashboard → Database → Import from other databases** (soporta Postgres/MySQL).
    - Opcion B: `pg_dump` del Postgres local y `pg_restore` en la base de Supabase (mismo motor, cero incompatibilidades).
-4. **Adaptar el backend** para consultar la **base de datos de Supabase** con sus credenciales (cambiar driver MySQL → `pg` y ajustar el SQL) y **subirlo a Render**.
-5. **Adaptar el frontend** para consumir las APIs del backend publicado en Render y **subirlo a Vercel**.
-6. **Chatbot con IA**: usar **Google Gemini API** (free tier, $0) para el RAG/chat, pero **dejarlo desacoplado** para poder cambiarlo a un proveedor mas potente/de paga (p. ej. OpenAI, Claude) sin rehacer la app cuando se requiera.
+5. **Conectar el backend a Supabase** con sus credenciales (ya usa driver `pg`; solo cambiar el `.env`/`config.ts`) y **subirlo a Render** — pendiente.
+6. **Adaptar el frontend** para consumir las APIs del backend publicado en Render y **subirlo a Vercel**.
+7. **Chatbot con IA**: usar **Google Gemini API** (free tier, $0) para el RAG/chat, pero **dejarlo desacoplado** para poder cambiarlo a un proveedor mas potente/de paga (p. ej. OpenAI, Claude) sin rehacer la app cuando se requiera. El flujo ya tiene la base: datos vectorizados en Postgres local → backend busca por similitud (`<=>`) → contexto a Gemini → respuesta al frontend.
 
 Evolucion de la arquitectura:
 
 ```
-HOY:       MySQL (local)                       → Backend local → Mobile / Web
-TRANSICION: PostgreSQL + pgvector (local)      → Backend local (dev)   ← se prepara y prueba aquí
+HOY:       PostgreSQL + pgvector (local) + embeddings Gemini
+           Backend con driver pg (capa src/DB/pg.ts) → QuantumSystemDB local
 FUTURO:    Supabase (Postgres+pgvector+Storage) → Backend en Render → Vercel (web) + Mobile
              ↑ Gemini (free tier) orquesta RAG desde el backend
 ```
 
 Notas:
-- La migración se hace cuando las tablas esten **completas**.
+- Los pasos 1 a 3 quedaron registrados en `docs/base-datos.md` (esquema, datos, como reproducir la vectorizacion y resumen de la migracion del backend).
 - Desarrollar localmente en Postgres+pgvector (sin depender de red) y **subir a Supabase solo cuando esté listo**.
-- Las credenciales (Supabase, Render, Vercel, Gemini) **solo van en variables de entorno**, nunca en el repo.
-- Alternativa a Supabase si se quisiera seguir con MySQL: PlanetScale / AWS RDS (descartada por ahora; el plan es Postgres/Supabase).
+- Las credenciales (Supabase, Render, Vercel, Gemini) **solo van en variables de entorno**, nunca en el repo (`API_KEY_GOOGLE_AI_STUDIO` y `PGPASSWORD` van por `.env`/entorno).
+- El backend ya corre en Postgres; si en el futuro no se usara Supabase, alternativas como Neon / Fly.io / Railway (ambas Postgres) serian mas simples que volver a MySQL (descartado).
 
 ---
 
@@ -149,7 +154,7 @@ Notas:
 
 ### Backend
 ```
-cd Backend && npm run dev        # nodemon + ts-node, puerto 4000 (requiere MySQL + .env)
+cd Backend && npm run dev        # nodemon + ts-node, puerto 4000 (requiere PostgreSQL local + .env)
 ```
 
 ### Movil

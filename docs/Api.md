@@ -18,10 +18,11 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | Metodo | Ruta | Modulo | Accion |
 |--------|------|--------|--------|
 | POST | `/api/auth/login` | auth | Iniciar sesion |
-| GET | `/api/clientes` | Clientes | Listar (tabla `roles`) |
-| POST | `/api/clientes` | Clientes | Crear (tabla `roles`) |
-| GET | `/api/clientes/:id` | Clientes | Obtener uno (tabla `roles`) |
-| DELETE | `/api/clientes/:id` | Clientes | Eliminar (tabla `roles`) |
+| GET | `/api/clientes` | Clientes | Listar (tabla `Roles`) |
+| POST | `/api/clientes` | Clientes | Crear (tabla `Roles`) |
+| GET | `/api/clientes/:id` | Clientes | Obtener uno (tabla `Roles`) |
+| PUT | `/api/clientes/:id` | Clientes | Actualizar (tabla `Roles`) |
+| DELETE | `/api/clientes/:id` | Clientes | Eliminar (tabla `Roles`) |
 | GET | `/api/colores` | Colores | Listar colores |
 | POST | `/api/colores` | Colores | Crear color |
 | GET | `/api/colores/:id` | Colores | Obtener color |
@@ -180,11 +181,10 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
   ```
   Si no se envian `Fecha_Reserva` ni `Estado`, se usan por defecto la **fecha de hoy** y **"Pendiente"**.
 
-### `/api/clientes` (con bug)
+### `/api/clientes`
 
-- GET `/api/clientes` / POST `/api/clientes` / GET `/api/clientes/:id` / DELETE `/api/clientes/:id`
-- **Sin PUT.**
-- **Opera sobre la tabla `roles`** (no sobre una tabla de clientes): es un error heredado; los frontends no lo consumen.
+- GET `/api/clientes` / GET `/api/clientes/:id` / POST `/api/clientes` / PUT `/api/clientes/:id` / DELETE `/api/clientes/:id`
+- **Opera sobre la tabla `Roles`** (`id_rol`, `Nombre`). Es el CRUD heredado con ese nombre; los frontends no lo consumen.
 
 ---
 
