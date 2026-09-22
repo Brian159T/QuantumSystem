@@ -32,18 +32,18 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 - **Integrado con la API real** (movil: `VehiculosService.obtenerVehiculos` + `ColoresService.obtenerColores`).
 - Listado del catalogo con datos de la tabla `Vehiculos` (nombre, tipo, autonomia, carga rapida, precio `Precio_USD`).
 - **Espacio reservado para la foto** de cada modelo (placeholder con icono; las imagenes se agregaran despues; la tabla no tiene columna de imagen aun).
-- **Vista de detalle** por modelo: selector de **colores** (array `colores` de la API desde la tabla N:M `Vehiculos_Colores`; si viene vacio cae al `id_color`), **ficha tecnica** (autonomia, bateria, velocidad maxima, carga, asientos, traccion).
+- **Vista de detalle** (web) por modelo: selector de **colores** con la paleta del API; se muestran **solo los colores realmente disponibles** de ese modelo (los de la N:M `Vehiculos_Colores`). En el movil, si el array `colores` viene vacio cae al `id_color`. Ademas la **ficha tecnica** (autonomia, bateria, velocidad maxima, carga, asientos, traccion).
 - Sombras/colores con opacidad calculados en JS.
 - Web: boton para **reservar** un vehiculo (pasa el vehiculo a la pantalla de reservas).
 
 ### 1.3 Reservas (Movil: `ReservasScreen.tsx` / Web: `PaginaReservas.tsx`)
-- Seleccion de **modelo** (desde la API `GET /vehiculos`, muestra precio) y **color** (colores **desde la API** `GET /colores`), con form de **datos personales** (nombres, apellidos, cedula).
+- Seleccion de **modelo** (desde la API `GET /vehiculos`, muestra precio) y **color** (colores **desde la API** `GET /colores`), con form de **datos personales** (nombres, apellidos, cedula). En el web, al reservar se muestran **solo los colores disponibles de cada modelo** (sin paleta generica); si el modelo no tiene colores, se indica "Este modelo aún no tiene colores disponibles".
 - **Validacion de campos** con errores por campo (nombres/apellidos ≥2 caracteres, cedula 6-10 digitos, modelo y color requeridos).
 - **Modal de confirmacion** de reserva con:
-  - Datos del cliente y del vehiculo (modelo, color, precio).
-  - Boton **"EFECTUAR PAGO Y CONFIRMAR"**.
-  - Nota "El precio de reserva es reembolsable".
+  - Datos del cliente y del vehiculo (modelo, color).
+  - Boton **"Confirmar reserva"** en el web (el movil usa **"EFECTUAR PAGO Y CONFIRMAR"**).
 - Al confirmar **guarda la reserva en la API** (`POST /reservas`) con nombres, apellidos, cedula, modelo y color (FK). Genera **codigo de confirmacion**.
+- En el web la reserva es **sin costo** (se quito el pago inicial de 1000 USD); el movil aun simula el pago.
 - Movil: es un **class component** (unico en el proyecto).
 - **No hay QR**: el pago se simula directamente con el boton de confirmar.
 
@@ -119,15 +119,15 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 | Pagina | Uso de API |
 |--------|-----------|
 | `PaginaInicio.tsx` | API `/vehiculos` (fallback mock) |
-| `PaginaVehiculos.tsx` | Via repositorio (fallback mock) |
-| `PaginaReservas.tsx` | Mock |
+| `PaginaVehiculos.tsx` | Via `useVehiculos()` / `vehiculosService` (fallback mock) |
+| `PaginaReservas.tsx` | **Real API** (POST /reservas, GET /vehiculos, GET /colores) |
 | `PaginaInicioCliente.tsx` | Mock |
 | `PaginaEstaciones.tsx` | API `/estaciones-carga` (fallback mock) |
 | `PaginaTalleres.tsx` | API `/servicios-tecnicos` (fallback mock) |
 | `PaginaEmergencias.tsx` | Mock |
 | `PaginaPanel.tsx` | API (stats dinamicas) con fallback |
 | `PaginaUsuarios.tsx` | API `/usuarios` (fallback mock) |
-| Login / Registro (`AuthRepositoryImpl`) | **Real API** |
+| Login / Registro (`authService`) | **Real API** |
 
 ---
 

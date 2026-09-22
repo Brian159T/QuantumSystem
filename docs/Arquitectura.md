@@ -255,68 +255,85 @@ Iconos con `@expo/vector-icons` (MaterialCommunityIcons). `SafeAreaProvider` env
 
 ## 4. Arquitectura del frontend web (`Frontend/`)
 
-SPA de **Vite + React 19 + TypeScript**. Es una app septara de la movil, con arquitectura propia.
+SPA de **Vite + React 19 + TypeScript**. Es una app separada de la movil, con arquitectura propia **basada en componentes**.
 
-### 4.1 Estructura (arquitectura limpia / hexagonal-lite)
+### 4.1 Estructura (arquitectura basada en componentes)
 
 ```
 Frontend/src/
-├── domain/               # Capa de dominio pura
-│   ├── modelos/            # Usuario, Vehiculo, EstacionesYTalleres (tipos)
-│   ├── repositories/       # Repositorios.ts (interfaces abstractas)
-│   └── usecases/           # AuthUseCase, CatalogoUseCase, EstacionesUseCase, TalleresUseCase, UsuariosUseCase
-├── data/                 # Implementacion
-│   ├── repositories/       # AuthRepositoryImpl, VehiculoRepositoryImpl, EstacionYTallerRepositoryImpl, UsuarioRepositoryImpl
-│   ├── mocks/              # vehiculos.mock.ts, usuarios.mock.ts, estacionesYTalleres.mock.ts
-│   └── index.ts            # Inyeccion de dependencias (exporta los useCases instanciados)
-├── infraestructura/
-│   └── http/ApiClient.ts   # fetch con sobre {error, status, body}
-├── presentation/
-│   ├── context/            # AuthContext.ts, AuthProvider.tsx
-│   ├── navigation/         # AppNavigator.tsx
-│   ├── components/         # LoginButton, LoginModal, LogoutButton, Saludo, EncabezadoSeccion
-│   └── pages/
-│       ├── invitado/       # PaginaInicio, PaginaVehiculos, PaginaReservas
-│       ├── cliente/        # PaginaInicioCliente, PaginaEstaciones, PaginaTalleres, PaginaEmergencias
-│       └── administrador/  # PaginaPanel, PaginaUsuarios
-└── styles/                # base.css, componentes.css, paginas.css, variables.css
+├── components/           # Componentes reutilizables de la interfaz
+│   ├── EncabezadoSeccion.tsx   # Titulo de seccion con enlace/contador
+│   ├── LoginButton.tsx         # Boton "Cuenta" + abre LoginModal
+│   ├── LoginModal.tsx          # Modal login/registro (usa useAuth)
+│   ├── LogoutButton.tsx        # Boton "Salir"
+│   └── Saludo.tsx              # Avatar + "Hola, {nombre}" (usa useAuth)
+├── hooks/                # Hooks personalizados y logica reutilizable
+│   ├── useAuth.ts              # AuthContext + createContext + hook useAuth()
+│   ├── AuthProvider.tsx        # Widget de estado de auth (login/registro, flags de rol)
+│   └── useDatos.ts             # useVehiculos, useEstaciones, useTalleres, useUsuarios
+├── pages/                # Paginas completas del sistema (según rol)
+│   ├── invitado/          # PaginaInicio, PaginaVehiculos, PaginaReservas
+│   ├── cliente/           # PaginaInicioCliente, PaginaEstaciones, PaginaTalleres, PaginaEmergencias
+│   └── administrador/     # PaginaPanel, PaginaUsuarios
+├── routes/               # Configuracion de las rutas de la app
+│   ├── config.ts              # NAVEGACION (tabs por rol) + INICIO_POR_ROL
+│   └── AppNavigator.tsx       # Shell + router por estado
+├── services/             # Comunicacion con el backend/API
+│   ├── apiClient.ts           # peticion() con sobre {error, status, body}
+│   ├── authService.ts         # iniciarSesion, registrar (POST /usuarios + /auth/login)
+│   ├── vehiculosService.ts    # GET /vehiculos + adaptar + fallback mocks
+│   ├── estacionesService.ts   # GET /estaciones-carga + fallback mocks
+│   ├── talleresService.ts     # GET /servicios-tecnicos + fallback mocks
+│   ├── usuariosService.ts     # GET /usuarios + adaptar + fallback mocks
+│   └── mocks/                 # vehiculos.ts, usuarios.ts, estacionesYTalleres.ts
+├── utils/                # Funciones auxiliares y utilidades
+│   ├── roles.ts               # esRolAdministrador, esRolCliente
+│   └── iniciales.ts           # obtenerIniciales
+├── types/                # Interfaces y tipos de TypeScript
+│   ├── Usuario.ts             # Usuario, Credenciales, DatosRegistro, RespuestaAuth, UsuarioAdministracion
+│   ├── Vehiculo.ts            # Vehiculo, ColorVehiculo
+│   └── EstacionesYTalleres.ts # EstacionCarga, ServicioTecnico, VelocidadCarga
+├── styles/                # variables.css, base.css, componentes.css, paginas.css
+└── assets/                # imagenes/iconos (hero.png, react.svg, vite.svg)
 ```
 
-### 4.2 Flujo de datos (clean architecture)
+### 4.2 Flujo de datos (componentes + hooks + servicios)
 
 ```
-pages (React) → usecases (domain) → repositories (interfaces) → Impl (data) → ApiClient (infraestructura) → Backend
+pages (React) → hooks (useDatos/useAuth) → services (fetch) → Backend
+                     │
+                     └── utils (roles, iniciales)
 ```
 
-La **capa `domain` no conoce** HTTP: los `UseCase` dependen de interfaces `Repositorio*` definidas en `domain/repositories/Repositorios.ts`. Las implementaciones (`*RepositoryImpl`) estan en `data/`. La inyeccion se hace manualmente en `data/index.ts`.
+Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven a los services. Los services son el unico punto que toca la API (`apiClient.peticion`) y **cada uno cae a mocks** si la peticion falla o devuelve una lista vacia (modo demo/resiliente). Las `types/` son el contrato compartido entre pages, hooks y services.
 
 ### 4.3 Comunicacion con el backend
 
-- `infraestructura/http/ApiClient.ts`: `fetch` al `URL_BASE` + `ruta`. Parse el sobre `{error, status, body}`; si `error === true` lanza `Error` con el mensaje.
+- `services/apiClient.ts`: `fetch` al `URL_BASE` + `ruta`. Parse el sobre `{error, status, body}`; si `error === true` lanza `Error` con el mensaje.
 - `URL_BASE` = `import.meta.env.VITE_API_URL || '/api'`.
 - En desarrollo, Vite (via `vite.config.ts` proxy) **reenvia `/api` a `http://localhost:4000`**, evitando CORS.
-- `data/repositories/*.ts` **lee el body de la API y si la respuesta esta vacia o falla, cae a los mocks** (modo demo/resiliente).
+- `services/*Service.ts` **lee el body de la API y si la respuesta esta vacia o falla, cae a los mocks** (modo demo/resiliente).
 
 ### 4.4 Registro en el web (importante)
 
-`AuthRepositoryImpl.registrar` hace:
+`authService.registrar` hace:
 1. `POST /usuarios` con `{ nombre_usuario, correo, contrasena, id_rol: 2 }` (rol cliente).
 2. Luego `POST /auth/login` y devuelve `{ token, usuario }`.
 
 ### 4.5 Routing/navegacion del web
 
-`AppNavigator.tsx` es un SPA con **navegacion por estado** (no usa react-router). El rol se calcula con `useAuth()` (flags `esInvitado/esCliente/esAdministrador`) y se renderiza un set de pantallas segun rol, con `pantallaActual` controlado por `useState`. Iconos con `lucide-react`.
+`routes/AppNavigator.tsx` es un SPA con **navegacion por estado** (no usa react-router). La config de rutas vive en `routes/config.ts` (`NAVEGACION` por rol e `INICIO_POR_ROL`). El rol se calcula con `useAuth()` (flags `esInvitado/esCliente/esAdministrador`) y se renderiza un set de pantallas segun rol, con `pantallaActual` controlado por `useState`. Iconos con `lucide-react`.
 
-### 4.6 Autenticacion (contexto)
+### 4.6 Autenticacion (contexto + hook)
 
-`AuthProvider` expone el hook `useAuth()` con: `usuario`, `token`, `cargandoLogin/Registro`, `errorLogin/Registro`, `iniciarSesion`, `registrar`, `cerrarSesion` y los flags derivados. El rol se infiere con una logica robusta: `id_rol === 1` → admin; de lo contrario busca en el string `rol` coincidencias (`'admin'`, `'client'`, `'usuario'`, `'user'`).
+`hooks/AuthProvider.tsx` (widget) expone el hook `useAuth()` (definido en `hooks/useAuth.ts`) con: `usuario`, `token`, `cargandoLogin/Registro`, `errorLogin/Registro`, `iniciarSesion`, `registrar`, `cerrarSesion` y los flags derivados. El rol se infiere con una logica robusta en `utils/roles.ts`: `id_rol === 1` → admin; de lo contrario busca en el string `rol` coincidencias (`'admin'`, `'client'`, `'usuario'`, `'user'`).
 
 ---
 
 ## 5. Flujo de autenticacion (extremo a extremo)
 
 1. **Cliente** ingresa `correo` + `contrasena` en la UI (Mobile `LoginButton` / web `LoginModal`).
-2. El **ViewModel/AuthProvider** llama al service de auth (axios/fetch).
+2. El **AuthProvider**/hook `useAuth` llama al service de auth (fetch).
 3. **Backend** `POST /api/auth/login` busca en `Usuarios` JOIN `Roles`, valida con `bcrypt.compare`, genera JWT y devuelve `{ token, usuario }`.
 4. La UI guarda `usuario` y `token` en el **contexto** de autenticacion.
 5. Los **flags derivados** (`esInvitado/esCliente/esAdministrador`) definen que tabs/paginas ver.
@@ -332,7 +349,7 @@ La **capa `domain` no conoce** HTTP: los `UseCase` dependen de interfaces `Repos
 2. **Sobre de respuesta uniforme** `{error, status, body}` en toda la API.
 3. **JWT sin expiracion** + bcrypt (salt 5) para contrasenas.
 4. **Mobile**: MVVM-lite con `AuthContext`; navegacion por tabs condicionada al rol.
-5. **Web**: clean architecture (domain/usecases/data/infra/presentation) con inyeccion manual; cae a mocks si la API falla.
+5. **Web**: arquitectura basada en componentes (`components/pages/hooks/services/utils/types/routes`). Las paginas consumen hooks (`useDatos.ts`) que envuelven a los services (`apiClient.ts`); cae a mocks si la API falla.
 6. **Paleta de colores** compartida (GREEN `#2fb676`, BLUE `#4D9FFF`, BG `#0A0F1E`, etc.), ver `docs/Decisiones-tecnicas.md`.
 
 ---

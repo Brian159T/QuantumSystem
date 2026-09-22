@@ -31,6 +31,7 @@ Roles (1) ──── (N) Usuarios
 - Activacion por base: `CREATE EXTENSION IF NOT EXISTS vector;`.
 - Las tablas **Usuarios, Vehiculos, Reservas, Servicios_Tecnicos y Estaciones_Carga** tienen una columna `"embedding" vector(768)` poblada con **embeddings semánticos de Google Gemini** (`gemini-embedding-001`, 768 dimensiones recomendada).
 - Para buscar por similitud: `ORDER BY "embedding" <=> '<vector>'::vector` (coseno). Para vectores rapidos se puede crear `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)`.
+- **Que guarda y para que sirve la columna**: hay **un vector por fila** (1 peticion a Gemini por fila; cada vector se guarda en la fila que le corresponde, con `UPDATE ... WHERE pk = <fila>`). Cada vector es la representacion **semantica del contenido de las demas columnas de esa fila** (el texto `"columna:valor ..."` es lo que Gemini convierte en vector). Su unico objetivo es servir de **clave de busqueda semantica**: cuando llega una pregunta, se la vectoriza con el mismo modelo y `<=>` compara ese vector contra los guardados para hallar que filas "hablan del mismo tema"; el **vector de la pregunta es solo la llave de busqueda y nunca se le pasa a la IA** (a la IA se le entrega el texto de la fila encontrada, no el vector).
 
 ## Como se reprodujo / vectorizacion
 
@@ -172,6 +173,10 @@ Verificado al ejecutar el script (septiembre 2026): 34 registros en total.
 
 ## Notas de la migracion MySQL -> Postgres
 
+- **Las relaciones (FKs) son las mismas que en la antigua base MySQL `quantumappdb`**: la migracion preservo el esquema de relaciones sin cambios. Verificado contra la base real `QuantumSystemDB` (FKs existentes: `Usuarios.id_rol -> Roles`, `Reservas.color -> Colores`, `Vehiculos.id_color -> Colores`, `Vehiculos_Colores` N:M con `ON DELETE CASCADE` en ambas FKs, `Usuarios_Reservas` y `Usuarios_Vehiculos` N:M; `Estaciones_Carga` y `Servicios_Tecnicos` siguen sin FKs).
+
+---
+
 - Los IDs se cargaron explicitos y se sincronizaron las secuencias con `setval(pg_get_serial_sequence('"Tabla"', 'id_campo'), ...)` — es obligatorio pasar el nombre de tabla **entre comillas dentro de la cadena** (`'"Tabla"'`) por los nombres mixtos; si no, PG lo resuelve en minusculas y falla.
 - PostgreSQL es estricto con `VARCHAR(n)`: textos mas largos que el limite (caso de `horarios`) abortan la transaccion. Se ampliaron `horarios` (200), `direccion` (100) y `telefono` (30) en `Servicios_Tecnicos` y `Estaciones_Carga`.
 
@@ -197,9 +202,9 @@ Mas adelante el backend hara algo **parecido pero al reves** para responder preg
 
 1. El usuario escribe una pregunta en el frontend (chatbot).
 2. El backend **vectoriza la pregunta** con el **mismo modelo** de Gemini.
-3. Busca en Postgres las filas mas parecidas: `SELECT ... FROM "<Tabla>" ORDER BY "embedding" <=> '<vector_pregunta>'::vector LIMIT k` (operador coseno de pgvector; opcional: indice HNSW).
-4. Toma esas filas como **contexto** y se lo pasa a Gemini (modelo de texto) junto con la pregunta.
-5. Gemini responde basandose en ese contexto y el backend entrega la respuesta **al frontend** (ida y vuelta: BD → IA → frontend).
+3. Busca en Postgres las filas mas parecidas: `SELECT ... FROM "<Tabla>" ORDER BY "embedding" <=> '<vector_pregunta>'::vector LIMIT k` (operador coseno de pgvector; opcional: indice HNSW). El vector de la pregunta solo sirve de **llave de busqueda**: se compara contra los vectores guardados por fila en `embedding`.
+4. Toma esas filas y extrae **su texto** (`"columna:valor ..."`); ese texto (no el vector) es el **contexto** que se le pasa a Gemini (modelo de texto) junto con la pregunta.
+5. Gemini responde basandose en ese contexto y el backend entrega la respuesta **al frontend** (ida y vuelta: BD → IA → frontend). El vector guardado en BD permite **encontrar** que filas son relevantes, pero la IA solo ve texto.
 
 ---
 

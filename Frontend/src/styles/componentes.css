@@ -12,16 +12,33 @@
 }
 
 /* Fondos distintivos por tipo de usuario */
+/* Fondos distintivos por tipo de usuario */
+
 .aplicacion--invitado {
-  background: linear-gradient(135deg, #01070a 0%, #0a3a52 100%);
+  background: linear-gradient(
+    135deg,
+    #0b1717 0%,
+    #102a25 55%,
+    #123a2d 100%
+  );
 }
 
 .aplicacion--cliente {
-  background: linear-gradient(120deg, #041520 0%, #0b3a52 100%);
+  background: linear-gradient(
+    135deg,
+    #0b1422 0%,
+    #13263d 55%,
+    #193554 100%
+  );
 }
 
 .aplicacion--administrador {
-  background: linear-gradient(135deg, rgb(1, 5, 18) 0%, rgb(7, 30, 66) 100%);
+  background: linear-gradient(
+    135deg,
+    #0c1220 0%,
+    #18233a 55%,
+    #223452 100%
+  );
 }
 
 .contenido {
@@ -91,7 +108,7 @@
 
 .cabecera-sitio__nombre {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 700;
   letter-spacing: 3px;
   color: var(--blanco);
 }
@@ -111,7 +128,7 @@
   padding: 8px 14px;
   border-radius: 8px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
   letter-spacing: 0.6px;
   text-transform: uppercase;
   color: #aab6cc;
@@ -179,7 +196,7 @@
 
 /* ---------- Pie de sitio ---------- */
 .pie-sitio {
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(20, 44, 76, 0.14);
   padding: 26px 28px;
   display: flex;
   align-items: center;
@@ -187,7 +204,7 @@
   gap: 18px;
   flex-wrap: wrap;
   font-size: 12px;
-  color: var(--texto-suave);
+  color: var(--texto-pagina-suave);
 }
 
 .pie-sitio__marca {
@@ -196,7 +213,7 @@
   gap: 6px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--texto-medio);
+  color: var(--texto-pagina);
 }
 
 .pie-sitio__enlaces {
@@ -212,7 +229,7 @@
   padding: 12px 22px;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 500;
   transition: transform var(--velocidad-transicion), box-shadow var(--velocidad-transicion),
     background var(--velocidad-transicion), opacity var(--velocidad-transicion);
 }
@@ -261,7 +278,7 @@
 .boton--claro {
   background: var(--blanco);
   color: #0a0f1e;
-  border: 1px solid transparent;
+  border: 1px solid rgba(10, 15, 30, 0.1);
 }
 
 .boton--claro:hover:not(:disabled) {
@@ -551,6 +568,10 @@ select.campo__entrada option {
   gap: 10px;
   padding: 48px 20px;
   text-align: center;
+  color: var(--texto-pagina-suave);
+}
+
+.tarjeta .vacio {
   color: var(--texto-suave);
 }
 
@@ -596,7 +617,7 @@ select.campo__entrada option {
 .titulo-seccion {
   font-size: 20px;
   font-weight: 700;
-  color: var(--texto-principal);
+  color: var(--texto-pagina);
 }
 
 .titulo-seccion__enlace {

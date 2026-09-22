@@ -211,6 +211,6 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
 - `VehiculosService.obtenerVehiculos` → `GET /vehiculos`, devuelve `response.data.body`.
 - `ReservasService.crearReserva` → `POST /reservas`, guarda la reserva del invitado.
 
-### Web (`Frontend/src/infraestructura/http/ApiClient.ts`)
+### Web (`Frontend/src/services/apiClient.ts`)
 - `peticion(ruta, opciones)` usa `fetch`, parse el sobre `{error, status, body}` y devuelve `body`; lanza `Error` si `error === true`.
-- Llamadas: `/auth/login`, `/usuarios` (POST para registrar), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`. En caso de fallo o array vacio, los repositorios web **caen a mocks locales**.
+- Llamadas (via `services/*Service.ts`): `/auth/login`, `/usuarios` (POST para registrar), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio, los services web **caen a mocks locales**.

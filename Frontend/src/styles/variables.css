@@ -1,56 +1,110 @@
 :root {
-  /* Acentos de marca Quantum */
+
+  /* ========================================
+     COLORES DE MARCA QUANTUM
+     ======================================== */
+
   --verde: #2fb676;
   --verde-oscuro: #239a63;
   --verde-suave: rgba(47, 182, 118, 0.12);
-  --verde-transparente: rgba(47, 182, 118, 0.32);
+  --verde-transparente: rgba(47, 182, 118, 0.28);
+
   --azul: #4d9fff;
   --azul-oscuro: #2d7fdc;
-  --azul-suave: rgba(77, 159, 255, 0.14);
+  --azul-suave: rgba(77, 159, 255, 0.12);
+  --azul-transparente: rgba(77, 159, 255, 0.25);
 
-  /* Fondos oscuros (navy) */
-  --fondo: #080d1a;
-  --navy: #0f172a;
-  --navy-medio: #121b31;
-  --navy-claro: #1a2744;
 
-  /* Superficies (tema oscuro) */
-  --superficie: #0f172a;
-  --superficie-elevada: #141f38;
-  --superficie-hover: #1a2744;
+  /* ========================================
+     FONDOS OSCUROS
+     ======================================== */
 
-  /* Texto sobre fondo oscuro */
+  --fondo: #0b1120;
+  --navy: #0a0f1e;
+  --navy-medio: #111a2e;
+  --navy-claro: #182642;
+
+
+  /* ========================================
+     SUPERFICIES
+     ======================================== */
+
+  --superficie: #111a2e;
+  --superficie-elevada: #17233b;
+  --superficie-hover: #1d2d4a;
+
+  --borde-claro: rgba(255, 255, 255, 0.10);
+
+
+  /* ========================================
+     TEXTOS
+     ======================================== */
+
   --blanco: #ffffff;
-  --texto-principal: #eef2fb;
-  --texto-medio: #a6b1c9;
-  --texto-suave: #7c88a3;
-  --borde-claro: rgba(255, 255, 255, 0.09);
-  --fondo-claro: #121b31;
 
-  /* Colores de apoyo */
-  --rojo: #ef4444;
-  --naranja: #f59e0b;
-  --morado: #a78bfa;
+  --texto-principal: #eef4ff;
+  --texto-medio: #b2bfd4;
+  --texto-suave: #8190aa;
 
-  /* Radios */
+  --texto-pagina: #eef4ff;
+  --texto-pagina-suave: #aab8cd;
+
+
+  /* ========================================
+     COLORES DE APOYO
+     ======================================== */
+
+  --rojo: #ef5350;
+  --naranja: #f2a93b;
+  --morado: #9b8afb;
+
+
+  /* ========================================
+     RADIOS
+     ======================================== */
+
   --radio: 18px;
   --radio-suave: 12px;
   --radio-pastilla: 999px;
 
-  /* Sombras */
+
+  /* ========================================
+     SOMBRAS
+     ======================================== */
+
   --sombra: 0 10px 30px rgba(0, 0, 0, 0.25);
-  --sombra-media: 0 16px 38px rgba(0, 0, 0, 0.35);
-  --sombra-fuerte: 0 24px 60px rgba(0, 0, 0, 0.5);
-  --sombra-verde: 0 10px 26px rgba(47, 182, 118, 0.28);
+  --sombra-media: 0 16px 38px rgba(0, 0, 0, 0.32);
+  --sombra-fuerte: 0 24px 60px rgba(0, 0, 0, 0.45);
 
-  /* Gradientes */
-  --gradiente-verde: linear-gradient(135deg, #35c887 0%, #239a63 100%);
-  --gradiente-azul: linear-gradient(135deg, #4d9fff 0%, #2d7fdc 100%);
-  --gradiente-fondo: linear-gradient(180deg, #080d1a 0%, #0d1426 100%);
-  --gradiente-tarjeta: linear-gradient(160deg, #16213c 0%, #0f172a 100%);
-  --gradiente-encabezado: linear-gradient(135deg, #0a0f1e 0%, #16244a 100%);
+  --sombra-verde: 0 10px 26px rgba(47, 182, 118, 0.25);
+  --sombra-azul: 0 10px 26px rgba(77, 159, 255, 0.20);
 
-  /* Tipografia */
-  --fuente: 'Poppins', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* ========================================
+     GRADIENTES
+     ======================================== */
+
+  --gradiente-verde:
+    linear-gradient(135deg, #35c887 0%, #239a63 100%);
+
+  --gradiente-azul:
+    linear-gradient(135deg, #4d9fff 0%, #2d7fdc 100%);
+
+  --gradiente-fondo:
+    linear-gradient(135deg, #0b1120 0%, #121d35 50%, #0a0f1e 100%);
+
+  --gradiente-tarjeta:
+    linear-gradient(160deg, #182642 0%, #111a2e 100%);
+
+  --gradiente-encabezado:
+    linear-gradient(135deg, #0a0f1e 0%, #16244a 100%);
+
+
+  /* ========================================
+     TIPOGRAFÍA
+     ======================================== */
+
+  --fuente: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
   --velocidad-transicion: 0.22s ease;
 }

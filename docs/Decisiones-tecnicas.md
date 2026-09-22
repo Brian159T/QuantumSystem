@@ -87,7 +87,7 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 3. **Autenticacion JWT** (sin expiracion configurada) + **bcrypt salt 5** para contrasenas.
 4. **Auth context con flags derivados de rol** (`esInvitado/esCliente/esAdministrador`) para navegacion por tabs.
 5. **Estilos por pantalla** en `*.styles.ts` con paleta compartida; NativeWind instalado pero **inactivo** (`global.css` comentado en movil).
-6. **Frontend-web separado** (Vite) como app independiente, con arquitectura limpia (domain/data/infra/presentation) y fallback a mocks si la API falla.
+6. **Frontend-web separado** (Vite) como app independiente, con **arquitectura basada en componentes** (components/pages/hooks/services/utils/types/routes), hooks que envuelven a los services y fallback a mocks si la API falla. El **fondo de pagina se aclara por rol** (`componentes.css`: gradientes claros verde/azul/gris-azul para invitado/cliente/admin) con textos de pagina adaptados (`--texto-pagina` / `--texto-pagina-suave`), mientras la cabecera y las tarjetas mantienen el tema oscuro.
 7. **Deteccion automatica de IP** en el movil (`Config/api.ts`): usa `Constants.expoConfig?.hostUri` para construir `API_URL`, con **fallback a `http://localhost:4000/api`** cuando no hay `hostUri` (p. ej. en web). En web, `react-native-maps` se sustituye por un **stub** (`src/stubs/react-native-maps.web.tsx`) via alias en `metro.config.js`.
 8. **Backend con PostgreSQL**: el backend **ya corre con el driver `pg`** contra `QuantumSystemDB` local. La capa `src/DB/pg.ts` preserva la interfaz de la anterior `mysql.ts` (misma inyeccion de DB), usando identificadores entre comillas dobles (`"Vehiculos"`), parametros `$n` (`??` = identificador, `?` = valor en queries en crudo) y upsert con `ON CONFLICT DO NOTHING`.
 
@@ -115,6 +115,7 @@ Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026*
 1. **Migrar la base de datos de MySQL a PostgreSQL de manera local** — ✅ **HECHO**.
    - No se uso pgloader; se creo el esquema y se cargaron los datos en la base `QuantumSystemDB` (PostgreSQL 17) con un script SQL de una sola ejecucion (ya eliminado).
    - Quedo en el mismo motor (Postgres) que Supabase, la subida posterior no tiene fricción (mismos tipos, extensiones y esquema).
+   - **Las relaciones son las mismas que tenia la base MySQL antigua**: la migracion preservo todas las FKs sin cambios (solo se ampliaron anchos de columnas y se agregaron los `embedding`). Verificado contra la base real.
    - Detalle de tipos, tablas y estado migrado: ver `docs/base-datos.md`.
 2. **Configurar los campos vectoriales (`pgvector`) localmente** — ✅ **HECHO** (parcial: solo las tablas de la app).
    - `CREATE EXTENSION vector;` (extension `pgvector` ya instalada a nivel de sistema en PostgreSQL 17 Windows; el instalador de una sola ejecucion se elimino tras reproducirla).
@@ -131,7 +132,7 @@ Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026*
    - Opcion B: `pg_dump` del Postgres local y `pg_restore` en la base de Supabase (mismo motor, cero incompatibilidades).
 5. **Conectar el backend a Supabase** con sus credenciales (ya usa driver `pg`; solo cambiar el `.env`/`config.ts`) y **subirlo a Render** — pendiente.
 6. **Adaptar el frontend** para consumir las APIs del backend publicado en Render y **subirlo a Vercel**.
-7. **Chatbot con IA**: usar **Google Gemini API** (free tier, $0) para el RAG/chat, pero **dejarlo desacoplado** para poder cambiarlo a un proveedor mas potente/de paga (p. ej. OpenAI, Claude) sin rehacer la app cuando se requiera. El flujo ya tiene la base: datos vectorizados en Postgres local → backend busca por similitud (`<=>`) → contexto a Gemini → respuesta al frontend.
+7. **Chatbot con IA**: usar **Google Gemini API** (free tier, $0) para el RAG/chat, pero **dejarlo desacoplado** para poder cambiarlo a un proveedor mas potente/de paga (p. ej. OpenAI, Claude) sin rehacer la app cuando se requiera. El flujo ya tiene la base: datos vectorizados en Postgres local → backend busca por similitud (`<=>`) → contexto a Gemini → respuesta al frontend. Aclaracion del flujo RAG: la columna `embedding` guarda **un vector por fila** (representacion semantica de sus demas columnas) y sirve de **clave de busqueda**; al recibir una pregunta, el backend la vectoriza, busca la(s) fila(s) mas parecida(s) con `<=>` y le pasa a la IA el **texto de esa fila** como contexto (nunca el vector, que solo es la llave de busqueda).
 
 Evolucion de la arquitectura:
 

@@ -1,5 +1,10 @@
-import AppNavigator from './presentation/navigation/AppNavigator'
+import { AuthProvider } from './hooks/AuthProvider'
+import AppNavigator from './routes/AppNavigator'
 
 export default function App() {
-  return <AppNavigator />
+  return (
+    <AuthProvider>
+      <AppNavigator />
+    </AuthProvider>
+  )
 }
