@@ -101,10 +101,13 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 4. **`tsconfigPaths` (alias `@/*`)** habilitado en Expo, pero las pantallas importan por **ruta relativa**.
 5. **`Modulo Clientes`** apunta a la tabla **`Roles`** (nombre heredado del modulo; es el CRUD de roles). No lo consume el frontend.
 6. **No existe `POST /api/auth/registro`** en el backend. El movil lo llama (fallaria); el web lo resuelve con `POST /usuarios` + `POST /auth/login`.
-7. **El token JWT se guarda pero no se envia** en peticiones reales (solo login/registro hacen requests).
+7. **Token JWT**: el **web** ya lo envia en todas las peticiones (`Authorization: Bearer` via `utils/sesion.ts`, token persistido en `localStorage` desde sept 2026). El **movil** aun no lo envia (solo login/registro hacen requests).
 8. **`Roles.Nombre` se compara como string** en el movil (`rol === 'cliente'` / `'administrador'` en minuscula); depende del dato en la BD.
 9. **Vehiculos**: handlers con `console.log` de debug.
-10. **`dotenv` en devDependencies**: `require('dotenv').config()` puede fallar en produccion.
+10. **Login 401 (corregido sept 2026)**: credenciales invalidas responden **401** con `{error:true, status:401, body:"Correo o contraseña incorrectos"}`. Antes devolvian 500 porque el controlador lanzaba `new Error` sin `statusCode`; ahora usa `error(msg, 401)` de `middleware/errors.ts`.
+11. **Sin fallback a mocks (web, sept 2026)**: los services devuelven `[]` si la API falla o trae lista vacia (la UI no inventa datos). Los antiguos `Frontend/src/services/mocks/*` se eliminaron.
+12. **Suspender usuarios (web)**: la tabla `Usuarios` no tiene campo de estado; el toggle "suspender/reactivar" se quito del admin para no simular datos.
+13. **`dotenv` en devDependencies**: `require('dotenv').config()` puede fallar en produccion.
 
 ---
 

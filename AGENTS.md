@@ -39,7 +39,7 @@ docs/         # Documentacion de contexto (leerla primero)
 
 - **Backend (`Backend/`)**: Node.js + Express 5 + TypeScript (ts-node/nodemon), PostgreSQL (driver `pg`, base `QuantumSystemDB`), JWT (`jsonwebtoken`), `bcrypt` (salt 5), `morgan`, `dotenv`.
 - **App movil (`Mobile/`)**: Expo SDK 54, React 19.1, React Native 0.81, TypeScript, React Navigation (bottom-tabs), NativeWind v4 (configurado pero **no usado** en pantallas), axios, `@expo/vector-icons` (MaterialCommunityIcons), react-native-maps, expo-location, fuentes Poppins.
-- **Frontend web (`Frontend/`)**: Vite + React 19 + TS, `lucide-react`, `fetch` nativo. SPA **basado en componentes** (`components/`, `pages/`, `hooks/`, `services/`, `utils/`, `types/`, `routes/`), con fallback a mocks si la API falla.
+- **Frontend web (`Frontend/`)**: Vite + React 19 + TS, `lucide-react`, `fetch` nativo. SPA **basado en componentes** (`components/`, `pages/`, `hooks/`, `services/`, `utils/`, `types/`, `routes/`). Desde sept 2026 los services **no caen a mocks**: si la API falla o devuelve lista vacia, devuelven `[]` (la UI no inventa datos).
 
 ## Comunicacion Backend <-> Frontend
 
@@ -49,7 +49,7 @@ REST JSON. Respuestas siempre con el sobre:
 ```
 - **Mobile**: usa **axios**. La URL base se detecta automaticamente en `Mobile/src/Config/api.ts` (`Constants.expoConfig?.hostUri` → `http://<host>:4000/api`).
 - **Frontend web**: usa `fetch` via `Frontend/src/services/apiClient.ts` (`/api`, con proxy Vite a `http://localhost:4000` en dev). Las paginas no llaman la API directo: consumen hooks (`useDatos.ts`) que envuelven a los services.
-- El token JWT se guarda en el contexto de auth, pero **aun no se envia** en peticiones reales (solo login/registro hacen requests).
+- El token JWT se guarda en `localStorage` (`Frontend/src/utils/sesion.ts`) y el web **lo envia** en todas las peticiones (`Authorization: Bearer`). El movil aun no lo envia (solo login/registro hacen requests).
 
 ## Base de datos
 
@@ -81,16 +81,16 @@ Roles determinados por `Roles.Nombre` (string) y flags de `useAuth()`; las tabs/
 
 - **Invitado** (sin login): Inicio (catalogo Voltus, planes, test drive), Vehiculos (API real: listado + detalle con colores N:M y placeholder de foto), Reservas (formulario validado, modelos/colores desde API y guardado via API real, sin QR).
 - **Cliente** (usuario con vehiculo electrico): Inicio (bateria, estaciones cercanas, historial), Estaciones de Carga (API real), Talleres Autorizados (API real), Emergencias (SOS, contactos).
-- **Administrador**: Inicio (stats, gestion de contenido, actividad reciente) y Usuarios (CRUD mock: buscar, filtrar, suspender, editar, eliminar).
+- **Administrador**: Inicio (stats y gestion de contenido con conteos reales desde la API) y Usuarios (CRUD real via API: listar, buscar, filtrar, **crear** y **eliminar**; sin suspender porque no hay campo de estado).
 
-La mayoria de pantallas usa **datos mock hardcodeados**; solo login/registro y (en movil) Estaciones, Talleres, Vehiculos y Reservas tocan la API real (Vehiculos y Reservas tambien consumen `/colores` y `/vehiculos`).
+La mayoria de pantallas usa **datos mock hardcodeados**; en el web, login/registro, Vehiculos, Reservas y Estaciones/Talleres consumen la **API real** y el admin hace **CRUD real** de usuarios. El resto son mocks (ver `docs/Funcionalidades.md`).
 
 ## Convenciones de codigo
 
 - Nombres de archivos/funciones y comentarios en **espanol**.
 - Backend: `camelCase` para funciones, `PascalCase` para interfaces; `TABLA` y `CAMPO_ID` como constantes en mayusculas; handlers `try/catch` -> `next(error)`; factory `export default function (dbInyectada?)`.
 - App movil: pantallas con hooks funcionales (salvo `ReservasScreen` que es class component); estilos en `StyleSheet.create` separados en `src/styles/`; constantes de color exportadas.
-- Frontend web: arquitectura basada en componentes (`components/pages/hooks/services/utils/types/routes`). Flujo `pages -> hooks -> services -> apiClient -> Backend`; cada service cae a mocks si la API falla.
+- Frontend web: arquitectura basada en componentes (`components/pages/hooks/services/utils/types/routes`). Flujo `pages -> hooks -> services -> apiClient -> Backend`; si la API falla o devuelve lista vacia, los services devuelven `[]` (sin mocks).
 - Formato: Prettier (singleQuote, printWidth 100) + ESLint (config-expo en movil).
 - Respuestas API siempre con `red/respuestas` (success/error).
 - No hay framework de tests configurado.
@@ -110,7 +110,7 @@ Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de desplie
 3. Autenticacion JWT (sin expiracion configurada) + bcrypt (salt 5) para contrasenas.
 4. Contexto de auth con flags derivados de rol para navegacion por tabs.
 5. Estilos por pantalla en `*.styles.ts` con paleta compartida; NativeWind instalado pero inactivo (`global.css` comentado).
-6. Frontend-web separado (Vite) como app independiente, con arquitectura basada en componentes y fallback a mocks.
+6. Frontend-web separado (Vite) como app independiente, con arquitectura basada en componentes. Desde sept 2026 **sin fallback a mocks**: los services devuelven `[]` si la API falla o trae lista vacia.
 7. Deteccion automatica de IP para `API_URL` en la app movil (`Mobile/src/Config/api.ts`) con **fallback a `localhost:4000`** en web. En web `react-native-maps` usa un stub (`Mobile/src/stubs/react-native-maps.web.tsx`) via `metro.config.js`.
 
 ## Gotchas

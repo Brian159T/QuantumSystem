@@ -11,11 +11,13 @@ interface ResultadoDatos<T> {
   datos: T[]
   cargando: boolean
   actualizar: (nuevosDatos: T[] | ((previos: T[]) => T[])) => void
+  recargar: () => void
 }
 
 function useColeccion<T>(obtener: () => Promise<T[]>): ResultadoDatos<T> {
   const [datos, setDatos] = useState<T[]>([])
   const [cargando, setCargando] = useState(true)
+  const [version, setVersion] = useState(0)
 
   useEffect(() => {
     let activo = true
@@ -29,9 +31,17 @@ function useColeccion<T>(obtener: () => Promise<T[]>): ResultadoDatos<T> {
     return () => {
       activo = false
     }
-  }, [obtener])
+  }, [obtener, version])
 
-  return { datos, cargando, actualizar: setDatos }
+  return {
+    datos,
+    cargando,
+    actualizar: setDatos,
+    recargar: () => {
+      setCargando(true)
+      setVersion((previa) => previa + 1)
+    },
+  }
 }
 
 export function useVehiculos(): ResultadoDatos<Vehiculo> {

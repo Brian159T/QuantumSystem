@@ -281,11 +281,11 @@ Frontend/src/
 ├── services/             # Comunicacion con el backend/API
 │   ├── apiClient.ts           # peticion() con sobre {error, status, body}
 │   ├── authService.ts         # iniciarSesion, registrar (POST /usuarios + /auth/login)
-│   ├── vehiculosService.ts    # GET /vehiculos + adaptar + fallback mocks
-│   ├── estacionesService.ts   # GET /estaciones-carga + fallback mocks
-│   ├── talleresService.ts     # GET /servicios-tecnicos + fallback mocks
-│   ├── usuariosService.ts     # GET /usuarios + adaptar + fallback mocks
-│   └── mocks/                 # vehiculos.ts, usuarios.ts, estacionesYTalleres.ts
+│   ├── vehiculosService.ts    # GET /vehiculos + adaptar; [] si falla/vacio
+│   ├── estacionesService.ts   # GET /estaciones-carga; [] si falla/vacio
+│   ├── talleresService.ts     # GET /servicios-tecnicos; [] si falla/vacio
+│   ├── usuariosService.ts     # GET/POST/DELETE /usuarios + adaptar; [] si falla/vacio
+│   └── (mocks/ eliminado sept 2026: ya no hay fallback a mocks)
 ├── utils/                # Funciones auxiliares y utilidades
 │   ├── roles.ts               # esRolAdministrador, esRolCliente
 │   └── iniciales.ts           # obtenerIniciales
@@ -305,14 +305,15 @@ pages (React) → hooks (useDatos/useAuth) → services (fetch) → Backend
                      └── utils (roles, iniciales)
 ```
 
-Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven a los services. Los services son el unico punto que toca la API (`apiClient.peticion`) y **cada uno cae a mocks** si la peticion falla o devuelve una lista vacia (modo demo/resiliente). Las `types/` son el contrato compartido entre pages, hooks y services.
+Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven a los services. Los services son el unico punto que toca la API (`apiClient.peticion`) y **desde sept 2026 no caen a mocks**: si la peticion falla o devuelve una lista vacia devuelven `[]` (la UI muestra listas vacias, no datos falsos). Las `types/` son el contrato compartido entre pages, hooks y services.
 
 ### 4.3 Comunicacion con el backend
 
 - `services/apiClient.ts`: `fetch` al `URL_BASE` + `ruta`. Parse el sobre `{error, status, body}`; si `error === true` lanza `Error` con el mensaje.
 - `URL_BASE` = `import.meta.env.VITE_API_URL || '/api'`.
 - En desarrollo, Vite (via `vite.config.ts` proxy) **reenvia `/api` a `http://localhost:4000`**, evitando CORS.
-- `services/*Service.ts` **lee el body de la API y si la respuesta esta vacia o falla, cae a los mocks** (modo demo/resiliente).
+- `services/*Service.ts` **lee el body de la API; si la respuesta esta vacia o la peticion falla, devuelve `[]`** (sin mocks desde sept 2026).
+- `apiClient.peticion` agrega `Authorization: Bearer <token>` si hay sesion (token desde `utils/sesion.ts`, persistido en `localStorage`).
 
 ### 4.4 Registro en el web (importante)
 
@@ -335,11 +336,11 @@ Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven
 1. **Cliente** ingresa `correo` + `contrasena` en la UI (Mobile `LoginButton` / web `LoginModal`).
 2. El **AuthProvider**/hook `useAuth` llama al service de auth (fetch).
 3. **Backend** `POST /api/auth/login` busca en `Usuarios` JOIN `Roles`, valida con `bcrypt.compare`, genera JWT y devuelve `{ token, usuario }`.
-4. La UI guarda `usuario` y `token` en el **contexto** de autenticacion.
+4. La UI guarda `usuario` y `token` en el **contexto** de autenticacion y los **persiste en `localStorage`** (`utils/sesion.ts`), restaurandolos al recargar.
 5. Los **flags derivados** (`esInvitado/esCliente/esAdministrador`) definen que tabs/paginas ver.
-6. El logout solo limpia `usuario` y `token` del contexto (vuelve a invitado).
+6. El logout limpia `usuario` y `token` del contexto y de `localStorage` (vuelve a invitado).
 
-> **OJO**: el token JWT se guarda pero **aun no se envia** en las peticiones reales (salvo login/registro). No hay headers `Authorization` en el resto de llamadas.
+> **OJO**: el **web** envia el token en todas las peticiones (`Authorization: Bearer`). El **movil** aun no lo envia (solo login/registro hacen requests).
 
 ---
 
@@ -349,7 +350,7 @@ Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven
 2. **Sobre de respuesta uniforme** `{error, status, body}` en toda la API.
 3. **JWT sin expiracion** + bcrypt (salt 5) para contrasenas.
 4. **Mobile**: MVVM-lite con `AuthContext`; navegacion por tabs condicionada al rol.
-5. **Web**: arquitectura basada en componentes (`components/pages/hooks/services/utils/types/routes`). Las paginas consumen hooks (`useDatos.ts`) que envuelven a los services (`apiClient.ts`); cae a mocks si la API falla.
+5. **Web**: arquitectura basada en componentes (`components/pages/hooks/services/utils/types/routes`). Las paginas consumen hooks (`useDatos.ts`) que envuelven a los services (`apiClient.ts`); desde sept 2026 **sin fallback a mocks** (devuelven `[]` si falla/vacio) y enviando el token JWT. El admin hace CRUD real de usuarios.
 6. **Paleta de colores** compartida (GREEN `#2fb676`, BLUE `#4D9FFF`, BG `#0A0F1E`, etc.), ver `docs/Decisiones-tecnicas.md`.
 
 ---

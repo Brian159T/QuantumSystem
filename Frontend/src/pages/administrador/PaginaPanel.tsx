@@ -1,30 +1,24 @@
-import { Users, Car, Zap, Banknote, TrendingUp, UserPlus, FileText, MapPin, CheckCircle2 } from 'lucide-react'
+import { Users, Car, Zap, MapPin, TrendingUp } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
-import { useEstaciones, useUsuarios, useVehiculos } from '../../hooks/useDatos'
-
-const ACTIVIDAD = [
-  { id: '1', accion: 'Nuevo usuario registrado', detalle: 'María Fernanda López · hace 2 h', icono: UserPlus, color: 'var(--verde)' },
-  { id: '2', accion: 'Reserva de Voltus Neo confirmada', detalle: 'Juan Pérez · hace 5 h', icono: FileText, color: 'var(--azul)' },
-  { id: '3', accion: 'Vehículo agregado al catálogo', detalle: 'Voltus Aero GT · ayer', icono: Car, color: 'var(--naranja)' },
-  { id: '4', accion: 'Nueva estación de carga activada', detalle: 'Voltus Hub Obrajes · ayer', icono: MapPin, color: 'var(--morado)' },
-]
+import { useEstaciones, useTalleres, useUsuarios, useVehiculos } from '../../hooks/useDatos'
 
 export default function PaginaPanel() {
   const { datos: vehiculos } = useVehiculos()
   const { datos: estaciones } = useEstaciones()
   const { datos: usuarios } = useUsuarios()
+  const { datos: talleres } = useTalleres()
 
   const conteos = {
     vehiculos: vehiculos.length,
     estaciones: estaciones.length,
     usuarios: usuarios.length,
+    talleres: talleres.length,
   }
 
   const estadisticas = [
     { etiqueta: 'Vehículos', valor: conteos.vehiculos, icono: Car, color: 'var(--verde)' },
     { etiqueta: 'Estaciones', valor: conteos.estaciones, icono: Zap, color: 'var(--azul)' },
     { etiqueta: 'Usuarios', valor: conteos.usuarios, icono: Users, color: 'var(--morado)' },
-    { etiqueta: 'Ingresos', valor: '$54.2K', icono: Banknote, color: 'var(--naranja)' },
   ]
 
   return (
@@ -36,7 +30,7 @@ export default function PaginaPanel() {
           <div className="banner__titulo">Hola, Admin</div>
           <div className="banner__subtitulo">
             <span className="punto-estado punto-estado--verde" />
-            Todo funciona correctamente
+            Accede a los módulos para gestionar el contenido
           </div>
         </div>
         <div className="banner__icono">
@@ -102,32 +96,8 @@ export default function PaginaPanel() {
               <div className="tarjeta-gestion__titulo">Talleres autorizados</div>
               <div className="tarjeta-gestion__detalle">Gestionar red de talleres</div>
             </div>
-            <span className="tarjeta-gestion__cantidad">4</span>
+            <span className="tarjeta-gestion__cantidad">{conteos.talleres}</span>
           </button>
-        </div>
-      </section>
-
-      <section className="seccion">
-        <EncabezadoSeccion titulo="Actividad reciente" />
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {ACTIVIDAD.map((actividad) => (
-            <div key={actividad.id} className="fila-actividad">
-              <span
-                className="fila-actividad__icono"
-                style={{ background: `${actividad.color}18`, color: actividad.color }}
-              >
-                <actividad.icono size={18} />
-              </span>
-              <div>
-                <div className="fila-actividad__accion">{actividad.accion}</div>
-                <div className="fila-actividad__detalle">{actividad.detalle}</div>
-              </div>
-              <span className="insignia insignia--verde" style={{ marginLeft: 'auto' }}>
-                <CheckCircle2 size={12} />
-                Completado
-              </span>
-            </div>
-          ))}
         </div>
       </section>
     </div>

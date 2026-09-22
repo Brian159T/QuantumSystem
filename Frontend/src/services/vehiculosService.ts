@@ -1,5 +1,4 @@
 import { peticion } from './apiClient'
-import { mocksVehiculos } from './mocks/vehiculos'
 import type { ColorVehiculo, Vehiculo } from '../types/Vehiculo'
 
 const HEX_COLORES_MARCA: Record<string, string> = {
@@ -39,9 +38,8 @@ function adaptar(datos: Vehiculo): Vehiculo {
 export async function obtenerVehiculos(): Promise<Vehiculo[]> {
   try {
     const datos = await peticion<Vehiculo[]>('/vehiculos')
-    if (datos.length === 0) return mocksVehiculos
     return datos.map(adaptar)
   } catch {
-    return mocksVehiculos
+    return []
   }
 }

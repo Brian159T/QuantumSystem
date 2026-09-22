@@ -23,11 +23,9 @@ export interface RespuestaAuth {
 }
 
 export interface UsuarioAdministracion {
-  id: string
+  id: number
   name: string
   email: string
+  id_rol: number
   role: 'Usuario' | 'Administrador'
-  status: 'Activo' | 'Suspendido'
-  vehicles: number
-  joinedAt: string
 }

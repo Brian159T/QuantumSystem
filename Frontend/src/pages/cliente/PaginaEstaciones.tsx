@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Search, Crosshair, MapPinned, Zap, Plug, Car, Layers, Star, MapPin, Clock, Check } from 'lucide-react'
+import { Search, Crosshair, MapPinned, Zap, Plug, Car, Layers, Star, MapPin, Check } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 import { useEstaciones } from '../../hooks/useDatos'
 import type { VelocidadCarga } from '../../types/EstacionesYTalleres'
@@ -43,6 +43,7 @@ export default function PaginaEstaciones() {
 
   const totalDisponibles = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.disponibles ?? 0), 0)
   const totalPuertos = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.totales ?? 0), 0)
+  const operativas = estaciones.filter((estacion) => estacion.Estado === 'disponible').length
 
   return (
     <div>
@@ -93,12 +94,12 @@ export default function PaginaEstaciones() {
           </div>
         </div>
         <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono" style={{ background: 'rgba(245,158,11,0.14)', color: 'var(--naranja)' }}>
-            <Clock size={22} />
+          <div className="tarjeta-estadistica__icono" style={{ background: 'var(--verde-suave)', color: 'var(--verde)' }}>
+            <Check size={22} />
           </div>
           <div>
-            <div className="tarjeta-estadistica__valor">~8min</div>
-            <div className="tarjeta-estadistica__etiqueta">Más cercana</div>
+            <div className="tarjeta-estadistica__valor">{operativas}</div>
+            <div className="tarjeta-estadistica__etiqueta">Operativas</div>
           </div>
         </div>
       </div>
@@ -175,18 +176,20 @@ export default function PaginaEstaciones() {
                       <span className="insignia insignia--rojo">Sin disponibilidad</span>
                     ) : (
                       <span className="insignia insignia--verde">
-                        {estacion.disponibles}/{estacion.totales} disponibles
+                        {estacion.disponibles ?? '—'}/{estacion.totales ?? '—'} disponibles
                       </span>
                     )}
-                    <span
-                      className="insignia"
-                      style={{
-                        background: `${colorVelocidad(estacion.velocidad)}18`,
-                        color: colorVelocidad(estacion.velocidad),
-                      }}
-                    >
-                      {estacion.velocidad}
-                    </span>
+                    {estacion.velocidad && (
+                      <span
+                        className="insignia"
+                        style={{
+                          background: `${colorVelocidad(estacion.velocidad)}18`,
+                          color: colorVelocidad(estacion.velocidad),
+                        }}
+                      >
+                        {estacion.velocidad}
+                      </span>
+                    )}
                     {estacion.abierto24h && <span className="insignia insignia--azul">24h</span>}
                   </div>
 
@@ -201,7 +204,8 @@ export default function PaginaEstaciones() {
                   <div className="tarjeta-servicio__pie">
                     <span className="tarjeta-servicio__calificacion">
                       <Star size={13} style={{ color: 'var(--naranja)' }} />
-                      {estacion.rating?.toFixed(1)} · {estacion.precioPorKwh} / kWh
+                      {estacion.rating?.toFixed(1) ?? '—'}
+                      {estacion.precioPorKwh ? ` · ${estacion.precioPorKwh} / kWh` : ''}
                     </span>
                     <button className="boton boton--primario boton--compacto">
                       <MapPin size={14} />

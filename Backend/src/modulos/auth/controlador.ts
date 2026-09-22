@@ -1,6 +1,7 @@
 import dbPg from '../../DB/pg';
 import bcrypt from 'bcrypt';
 import auth from '../../auth';
+import error from '../../middleware/errors';
 
 interface UsuarioLogin {
 
@@ -36,7 +37,7 @@ export default function (dbInyectada?: any) {
         const resultado = await db.ejecutar(sql, [correo]);
 
         if (resultado.length === 0) {
-            throw new Error('Correo o contraseña incorrectos');
+            throw error('Correo o contraseña incorrectos', 401);
         }
 
         const usuario = resultado[0];
@@ -47,7 +48,7 @@ export default function (dbInyectada?: any) {
         );
 
         if (!coincide) {
-            throw new Error('Correo o contraseña incorrectos');
+            throw error('Correo o contraseña incorrectos', 401);
         }
 
         const token = auth.asignarToken({

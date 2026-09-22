@@ -5,6 +5,8 @@ Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil*
 Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
 
 > **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
+>
+> **Cambios sept 2026 (frontend web)**: se elimino el **fallback a mocks** de los services (si la API falla o devuelve lista vacia, la UI muestra **listas vacias**, nunca datos falsos); el CRUD de usuarios del admin ahora **crea/elimina via `/usuarios`** y envia el **token JWT** en todas las peticiones. El codigo de confirmacion de reserva sigue generado en el cliente (pendiente de campo en BD).
 
 ---
 
@@ -86,14 +88,14 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 
 ### 3.1 Panel / Inicio del Administrador (Movil: `Interfaz_Administrador_Inicio.tsx` / Web: `PaginaPanel.tsx`)
 - **Banner de bienvenida**.
-- **Estadisticas** (totales: vehiculos, estaciones, usuarios).
-- **Gestion de contenido** en tarjetas (cada una con enlace "Gestionar").
-- **Actividad reciente** (mock `RECENT_ACTIVITY`).
+- **Estadisticas** (totales reales desde la API: vehiculos, estaciones, usuarios).
+- **Gestion de contenido** en tarjetas con conteos reales (vehiculos, estaciones, usuarios y talleres via `/servicios-tecnicos`).
+- Se quitaron los valores hardcodeados ("Ingresos", "Actividad reciente") y el conteo fijo de talleres (sept 2026).
 
 ### 3.2 Gestion de Usuarios (Movil: `Interfaz_Administrador_usuarios.tsx` / Web: `PaginaUsuarios.tsx`)
-- CRUD **mock** de usuarios (`INITIAL_USERS` / `USERS`): **buscar**, **filtrar por estado** (Todos/Activo/Suspendido), **suspender** (toggle de estado), **editar**, **eliminar** (con confirmacion), y **agregar** usuario.
-- **Estadisticas**: usuarios activos, administradores.
-- Tarjetas expandibles con acciones.
+- **Web (sept 2026)**: lista real desde `GET /usuarios` (sin campos inventados; el rol se deriva de `id_rol`), **crear** usuario via `POST /usuarios` (nombre, correo, contrasena, rol) y **eliminar** via `DELETE /usuarios/:id`, ambos con refresco de la lista tras la operacion. **Buscar** por nombre/correo y **filtrar por rol**.
+- **Suspender/reactivar se quitaron** en el web: la tabla `Usuarios` no tiene campo de estado para persistirlo (no se debe simular).
+- Movil: sigue siendo CRUD **mock** (`INITIAL_USERS`).
 
 ---
 
@@ -116,17 +118,19 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 
 ### Frontend web (`Frontend/`)
 
+> **Sept 2026**: los services ya **no caen a mocks**; si la API falla o devuelve lista vacia, se muestra una lista vacia (la UI no inventa datos).
+
 | Pagina | Uso de API |
 |--------|-----------|
-| `PaginaInicio.tsx` | API `/vehiculos` (fallback mock) |
-| `PaginaVehiculos.tsx` | Via `useVehiculos()` / `vehiculosService` (fallback mock) |
+| `PaginaInicio.tsx` | API `/vehiculos` (si falla, carrera vacia) |
+| `PaginaVehiculos.tsx` | Via `useVehiculos()` / `vehiculosService` |
 | `PaginaReservas.tsx` | **Real API** (POST /reservas, GET /vehiculos, GET /colores) |
 | `PaginaInicioCliente.tsx` | Mock |
-| `PaginaEstaciones.tsx` | API `/estaciones-carga` (fallback mock) |
-| `PaginaTalleres.tsx` | API `/servicios-tecnicos` (fallback mock) |
+| `PaginaEstaciones.tsx` | API `/estaciones-carga` (sin campos inventados; guardas para valores ausentes) |
+| `PaginaTalleres.tsx` | API `/servicios-tecnicos` (estado abierto/cerrado derivado de `Estado`) |
 | `PaginaEmergencias.tsx` | Mock |
-| `PaginaPanel.tsx` | API (stats dinamicas) con fallback |
-| `PaginaUsuarios.tsx` | API `/usuarios` (fallback mock) |
+| `PaginaPanel.tsx` | API (conteos reales; sin valores hardcodeados) |
+| `PaginaUsuarios.tsx` | **Real API** (GET/POST/DELETE `/usuarios`) |
 | Login / Registro (`authService`) | **Real API** |
 
 ---

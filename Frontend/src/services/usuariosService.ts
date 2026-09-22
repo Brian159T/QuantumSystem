@@ -1,5 +1,4 @@
 import { peticion } from './apiClient'
-import { mocksUsuarios } from './mocks/usuarios'
 import type { UsuarioAdministracion } from '../types/Usuario'
 
 interface UsuarioApi {
@@ -10,24 +9,41 @@ interface UsuarioApi {
   rol?: string
 }
 
+export interface DatosNuevoUsuario {
+  nombre_usuario: string
+  correo: string
+  contrasena: string
+  id_rol: number
+}
+
 function adaptar(usuario: UsuarioApi): UsuarioAdministracion {
   return {
-    id: String(usuario.id_usuario),
+    id: usuario.id_usuario,
     name: usuario.nombre_usuario,
     email: usuario.correo,
+    id_rol: usuario.id_rol,
     role: usuario.id_rol === 1 ? 'Administrador' : 'Usuario',
-    status: 'Activo',
-    vehicles: 0,
-    joinedAt: '—',
   }
 }
 
 export async function obtenerUsuarios(): Promise<UsuarioAdministracion[]> {
   try {
     const datos = await peticion<UsuarioApi[]>('/usuarios')
-    if (datos.length === 0) return mocksUsuarios
     return datos.map(adaptar)
   } catch {
-    return mocksUsuarios
+    return []
   }
+}
+
+export async function crearUsuario(datos: DatosNuevoUsuario): Promise<void> {
+  await peticion('/usuarios', {
+    method: 'POST',
+    body: JSON.stringify(datos),
+  })
+}
+
+export async function eliminarUsuario(id: number): Promise<void> {
+  await peticion(`/usuarios/${id}`, {
+    method: 'DELETE',
+  })
 }

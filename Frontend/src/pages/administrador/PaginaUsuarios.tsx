@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
-import { Search, UserPlus, Users, ShieldCheck, UserCheck, ShieldBan, ChevronUp, Trash2, X, Ban, RotateCcw } from 'lucide-react'
+import { Search, UserPlus, Users, ShieldCheck, Trash2, X } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 import { useUsuarios } from '../../hooks/useDatos'
+import { crearUsuario, eliminarUsuario } from '../../services/usuariosService'
 import { obtenerIniciales } from '../../utils/iniciales'
 import type { UsuarioAdministracion } from '../../types/Usuario'
 
@@ -15,13 +16,13 @@ interface NuevoUsuario {
 const FORMULARIO_INICIAL: NuevoUsuario = { nombre: '', correo: '', contrasena: '', rol: 'Usuario' }
 
 export default function PaginaUsuarios() {
-  const { datos: usuarios, actualizar: setUsuarios } = useUsuarios()
+  const { datos: usuarios, recargar } = useUsuarios()
   const [busqueda, setBusqueda] = useState('')
   const [filtroRol, setFiltroRol] = useState<'Todos' | 'Usuario' | 'Administrador'>('Todos')
-  const [filtroEstado, setFiltroEstado] = useState<'Todos' | 'Activo' | 'Suspendido'>('Todos')
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [formulario, setFormulario] = useState<NuevoUsuario>(FORMULARIO_INICIAL)
-  const [expandidoId, setExpandidoId] = useState<string | null>(null)
+  const [guardando, setGuardando] = useState(false)
+  const [errorAccion, setErrorAccion] = useState('')
   const [confirmarEliminar, setConfirmarEliminar] = useState<UsuarioAdministracion | null>(null)
 
   const filtrados = useMemo(() => {
@@ -31,57 +32,62 @@ export default function PaginaUsuarios() {
         usuario.name.toLowerCase().includes(busqueda.toLowerCase()) ||
         usuario.email.toLowerCase().includes(busqueda.toLowerCase())
       const coincideRol = filtroRol === 'Todos' || usuario.role === filtroRol
-      const coincideEstado = filtroEstado === 'Todos' || usuario.status === filtroEstado
-      return coincideBusqueda && coincideRol && coincideEstado
+      return coincideBusqueda && coincideRol
     })
-  }, [usuarios, busqueda, filtroRol, filtroEstado])
+  }, [usuarios, busqueda, filtroRol])
 
   const estadisticas = useMemo(() => {
     return {
       total: usuarios.length,
       administradores: usuarios.filter((usuario) => usuario.role === 'Administrador').length,
-      activos: usuarios.filter((usuario) => usuario.status === 'Activo').length,
-      suspendidos: usuarios.filter((usuario) => usuario.status === 'Suspendido').length,
     }
   }, [usuarios])
 
-  const crearUsuario = () => {
-    if (!formulario.nombre || !formulario.correo || !formulario.contrasena) return
-    const nuevo: UsuarioAdministracion = {
-      id: `nuevo-${Date.now()}`,
-      name: formulario.nombre,
-      email: formulario.correo,
-      role: formulario.rol,
-      status: 'Activo',
-      vehicles: 0,
-      joinedAt: new Date().toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' }),
+  const crearUsuarioNuevo = async () => {
+    if (!formulario.nombre.trim() || !formulario.correo.trim() || !formulario.contrasena) return
+    setErrorAccion('')
+    setGuardando(true)
+    try {
+      await crearUsuario({
+        nombre_usuario: formulario.nombre.trim(),
+        correo: formulario.correo.trim(),
+        contrasena: formulario.contrasena,
+        id_rol: formulario.rol === 'Administrador' ? 1 : 2,
+      })
+      await recargar()
+      setFormulario(FORMULARIO_INICIAL)
+      setMostrarFormulario(false)
+    } catch (error) {
+      setErrorAccion(error instanceof Error ? error.message : 'No se pudo crear el usuario')
+    } finally {
+      setGuardando(false)
     }
-    setUsuarios((previos) => [nuevo, ...previos])
-    setFormulario(FORMULARIO_INICIAL)
-    setMostrarFormulario(false)
   }
 
-  const alternarEstado = (usuario: UsuarioAdministracion) => {
-    setUsuarios((previos) =>
-      previos.map((previo) =>
-        previo.id === usuario.id
-          ? { ...previo, status: previo.status === 'Activo' ? 'Suspendido' : 'Activo' }
-          : previo,
-      ),
-    )
-  }
-
-  const eliminarUsuario = () => {
+  const eliminar = async () => {
     if (!confirmarEliminar) return
-    setUsuarios((previos) => previos.filter((previo) => previo.id !== confirmarEliminar.id))
-    setConfirmarEliminar(null)
+    setErrorAccion('')
+    setGuardando(true)
+    try {
+      await eliminarUsuario(confirmarEliminar.id)
+      await recargar()
+      setConfirmarEliminar(null)
+    } catch (error) {
+      setErrorAccion(error instanceof Error ? error.message : 'No se pudo eliminar el usuario')
+      setConfirmarEliminar(null)
+    } finally {
+      setGuardando(false)
+    }
   }
 
   const estadisticasVista = [
     { etiqueta: 'Total usuarios', valor: estadisticas.total, icono: Users, color: 'var(--verde)' },
-    { etiqueta: 'Administradores', valor: estadisticas.administradores, icono: ShieldCheck, color: 'var(--azul)' },
-    { etiqueta: 'Activos', valor: estadisticas.activos, icono: UserCheck, color: 'var(--morado)' },
-    { etiqueta: 'Suspendidos', valor: estadisticas.suspendidos, icono: ShieldBan, color: 'var(--naranja)' },
+    {
+      etiqueta: 'Administradores',
+      valor: estadisticas.administradores,
+      icono: ShieldCheck,
+      color: 'var(--azul)',
+    },
   ]
 
   return (
@@ -169,9 +175,9 @@ export default function PaginaUsuarios() {
                 <option value="Administrador">Administrador</option>
               </select>
             </div>
-            <button className="boton boton--primario" onClick={crearUsuario}>
+            <button className="boton boton--primario" onClick={crearUsuarioNuevo} disabled={guardando}>
               <UserPlus size={16} />
-              Crear usuario
+              {guardando ? 'Guardando...' : 'Crear usuario'}
             </button>
           </div>
         </div>
@@ -201,17 +207,9 @@ export default function PaginaUsuarios() {
             {rol}
           </button>
         ))}
-        <span className="separador" />
-        {(['Todos', 'Activo', 'Suspendido'] as const).map((estado) => (
-          <button
-            key={estado}
-            className={`chip${filtroEstado === estado ? ' chip--activo' : ''}`}
-            onClick={() => setFiltroEstado(estado)}
-          >
-            {estado}
-          </button>
-        ))}
       </div>
+
+      {errorAccion && <div className="alerta alerta--error" style={{ marginBottom: 18 }}>{errorAccion}</div>}
 
       <section className="seccion">
         <EncabezadoSeccion titulo="Lista de usuarios" contador={`${filtrados.length} resultados`} />
@@ -219,81 +217,32 @@ export default function PaginaUsuarios() {
           <div className="tabla-usuarios__fila tabla-usuarios__fila--encabezado">
             <span>Usuario</span>
             <span>Rol</span>
-            <span>Estado</span>
             <span>Acciones</span>
           </div>
-          {filtrados.map((usuario) => {
-            const expandido = expandidoId === usuario.id
-            return (
-              <div key={usuario.id}>
-                <div className={`tabla-usuarios__fila${expandido ? ' tabla-usuarios__fila--expandida' : ''}`}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <span className="avatar">{obtenerIniciales(usuario.name)}</span>
-                    <span>
-                      <span className="tabla-usuarios__nombre">{usuario.name}</span>
-                      <br />
-                      <span className="tabla-usuarios__correo">{usuario.email}</span>
-                    </span>
-                  </span>
-                  <span>
-                    <span className="insignia insignia--azul">{usuario.role}</span>
-                  </span>
-                  <span>
-                    {usuario.status === 'Activo' ? (
-                      <span className="insignia insignia--verde">
-                        <span className="punto-estado punto-estado--verde" />
-                        Activo
-                      </span>
-                    ) : (
-                      <span className="insignia insignia--rojo">
-                        <span className="punto-estado punto-estado--rojo" />
-                        Suspendido
-                      </span>
-                    )}
-                  </span>
-                  <span className="tabla-usuarios__acciones">
-                    <button
-                      className="boton boton--icono"
-                      title={expandido ? 'Contraer' : 'Ver detalles'}
-                      onClick={() => setExpandidoId(expandido ? null : usuario.id)}
-                    >
-                      <ChevronUp size={17} />
-                    </button>
-                    <button
-                      className="boton boton--icono"
-                      title={usuario.status === 'Activo' ? 'Suspender' : 'Reactivar'}
-                      onClick={() => alternarEstado(usuario)}
-                    >
-                      {usuario.status === 'Activo' ? <Ban size={17} /> : <RotateCcw size={17} />}
-                    </button>
-                    <button
-                      className="boton boton--icono boton--peligro"
-                      title="Eliminar"
-                      onClick={() => setConfirmarEliminar(usuario)}
-                    >
-                      <Trash2 size={17} />
-                    </button>
-                  </span>
-                </div>
-                {expandido && (
-                  <div className="tabla-usuarios__detalle">
-                    <div>
-                      <span className="campo__etiqueta">Vehículos</span>
-                      <strong>{usuario.vehicles}</strong>
-                    </div>
-                    <div>
-                      <span className="campo__etiqueta">Registro</span>
-                      <strong>{usuario.joinedAt}</strong>
-                    </div>
-                    <div>
-                      <span className="campo__etiqueta">Correo</span>
-                      <strong>{usuario.email}</strong>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )
-          })}
+          {filtrados.map((usuario) => (
+            <div className="tabla-usuarios__fila" key={usuario.id}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span className="avatar">{obtenerIniciales(usuario.name)}</span>
+                <span>
+                  <span className="tabla-usuarios__nombre">{usuario.name}</span>
+                  <br />
+                  <span className="tabla-usuarios__correo">{usuario.email}</span>
+                </span>
+              </span>
+              <span>
+                <span className="insignia insignia--azul">{usuario.role}</span>
+              </span>
+              <span className="tabla-usuarios__acciones">
+                <button
+                  className="boton boton--icono boton--peligro"
+                  title="Eliminar"
+                  onClick={() => setConfirmarEliminar(usuario)}
+                >
+                  <Trash2 size={17} />
+                </button>
+              </span>
+            </div>
+          ))}
         </div>
         {filtrados.length === 0 && (
           <div className="vacio">
@@ -320,10 +269,10 @@ export default function PaginaUsuarios() {
               Esta acción no se puede deshacer.
             </div>
             <div className="modal__pie">
-              <button className="boton boton--claro" onClick={() => setConfirmarEliminar(null)}>
+              <button className="boton boton--claro" disabled={guardando} onClick={() => setConfirmarEliminar(null)}>
                 Cancelar
               </button>
-              <button className="boton boton--peligro" onClick={eliminarUsuario}>
+              <button className="boton boton--peligro" disabled={guardando} onClick={eliminar}>
                 <Trash2 size={15} />
                 Eliminar
               </button>

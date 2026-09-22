@@ -152,16 +152,22 @@ export default function PaginaTalleres() {
                       Cerrado
                     </span>
                   )}
-                  <span className="insignia" style={{ background: 'var(--fondo-claro)', color: 'var(--texto-suave)' }}>
-                    {(taller.especialidades ?? []).join(', ')}
-                  </span>
-                  <span className="insignia insignia--azul">{taller.espera}</span>
+                  {taller.especialidades && taller.especialidades.length > 0 && (
+                    <span
+                      className="insignia"
+                      style={{ background: 'var(--fondo-claro)', color: 'var(--texto-suave)' }}
+                    >
+                      {taller.especialidades.join(', ')}
+                    </span>
+                  )}
+                  {taller.espera && <span className="insignia insignia--azul">{taller.espera}</span>}
                 </div>
 
                 <div className="tarjeta-servicio__pie">
                   <span className="tarjeta-servicio__calificacion">
                     <Star size={13} style={{ color: 'var(--naranja)' }} />
-                    {taller.rating?.toFixed(1)} · {taller.telefono}
+                    {taller.rating?.toFixed(1) ?? '—'}
+                    {taller.telefono ? ` · ${taller.telefono}` : ''}
                   </span>
                   <button className="boton boton--azul boton--compacto">
                     <MapPin size={14} />

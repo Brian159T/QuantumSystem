@@ -3,11 +3,24 @@ import type { Credenciales, DatosRegistro, RespuestaAuth } from '../types/Usuari
 
 const ROL_CLIENTE = 2
 
+function validarSesion(datos: RespuestaAuth): RespuestaAuth {
+  const tieneToken = typeof datos?.token === 'string' && datos.token.length > 0
+  const tieneUsuario = typeof datos?.usuario === 'object' && datos.usuario !== null
+
+  if (!tieneToken || !tieneUsuario) {
+    throw new Error('El backend devolvió una respuesta de autenticación inválida')
+  }
+
+  return datos
+}
+
 export async function iniciarSesion(credenciales: Credenciales): Promise<RespuestaAuth> {
-  return peticion<RespuestaAuth>('/auth/login', {
+  const datos = await peticion<RespuestaAuth>('/auth/login', {
     method: 'POST',
     body: JSON.stringify(credenciales),
   })
+
+  return validarSesion(datos)
 }
 
 export async function registrar(datos: DatosRegistro): Promise<RespuestaAuth> {
@@ -21,8 +34,5 @@ export async function registrar(datos: DatosRegistro): Promise<RespuestaAuth> {
     }),
   })
 
-  return peticion<RespuestaAuth>('/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ correo: datos.correo, contrasena: datos.contrasena }),
-  })
+  return iniciarSesion({ correo: datos.correo, contrasena: datos.contrasena })
 }

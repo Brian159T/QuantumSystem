@@ -92,8 +92,9 @@ Inicia sesion. Busca por correo, valida contrasena y devuelve token JWT + datos 
 }
 ```
 
-**Errores (401/500):**
+**Errores:**
 - `body`: `"Correo o contraseña incorrectos"` si el correo no existe o la contrasena no coincide.
+- El status es **401** (verificado sept 2026; antes respondia 500 porque el controlador lanzaba `new Error` sin `statusCode` y el middleware global usa 500 por defecto). Corregido en `auth/controlador.ts` con `error(msg, 401)`.
 
 > **Nota**: el frontend movil llama a `POST /api/auth/registro`, pero **el backend no define esa ruta**. El frontend web resuelve el registro llamando `POST /api/usuarios` (rol cliente) + `POST /api/auth/login`.
 
@@ -213,4 +214,21 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
 
 ### Web (`Frontend/src/services/apiClient.ts`)
 - `peticion(ruta, opciones)` usa `fetch`, parse el sobre `{error, status, body}` y devuelve `body`; lanza `Error` si `error === true`.
-- Llamadas (via `services/*Service.ts`): `/auth/login`, `/usuarios` (POST para registrar), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio, los services web **caen a mocks locales**.
+- **Envia `Authorization: Bearer <token>`** si hay sesion guardada (token persistido en `localStorage` por `utils/sesion.ts`).
+- Llamadas (via `services/*Service.ts`): `/auth/login`, `/usuarios` (GET, POST para registrar y para crear usuarios admin, DELETE para eliminar), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio devuelven **listas vacias** (no caen a mocks).
+
+---
+
+## Diagnostico de integracion (verificado sept 2026, con backend+frontend levantados)
+
+| Chequeo | Resultado |
+|---------|-----------|
+| GET `/api/vehiculos` (directo y via proxy Vite `/api`) | 200, sobre correcto, con `colores` N:M |
+| GET `/api/estaciones-carga` | 200 (5) |
+| GET `/api/servicios-tecnicos` | 200 (11) |
+| GET `/api/colores` | 200 (7) |
+| GET `/api/usuarios` | 200 (2) |
+| GET `/api/reservas` | 200 (3) |
+| POST `/api/auth/login` (credenciales invalidas) | **401** con `{error:true, status:401, body:"Correo o contraseña incorrectos"}` (corregido; antes 500) |
+
+Conclusion: contrato API ↔ frontend web alineado (sobre uniforme y campos por endpoint). Los cambios aplicados en el web (CRUD admin real, sin mocks, token enviado) se documentan en `Funcionalidades.md` y `Decisiones-tecnicas.md`.
