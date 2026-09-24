@@ -1,0 +1,175 @@
+/* =========================================================
+   Temas por rol · Quantum (frontend web)
+   Se aplican desde la raiz .aplicacion--{rol} mediante
+   sobreescritura de tokens (variables). Los componentes
+   compartidos cambian de aspecto sin duplicarse.
+   ========================================================= */
+
+/* =========================================================
+   INVITADO · Ajustes de tema (verde oscuro del Test Drive +
+   formularios con superficie paramétrica) — tokens especificos
+   ========================================================= */
+:root {
+  --navy-invitado: #1a2436;
+  --navy-invitado-oscuro: #151e2d;
+  --texto-blanco: #ffffff;
+
+  --superficie-oscura: #2b2e36;
+  --texto-superficie-oscura: #f5f7fa;
+  --texto-superficie-oscura-suave: #b4bac4;
+}
+
+/* Definicion por defecto de un token que se usaba sin definir */
+:root {
+  --fondo-claro: rgba(255, 255, 255, 0.06);
+
+  --surface-inverse: #0b1114;
+  --text-inverse: #f5f7fa;
+  --text-inverse-muted: #a9b4be;
+  --glow: radial-gradient(circle at 82% 20%, rgba(255, 255, 255, 0.07), transparent 55%);
+}
+
+/* ============ INVITADO · Azul oscuro / superficies #2b2e36 ============ */
+.aplicacion--invitado {
+  --fondo: #2b2e36;
+  --navy: #1e2430;
+  --navy-medio: #262b36;
+  --navy-claro: #313646;
+
+  --superficie: #2b2e36;
+  --superficie-elevada: #333848;
+  --superficie-hover: #3a4050;
+
+  --borde-claro: rgba(245, 247, 250, 0.10);
+  --fondo-claro: rgba(245, 247, 250, 0.06);
+
+  --texto-principal: #f5f7fa;
+  --texto-medio: #c9ced8;
+  --texto-suave: #b4bac4;
+  --texto-pagina: #f5f7fa;
+  --texto-pagina-suave: #b4bac4;
+
+  --gradiente-fondo: linear-gradient(175deg, #2b2e36 0%, #262a32 55%, #23272f 100%);
+  --gradiente-tarjeta: linear-gradient(160deg, #333848 0%, #2b2e36 100%);
+  --gradiente-encabezado: linear-gradient(135deg, #242a38 0%, #1e2430 100%);
+
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.30);
+  --sombra-media: 0 16px 38px rgba(0, 0, 0, 0.36);
+  --sombra-fuerte: 0 24px 60px rgba(0, 0, 0, 0.42);
+
+  --accent-contraste: #ffffff;
+}
+
+/* Navbar invitado: azul oscuro con letras blancas (hover blanco) */
+.aplicacion--invitado .cabecera-sitio__marca,
+.aplicacion--invitado .cabecera-sitio__enlace,
+.aplicacion--invitado .cabecera-sitio__enlace--activo {
+  color: #ffffff;
+}
+.aplicacion--invitado .cabecera-sitio__enlace:hover {
+  color: #ffffff;
+}
+
+/* ============ INVITADO · Ajustes de tema ============ */
+
+/* Navbar: azul oscuro con letras blancas (hover también blanco)
+   y logo en su tamaño original de cabecera */
+.aplicacion--invitado .cabecera-sitio {
+  background: var(--navy);
+  border-bottom: none;
+  color: var(--blanco);
+}
+
+.aplicacion--invitado .cabecera-sitio__marca {
+  color: var(--blanco);
+}
+
+.aplicacion--invitado .cabecera-sitio__logo {
+  border-radius: 0;
+}
+
+/* Fondo del <body> acorde al rol invitado (evita destellos en overscroll) */
+body:has(#root .aplicacion--invitado) {
+  background: #f2f3f5;
+}
+
+/* ============ CLIENTE · Negro neon ============ */
+.aplicacion--cliente {
+  --fondo: #05070c;
+  --navy: #05070c;
+  --navy-medio: #0b0e15;
+  --navy-claro: #121722;
+
+  --superficie: #0d1119;
+  --superficie-elevada: #141a25;
+  --superficie-hover: #1a2231;
+
+  --borde-claro: rgba(255, 255, 255, 0.10);
+  --fondo-claro: rgba(255, 255, 255, 0.06);
+
+  --texto-principal: #eef4ff;
+  --texto-medio: #b2bfd4;
+  --texto-suave: #8190aa;
+  --texto-pagina: #eef4ff;
+  --texto-pagina-suave: #aab8cd;
+
+  --gradiente-fondo: linear-gradient(175deg, #05070c 0%, #0a0d12 55%, #0e1218 100%);
+  --gradiente-tarjeta: linear-gradient(160deg, #121722 0%, #0b0e15 100%);
+  --gradiente-encabezado: linear-gradient(135deg, #080b12 0%, #0f1522 100%);
+
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --sombra-media: 0 16px 38px rgba(0, 0, 0, 0.55);
+  --sombra-fuerte: 0 24px 60px rgba(0, 0, 0, 0.6);
+
+  --surface-inverse: #0a0d12;
+  --text-inverse: #f2f5f9;
+  --text-inverse-muted: #93a3b2;
+  --glow: radial-gradient(circle at 82% 20%, rgba(47, 182, 118, 0.14), transparent 55%);
+}
+
+/* ============ ADMINISTRADOR · Azul oscuro ============ */
+.aplicacion--administrador {
+  --fondo: #070d1f;
+  --navy: #060b1a;
+  --navy-medio: #0c1529;
+  --navy-claro: #142239;
+
+  --superficie: #0c1427;
+  --superficie-elevada: #13203a;
+  --superficie-hover: #1a2c4d;
+
+  --borde-claro: rgba(255, 255, 255, 0.10);
+  --fondo-claro: rgba(255, 255, 255, 0.06);
+
+  --texto-principal: #f1f5ff;
+  --texto-medio: #bdcae2;
+  --texto-suave: #8b99b6;
+  --texto-pagina: #f1f5ff;
+  --texto-pagina-suave: #adb9d4;
+
+  --gradiente-fondo: linear-gradient(175deg, #060b18 0%, #0a1428 55%, #0f1b33 100%);
+  --gradiente-tarjeta: linear-gradient(160deg, #142239 0%, #0c1529 100%);
+  --gradiente-encabezado: linear-gradient(135deg, #0a1226 0%, #16264a 100%);
+
+  --sombra: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --sombra-media: 0 16px 38px rgba(0, 0, 0, 0.5);
+  --sombra-fuerte: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+  --surface-inverse: #0a1428;
+  --text-inverse: #f1f5ff;
+  --text-inverse-muted: #93a6c2;
+  --glow: radial-gradient(circle at 82% 20%, rgba(77, 159, 255, 0.16), transparent 55%);
+}
+
+/* Fondo del <body> acorde al rol activo (evita destellos en overscroll) */
+body:has(#root .aplicacion--invitado) {
+  background: #f2f3f5;
+}
+
+body:has(#root .aplicacion--cliente) {
+  background: #0f172a;
+}
+
+body:has(#root .aplicacion--administrador) {
+  background: #060b18;
+}

@@ -7,7 +7,7 @@ export default function LoginButton() {
 
   return (
     <>
-      <button className="boton boton--primario boton--compacto" onClick={() => setVisible(true)}>
+      <button className="boton boton-cuenta" onClick={() => setVisible(true)}>
         <UserRound size={15} />
         Cuenta
       </button>

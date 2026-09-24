@@ -14,6 +14,10 @@
   --azul-suave: rgba(77, 159, 255, 0.12);
   --azul-transparente: rgba(77, 159, 255, 0.25);
 
+  --accent: var(--verde);
+  --accent-hover: color-mix(in srgb, var(--verde) 85%, var(--blanco));
+  --accent-contraste: #06231a;
+
 
   /* ========================================
      FONDOS OSCUROS
@@ -66,6 +70,8 @@
   --radio: 18px;
   --radio-suave: 12px;
   --radio-pastilla: 999px;
+
+  --radio-boton: 4px;
 
 
   /* ========================================

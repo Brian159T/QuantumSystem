@@ -9,6 +9,7 @@ import './styles/variables.css'
 import './styles/base.css'
 import './styles/componentes.css'
 import './styles/paginas.css'
+import './styles/temas.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

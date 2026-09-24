@@ -1,4 +1,4 @@
-import { Flame, ArrowRight, BatteryCharging, Clock, ShieldCheck, Banknote, KeyRound, CalendarCheck, Zap, CheckCircle } from 'lucide-react'
+import { Flame, ArrowRight, BatteryCharging, Clock, ShieldCheck, Award, Banknote, KeyRound, CalendarCheck, Zap, CheckCircle } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 import { useVehiculos } from '../../hooks/useDatos'
 
@@ -41,12 +41,9 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
         <div className="hero__decoracion" />
       </section>
 
-      <section className="fila-estadisticas">
+      <section className="fila-estadisticas fila-estadisticas--cuatro">
         <div className="tarjeta-estadistica">
-          <div
-            className="tarjeta-estadistica__icono"
-            style={{ background: 'var(--verde-suave)', color: 'var(--verde)' }}
-          >
+          <div className="tarjeta-estadistica__icono">
             <BatteryCharging size={22} />
           </div>
           <div>
@@ -55,10 +52,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
           </div>
         </div>
         <div className="tarjeta-estadistica">
-          <div
-            className="tarjeta-estadistica__icono"
-            style={{ background: 'var(--azul-suave)', color: 'var(--azul)' }}
-          >
+          <div className="tarjeta-estadistica__icono">
             <Clock size={22} />
           </div>
           <div>
@@ -67,10 +61,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
           </div>
         </div>
         <div className="tarjeta-estadistica">
-          <div
-            className="tarjeta-estadistica__icono"
-            style={{ background: 'rgba(167,139,250,0.14)', color: 'var(--morado)' }}
-          >
+          <div className="tarjeta-estadistica__icono">
             <ShieldCheck size={22} />
           </div>
           <div>
@@ -78,13 +69,39 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
             <div className="tarjeta-estadistica__etiqueta">Seguridad</div>
           </div>
         </div>
+        <div className="tarjeta-estadistica">
+          <div className="tarjeta-estadistica__icono">
+            <Award size={22} />
+          </div>
+          <div>
+            <div className="tarjeta-estadistica__valor">8 años</div>
+            <div className="tarjeta-estadistica__etiqueta">Garantía</div>
+          </div>
+        </div>
       </section>
 
       <section className="seccion">
         <EncabezadoSeccion titulo="Modelos Destacados" enlace="Ver todos" alHacerClicEnlace={alVerVehiculos} />
-        <div className="carrusel">
-          {modelos.map((modelo) => (
-            <div key={modelo.id_vehiculo ?? modelo.Nombre_Modelo} className="carrusel__item">
+        <div className="rejilla-destacados">
+          <div className="destacado-intro">
+            <div className="destacado-intro__ceja">Nuestra familia</div>
+            <div className="destacado-intro__titulo">
+              La nueva
+              <br />
+              generación
+              <br />
+              eléctrica
+            </div>
+            <div className="destacado-intro__texto">
+              Diseño, autonomía y tecnología en cada modelo. Explora los vehículos Voltus.
+            </div>
+            <button className="boton boton--primario boton--compacto" onClick={alVerVehiculos}>
+              Ver catálogo
+              <ArrowRight size={14} />
+            </button>
+          </div>
+          {modelos.slice(0, 3).map((modelo) => (
+            <div key={modelo.id_vehiculo ?? modelo.Nombre_Modelo} className="rejilla-destacados__item">
               <div className="tarjeta-modelo">
                 <div className="tarjeta-modelo__imagen">
                   <img src={modelo.imagen} alt={modelo.Nombre_Modelo} loading="lazy" />
@@ -173,7 +190,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
       </section>
 
       <section className="seccion">
-        <div className="banner">
+        <div className="banner banner--mitad">
           <div className="banner__lienzo" />
           <div className="banner__contenido">
             <div className="banner__ceja">Experiencia real</div>
@@ -187,8 +204,9 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
               Reservar
             </button>
           </div>
-          <div className="banner__icono">
-            <Zap size={44} />
+          <div className="banner__visor">
+            <img className="banner__imagen" src={modelos[0]?.imagen} alt="Test drive Voltus" loading="lazy" />
+            <div className="banner__resplandor" />
           </div>
         </div>
       </section>

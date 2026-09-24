@@ -74,7 +74,7 @@ export default function PaginaEstaciones() {
 
       <div className="fila-estadisticas">
         <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono" style={{ background: 'var(--verde-suave)', color: 'var(--verde)' }}>
+          <div className="tarjeta-estadistica__icono">
             <Zap size={22} />
           </div>
           <div>
@@ -83,7 +83,7 @@ export default function PaginaEstaciones() {
           </div>
         </div>
         <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono" style={{ background: 'var(--azul-suave)', color: 'var(--azul)' }}>
+          <div className="tarjeta-estadistica__icono">
             <Plug size={22} />
           </div>
           <div>
@@ -94,7 +94,7 @@ export default function PaginaEstaciones() {
           </div>
         </div>
         <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono" style={{ background: 'var(--verde-suave)', color: 'var(--verde)' }}>
+          <div className="tarjeta-estadistica__icono">
             <Check size={22} />
           </div>
           <div>

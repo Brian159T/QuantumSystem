@@ -119,13 +119,49 @@ function Aplicacion() {
       </main>
 
       <footer className="pie-sitio">
-        <span className="pie-sitio__marca">
-          <Zap size={13} /> QUANTUM
-        </span>
-        <span>© {new Date().getFullYear()} Quantum Mobility · Voltus</span>
-        <span className="pie-sitio__enlaces">
-          Privacidad · Términos · Soporte
-        </span>
+        <div className="pie-sitio__columna pie-sitio__bloque-marca">
+          <span className="pie-sitio__logo">
+            <Zap size={13} /> QUANTUM
+          </span>
+          <p className="pie-sitio__frase">Movilidad eléctrica para un futuro sostenible.</p>
+          <div className="pie-sitio__copy">© {new Date().getFullYear()} Quantum Mobility · Voltus</div>
+        </div>
+        <nav className="pie-sitio__columna">
+          <h4 className="pie-sitio__titulo">Producto</h4>
+          <a href="#" className="pie-sitio__enlace">
+            Vehículos
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Reservas
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Estaciones de carga
+          </a>
+        </nav>
+        <nav className="pie-sitio__columna">
+          <h4 className="pie-sitio__titulo">Empresa</h4>
+          <a href="#" className="pie-sitio__enlace">
+            Nosotros
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Sostenibilidad
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Noticias
+          </a>
+        </nav>
+        <nav className="pie-sitio__columna">
+          <h4 className="pie-sitio__titulo">Soporte</h4>
+          <a href="#" className="pie-sitio__enlace">
+            Ayuda
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Privacidad
+          </a>
+          <a href="#" className="pie-sitio__enlace">
+            Términos
+          </a>
+        </nav>
       </footer>
     </div>
   )
