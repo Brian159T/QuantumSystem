@@ -70,12 +70,31 @@
   color: #ffffff;
 }
 
+/* Footer invitado: fondo negro con letras blancas */
+.aplicacion--invitado .pie-sitio {
+  background: #000000;
+  border-top: none;
+  color: #ffffff;
+}
+
+.aplicacion--invitado .pie-sitio__logo,
+.aplicacion--invitado .pie-sitio__titulo,
+.aplicacion--invitado .pie-sitio__frase,
+.aplicacion--invitado .pie-sitio__copy,
+.aplicacion--invitado .pie-sitio__enlace {
+  color: #ffffff;
+}
+
+.aplicacion--invitado .pie-sitio__enlace:hover {
+  color: var(--verde);
+}
+
 /* ============ INVITADO · Ajustes de tema ============ */
 
 /* Navbar: azul oscuro con letras blancas (hover también blanco)
    y logo en su tamaño original de cabecera */
 .aplicacion--invitado .cabecera-sitio {
-  background: var(--navy);
+  background: #12161f;
   border-bottom: none;
   color: var(--blanco);
 }

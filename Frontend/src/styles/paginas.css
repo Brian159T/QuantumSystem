@@ -143,6 +143,13 @@
   grid-template-columns: repeat(4, 1fr);
 }
 
+/* Estadísticas del top de la página de invitado: texto e iconos en negro */
+.fila-estadisticas--cuatro .tarjeta-estadistica__icono,
+.fila-estadisticas--cuatro .tarjeta-estadistica__valor,
+.fila-estadisticas--cuatro .tarjeta-estadistica__etiqueta {
+  color: #000000;
+}
+
 /* ---------- Secciones y carrusel ---------- */
 .seccion {
   margin-top: 96px;
@@ -209,6 +216,37 @@
 
 .destacado-intro .boton {
   margin-top: 6px;
+}
+
+/* Bloque destacado de la página de invitado: texto en negro */
+.destacado-intro__ceja,
+.destacado-intro__titulo,
+.destacado-intro__texto {
+  color: #000000;
+}
+
+/* Botón "Ver catálogo" negro con letras blancas */
+.destacado-intro .boton--primario,
+.destacado-intro .boton--primario:hover {
+  background: #000000;
+  border-color: #000000;
+  color: #ffffff;
+}
+
+/* Títulos de sección de la página de invitado en negro */
+.pagina-inicio .titulo-seccion {
+  color: #000000;
+}
+
+/* Enlace "Ver todos" de la página de invitado en negro */
+.pagina-inicio .titulo-seccion__enlace {
+  color: #000000;
+}
+
+/* Encabezado del catálogo de vehículos (invitado): título y contador en negro */
+.pagina-vehiculos .titulo-seccion,
+.pagina-vehiculos .encabezado-seccion div[style] {
+  color: #000000 !important;
 }
 
 .tarjeta-modelo {
@@ -460,6 +498,29 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(120% 120% at 0% 50%, rgba(8, 13, 26, 0.6), transparent 55%);
+}
+
+/* Banner de reservas (Rol invitado) y Test Drive (Inicio invitado):
+   a todo el ancho del viewport y con fondo negro */
+.pagina-reservas .banner,
+.pagina-inicio .banner--mitad {
+  width: 100vw;
+  margin-left: 50%;
+  border-radius: 0;
+  background: #000000;
+  box-shadow: none;
+  transform: translateX(-50%);
+}
+
+/* La primera franja (hero de Inicio y banner de Reservas) queda pegada al navbar */
+.contenido__cuerpo:has(.pagina-inicio),
+.contenido__cuerpo:has(.pagina-reservas) {
+  padding-top: 66px;
+}
+
+/* En Inicio invitado, la franja final (Test Drive) queda pegada al footer */
+.contenido__cuerpo:has(.pagina-inicio) {
+  padding-bottom: 0;
 }
 
 /* ---------- Vehiculos: lista y detalle ---------- */
@@ -1666,5 +1727,17 @@
 
   .tarjeta-vehiculo__info {
     padding: 12px 24px 28px;
+  }
+}
+
+/* En móvil el navbar es más bajo: la franja sigue pegada */
+@media (max-width: 520px) {
+  .contenido__cuerpo:has(.pagina-inicio),
+  .contenido__cuerpo:has(.pagina-reservas) {
+    padding-top: 56px;
+  }
+
+  .contenido__cuerpo:has(.pagina-inicio) {
+    padding-bottom: 0;
   }
 }

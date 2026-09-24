@@ -120,7 +120,7 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
   }
 
   return (
-    <div>
+    <div className="pagina-vehiculos">
       <EncabezadoSeccion titulo="Catálogo de Vehículos" contador={`${modelos.length} modelos`} />
       <div className="rejilla-vehiculos">
         {modelos.map((modelo, indice) => (

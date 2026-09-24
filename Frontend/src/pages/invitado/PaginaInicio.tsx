@@ -10,7 +10,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
   const { datos: modelos } = useVehiculos()
 
   return (
-    <div>
+    <div className="pagina-inicio">
       <section className="hero">
         <div className="hero__imagen">
           <img src={modelos[0]?.imagen} alt={modelos[0]?.Nombre_Modelo ?? 'Voltus Neo'} />
@@ -82,6 +82,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
 
       <section className="seccion">
         <EncabezadoSeccion titulo="Modelos Destacados" enlace="Ver todos" alHacerClicEnlace={alVerVehiculos} />
+        <div className="destacados-fondo">
         <div className="rejilla-destacados">
           <div className="destacado-intro">
             <div className="destacado-intro__ceja">Nuestra familia</div>
@@ -137,6 +138,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
               </div>
             </div>
           ))}
+        </div>
         </div>
       </section>
 

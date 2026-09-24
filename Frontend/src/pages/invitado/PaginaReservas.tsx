@@ -68,7 +68,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
   }
 
   return (
-    <div>
+    <div className="pagina-reservas">
       <div className="banner" style={{ marginBottom: 26, padding: '28px 32px' }}>
         <div className="banner__lienzo" />
         <div className="banner__contenido">

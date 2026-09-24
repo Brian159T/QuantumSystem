@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth'
 import Saludo from '../components/Saludo'
 import LoginButton from '../components/LoginButton'
 import LogoutButton from '../components/LogoutButton'
+import Chatbot from '../components/Chatbot'
 import PaginaInicio from '../pages/invitado/PaginaInicio'
 import PaginaVehiculos from '../pages/invitado/PaginaVehiculos'
 import PaginaReservas from '../pages/invitado/PaginaReservas'
@@ -163,6 +164,8 @@ function Aplicacion() {
           </a>
         </nav>
       </footer>
+
+      <Chatbot />
     </div>
   )
 }
