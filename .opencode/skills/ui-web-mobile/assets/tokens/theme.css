@@ -1,0 +1,256 @@
+/**
+ * theme.css — Equivalente CSS de `tokens.ts`.
+ *
+ * Mismos valores, mismos nombres en kebab-case:
+ *   tokens.ts  theme.colors.primary  ->  CSS  var(--color-primary)
+ *   tokens.ts  theme.spacing.md      ->  CSS  var(--space-md)
+ *   tokens.ts  theme.radii.lg        ->  CSS  var(--radius-lg)
+ *
+ * Mismo orden de cascada que tokens.ts: [data-theme="a"] > :root > [data-theme="b"].
+ * Esto permite que el CSS funcione aunque el tema aun no haya llegado desde React
+ * (evita un flash de colores incorrectos en el primer render).
+ */
+
+/* ================================================================== */
+/* Tokens compartidos (iguales en los tres temas)                     */
+/* ================================================================== */
+
+:root {
+  /* --- Espaciado: escala de 4px --- */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-xxl: 40px;
+  --space-section: 72px;
+
+  /* --- Radios --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-pill: 999px;
+
+  /* --- Movimiento --- */
+  --motion-fast: 150ms;
+  --motion-base: 220ms;
+  --motion-slow: 400ms;
+  --motion-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --motion-ease-out: cubic-bezier(0, 0, 0.2, 1);
+
+  /* --- Z-index --- */
+  --z-base: 0;
+  --z-content: 1;
+  --z-sticky: 100;
+  --z-overlay: 200;
+  --z-modal: 300;
+  --z-toast: 400;
+
+  /* --- Breakpoints (solo lectura desde JS; en CSS usa @media) --- */
+  --bp-sm: 480px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+
+  /* --- Tipografia base --- */
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* ================================================================== */
+/* TEMA A — lightBlueCommerce (web, azul oscuro + azul claro)         */
+/* ================================================================== */
+
+[data-theme='lightBlueCommerce'] {
+  color-scheme: light;
+
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-alt: #f5f8fc;
+  --color-border: #e2e8f0;
+  --color-text: #0f172a;
+  --color-text-muted: #64748b;
+
+  /* Escala propia del tema: azul oscuro (chrome) + azul claro (accion) */
+  --color-navy: #0b1f3a;
+  --color-navy-deep: #0a1a33;
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  /* Paso de escala azul claro. --color-accent es su alias semantico. */
+  --color-sky: #60a5fa;
+  --color-accent: #60a5fa;
+  --color-accent-soft: #dbeafe;
+  --color-primary-contrast: #ffffff;
+  --color-success: #16a34a;
+  --color-warning: #f59e0b;
+  --color-danger: #dc2626;
+
+  /* Tipografia */
+  --font-size-display: 56px;
+  --font-size-title: 34px;
+  --font-size-heading: 24px;
+  --font-size-subheading: 18px;
+  --font-size-body: 16px;
+  --font-size-body-sm: 14px;
+  --font-size-eyebrow: 12px;
+  --font-size-caption: 12px;
+  --font-size-button: 13px;
+  --font-size-metric: 28px;
+
+  --line-height-display: 1.05;
+  --line-height-title: 1.15;
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+
+  --tracking-tight: -0.02em;
+  --tracking-eyebrow: 0.14em;
+  --tracking-button: 0.08em;
+
+  /* Sombras suaves con tinte azul */
+  --shadow-sm: 0 2px 8px rgba(11, 31, 58, 0.06);
+  --shadow-md: 0 8px 18px rgba(11, 31, 58, 0.1);
+  --shadow-lg: 0 16px 32px rgba(11, 31, 58, 0.16);
+  --shadow-primary: 0 6px 16px rgba(37, 99, 235, 0.24);
+
+  /* Overlay del hero: azul oscuro desde la izquierda */
+  --effect-hero-overlay: linear-gradient(
+    90deg,
+    rgba(10, 26, 51, 0.94) 0%,
+    rgba(10, 26, 51, 0.72) 45%,
+    rgba(10, 26, 51, 0.15) 100%
+  );
+  --effect-header: linear-gradient(135deg, #0a1a33 0%, #0b1f3a 100%);
+}
+
+/* ================================================================== */
+/* TEMA B — darkNeonGlass (web, cian + metalico oscuro)               */
+/* ================================================================== */
+
+[data-theme='darkNeonGlass'] {
+  color-scheme: dark;
+
+  --color-bg: #121212;
+  --color-surface: #1a1a1a;
+  --color-surface-alt: #1f2124;
+  --color-border: rgba(255, 255, 255, 0.08);
+  --color-text: #f5f5f5;
+  --color-text-muted: #9ca3af;
+
+  --color-primary: #22d3ee;
+  --color-primary-hover: #00e5ff;
+  --color-accent: #00e5ff;
+  --color-accent-soft: rgba(34, 211, 238, 0.12);
+  --color-primary-contrast: #0a0a0a;
+  --color-success: #34d399;
+  --color-warning: #fbbf24;
+  --color-danger: #f87171;
+
+  --color-metallic-ink: #111418;
+
+  --font-size-display: 60px;
+  --font-size-title: 36px;
+  --font-size-heading: 26px;
+  --font-size-subheading: 18px;
+  --font-size-body: 16px;
+  --font-size-body-sm: 14px;
+  --font-size-eyebrow: 12px;
+  --font-size-caption: 12px;
+  --font-size-button: 13px;
+  --font-size-metric: 30px;
+
+  --line-height-display: 1.02;
+  --line-height-title: 1.1;
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+
+  --tracking-tight: -0.03em;
+  --tracking-eyebrow: 0.16em;
+  --tracking-button: 0.08em;
+
+  /* Glow: multicapa (spread 0 para difuminar simetrico) */
+  --shadow-sm: 0 0 10px rgba(34, 211, 238, 0.18);
+  --shadow-md: 0 0 24px rgba(34, 211, 238, 0.28), 0 0 60px rgba(34, 211, 238, 0.12);
+  --shadow-lg: 0 0 40px rgba(34, 211, 238, 0.4), 0 0 100px rgba(34, 211, 238, 0.18);
+  --shadow-primary: 0 0 20px rgba(34, 211, 238, 0.45);
+
+  /* Degradado metalico: para texto con background-clip y para tarjetas */
+  --effect-metallic: linear-gradient(135deg, #f5f7fa 0%, #c8cdd4 45%, #9aa1ab 100%);
+  --effect-glass: rgba(31, 33, 36, 0.72);
+  --effect-glow-ring: 0 0 0 1px rgba(34, 211, 238, 0.4);
+}
+
+/* ================================================================== */
+/* Utilidades de efectos (aplican a cualquier tema)                   */
+/* ================================================================== */
+
+/* Glassmorphism: requiere backdrop-filter con fallback solido */
+.glass {
+  background: color-mix(in srgb, var(--color-surface-alt) 82%, transparent);
+  border: 1px solid var(--color-border);
+}
+
+@supports (backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px)) {
+  .glass {
+    background: var(--effect-glass, color-mix(in srgb, var(--color-surface-alt) 82%, transparent));
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    backdrop-filter: blur(12px) saturate(140%);
+  }
+}
+
+/* Degradado de texto (titulares metalicos) */
+.text-gradient {
+  background: var(--effect-metallic, linear-gradient(135deg, #f5f7fa, #9aa1ab));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Titulo con una palabra resaltada en el color de acento */
+.title-accent-word {
+  color: var(--color-accent);
+}
+
+/* Anillo de glow (tema B) */
+.glow-ring {
+  box-shadow: var(--effect-glow-ring, 0 0 0 1px rgba(34, 211, 238, 0.4));
+}
+
+/* ================================================================== */
+/* Preferencias del usuario                                           */
+/* ================================================================== */
+
+/* Respeta la preferencia de esquema del sistema SOLO si el tema no fija
+   uno explicito. Los tres temas definen color-scheme, asi que esto sirve
+   como red de seguridad para paginas sin data-theme. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    color-scheme: light;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+  }
+}
+
+/* Reduce movimiento: desactiva animaciones, conserva cambios de estado.
+   ESTE es el unico uso de !important admitido en la skill: es un reset global
+   de accesibilidad y sin el no puede ganar a las transiciones de los componentes. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Foco visible consistente. NUNCA elimines el outline sin sustituirlo. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}

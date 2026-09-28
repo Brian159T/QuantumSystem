@@ -103,7 +103,7 @@ La mayoria de pantallas usa **datos mock hardcodeados**; en el web, login/regist
 
 ## Decisiones implementadas (no revertir sin motivo)
 
-Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de despliegue/hoja de ruta** (seccion "Plan de despliegue / hoja de ruta (Roadmap)") que define la migracion a Supabase (Postgres + pgvector), deployment del backend en Render, del frontend en Vercel y el chatbot con Google Gemini (free tier). **Leelo antes de asumir el estado de la infraestructura.**
+Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de despliegue/hoja de ruta** (seccion "Plan de despliegue / hoja de ruta (Roadmap)") que define la migracion a Supabase (Postgres + pgvector), deployment del backend en Render, del frontend en Vercel y el chatbot con IA. **Leelo antes de asumir el estado de la infraestructura.**
 
 1. CRUD generico por modulo con inyeccion de DB (duplicar carpeta = nuevo modulo).
 2. Sobre de respuesta JSON uniforme `{error, status, body}`.
@@ -112,6 +112,9 @@ Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de desplie
 5. Estilos por pantalla en `*.styles.ts` con paleta compartida; NativeWind instalado pero inactivo (`global.css` comentado).
 6. Frontend-web separado (Vite) como app independiente, con arquitectura basada en componentes. Desde sept 2026 **sin fallback a mocks**: los services devuelven `[]` si la API falla o trae lista vacia.
 7. Deteccion automatica de IP para `API_URL` en la app movil (`Mobile/src/Config/api.ts`) con **fallback a `localhost:4000`** en web. En web `react-native-maps` usa un stub (`Mobile/src/stubs/react-native-maps.web.tsx`) via `metro.config.js`.
+8. **Modelo de IA del chatbot: `gemini-2.5-flash-lite` en free tier ($0)**, con paso previsto a **`deepseek-flash` de pago** cuando se agote el limite diario (~1.000 RPD). Decision tomada sept 2026. El **embedder no cambia**: sigue siendo `gemini-embedding-001` (768 dims) para los vectores ya guardados. El nombre del modelo de texto debe ir en **variable de entorno** (`GEMINI_CHAT_MODEL`), nunca hardcodeado, para que cambiar de proveedor sea editar el `.env`. Detalle, precios y plan de migracion en `docs/Decisiones-tecnicas.md` ("Modelo de IA del chatbot: decision y plan de migracion").
+9. **`Usuarios` y `Reservas` NO deben vectorizarse** (pendiente de implementar). Son las unicas tablas con datos personales: hoy `src/embeddings/index.ts:23-35` concatena todas las columnas de la fila salvo `embedding`, asi que salen a Google `correo`, `nombre_usuario`, hash bcrypt de `contrasena`, `nombres`, `apellidos` y `cedula_identidad`. El chatbot del catalogo no necesita esas filas. Al implementar: quitar el `import embeddings` y las llamadas en `modulos/Usuarios/controlador.ts` (lineas 71-72 y 110-111) y `modulos/Reservas/controlador.ts` (lineas 44-45 y 60-61), y aplicar **allowlist explicita** en las 3 tablas restantes. Ver `docs/Decisiones-tecnicas.md` ("Plan de seguridad: dejar de enviar datos personales a Gemini").
+10. **La carpeta `db_vectorial/` NO es parte de la app**: es un experimento en Python con repo git propio, apuntando a otra base (`dbbrand`). Usa Ollama (1024 dims) y CLIP (512 dims), tiene credenciales hardcodeadas y no tiene indices validos. **No la copies ni la tomes como referencia de arquitectura**, salvo el patron de umbral de similitud + `top_k` de `buscar_imagen.py:92-97`, que si conviene replicar en el RAG. Comparacion completa en `docs/Decisiones-tecnicas.md` ("Vectorizacion: metodo actual vs metodo de la carpeta `db_vectorial`").
 
 ## Gotchas
 
@@ -120,3 +123,8 @@ Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de desplie
 - `Mobile/cesconfig.jsonc` es un archivo de debug de NativeWind, se puede ignorar/eliminar.
 - `tsconfigPaths` (alias `@/*`) esta habilitado en Expo pero las pantallas importan por ruta relativa.
 - En el movil, el rol se compara como string (`rol === 'cliente'` / `'administrador'` en minuscula); depende del valor en la BD.
+- `src/embeddings/index.ts` manda la API key de Gemini en la **query string** (`?key=`), asi que acaba en los logs de cualquier proxy o plataforma. Pendiente moverla a header `x-goog-api-key`.
+- Si falta la clave de Gemini, `src/embeddings/index.ts:74-97` escribe vectores de **feature hashing (SHA-1)**: 768 dims aparentemente validos pero semanticamente inservibles, y la API responde 200 sin avisar. Fallback silencioso a quitar o hacer explicito.
+- `dotenv` esta en `devDependencies` de `Backend/package.json` pero `config.ts:1` hace `require('dotenv')`: con `npm ci --omit=dev` (Render) el backend no arranca.
+- No existe `.env.example` aunque `.gitignore:7` lo whitelistea.
+- No hay indice HNSW en `QuantumSystemDB` (con ~25 filas el seq scan aguanta, pero crearlo antes de que las tablas crezcan).

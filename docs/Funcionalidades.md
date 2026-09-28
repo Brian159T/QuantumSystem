@@ -142,3 +142,8 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 - **Saludo** con iniciales y rol del usuario logueado.
 - **Navegacion por tabs/rol** (movil: react-navigation; web: navegacion por estado).
 - **Geolocalizacion** (movil): permisos, coordenadas, distancia Haversine. Usado en Estaciones y Talleres.
+- **Chatbot (web)**: FAB flotante "Asistente Quantum" presente en **todas las interfaces y roles** (se monta una vez en `AppNavigator.tsx`, componente `components/Chatbot.tsx`). Igual que en el movil, es **solo visual**: saludo inicial, burbujas y hora de envio, sin respuestas del asistente ni conexion a API (el RAG con Gemini sigue pendiente, ver `docs/Decisiones-tecnicas.md`).
+
+### Aspecto visual del rol invitado (web, sept 2026)
+
+Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pagina paso de blanco a un **gris medio** (y el navbar se oscurecio); los textos/titulos destacados, iconos de estadisticas y enlaces se muestran en **negro**; el footer tiene **fondo negro con letras blancas**; los banners "Reserva ahora" y "Experiencia real / Test Drive" son **negros a todo el ancho** (pegados al navbar arriba y al footer abajo); el catalogo de modelos destacados va sobre una **franja gris** a todo el ancho. Estos ajustes se concentran en `Frontend/src/styles/paginas.css`, `temas.css` y `componentes.css`.

@@ -262,7 +262,8 @@ SPA de **Vite + React 19 + TypeScript**. Es una app separada de la movil, con ar
 ```
 Frontend/src/
 ├── components/           # Componentes reutilizables de la interfaz
-│   ├── EncabezadoSeccion.tsx   # Titulo de seccion con enlace/contador
+│   ├── Chatbot.tsx              # FAB flotante + panel de chat "Asistente Quantum" (todas las interfaces)
+│   ├── EncabezadoSeccion.tsx    # Titulo de seccion con enlace/contador
 │   ├── LoginButton.tsx         # Boton "Cuenta" + abre LoginModal
 │   ├── LoginModal.tsx          # Modal login/registro (usa useAuth)
 │   ├── LogoutButton.tsx        # Boton "Salir"
@@ -324,6 +325,8 @@ Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven
 ### 4.5 Routing/navegacion del web
 
 `routes/AppNavigator.tsx` es un SPA con **navegacion por estado** (no usa react-router). La config de rutas vive en `routes/config.ts` (`NAVEGACION` por rol e `INICIO_POR_ROL`). El rol se calcula con `useAuth()` (flags `esInvitado/esCliente/esAdministrador`) y se renderiza un set de pantallas segun rol, con `pantallaActual` controlado por `useState`. Iconos con `lucide-react`.
+
+**Chatbot global**: el componente `components/Chatbot.tsx` se monta **una sola vez** en `AppNavigator.tsx` (como hermano del `<footer>`, detras del `</div class="aplicacion">`), por lo que aparece en **todas las paginas y los 3 roles** (invitado, cliente, administrador). Es un FAB flotante verde (abajo a la derecha, `z-index: 80`) que abre un panel de chat "Asistente Quantum" con burbujas, hora de envio y saludo inicial. Al igual que el chatbot del movil, es **100% visual**: no consume API ni responde aun (el "cerebro" RAG + Gemini sigue pendiente, ver seccion 6 de `docs/Decisiones-tecnicas.md`).
 
 ### 4.6 Autenticacion (contexto + hook)
 
