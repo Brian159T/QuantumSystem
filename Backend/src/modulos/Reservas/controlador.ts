@@ -1,5 +1,9 @@
 import dbPg from '../../DB/pg';
-import embeddings from '../../embeddings';
+
+// Esta tabla NO se vectoriza a proposito: contiene datos personales
+// (nombres, apellidos, cedula_identidad) y el chatbot del catalogo no
+// la necesita. Ver docs/Decisiones-tecnicas.md, seccion "Plan de
+// seguridad: dejar de enviar datos personales a Gemini".
 
 const TABLA = 'Reservas';
 const CAMPO_ID = 'id_reserva';
@@ -30,7 +34,7 @@ export default function (dbInyectada?: any) {
         return db.eliminar(TABLA, CAMPO_ID, id);
     }
 
-    async function agregar(body: Reserva) {
+    function agregar(body: Reserva) {
         const fechaHoy = new Date().toISOString().slice(0, 10);
         const reserva: any = {
             Fecha_Reserva: body.Fecha_Reserva || fechaHoy,
@@ -41,12 +45,13 @@ export default function (dbInyectada?: any) {
             modelo: body.modelo,
             color: body.color,
         };
-        const literal = await embeddings.embeddingDeObjeto(reserva);
-        if (literal) reserva.embedding = { vector: literal };
         return db.agregar(TABLA, reserva);
     }
 
-    async function actualizar(id: number, body: Reserva) {
+    function actualizar(
+        id: number,
+        body: Reserva
+    ) {
         const reserva: any = {
             Fecha_Reserva: body.Fecha_Reserva,
             Estado: body.Estado,
@@ -56,9 +61,6 @@ export default function (dbInyectada?: any) {
             modelo: body.modelo,
             color: body.color,
         };
-        const actual = (await db.uno(TABLA, CAMPO_ID, id)) || {};
-        const literal = await embeddings.embeddingDeActualizacion(actual, reserva);
-        if (literal) reserva.embedding = { vector: literal };
         return db.actualizar(TABLA, CAMPO_ID, id, reserva);
     }
 

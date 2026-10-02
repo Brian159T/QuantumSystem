@@ -14,6 +14,7 @@ import estacionesCarga from './modulos/Estaciones_Carga/rutas';
 import colores from './modulos/Colores/rutas';
 import reservas from './modulos/Reservas/rutas';
 import vehiculosColores from './modulos/Vehiculos_Colores/rutas';
+import chatbot from './modulos/Chatbot/rutas';
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use('/api/estaciones-carga', estacionesCarga);
 app.use('/api/colores', colores);
 app.use('/api/reservas', reservas);
 app.use('/api/vehiculos-colores', vehiculosColores);
+app.use('/api/chatbot', chatbot);
 // Manejo de errores
 app.use(error);
 

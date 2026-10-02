@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Zap, Home, Car, CalendarCheck, PlugZap, Wrench, Siren, LayoutDashboard, Users } from 'lucide-react'
+import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth'
 import Saludo from '../components/Saludo'
 import LoginButton from '../components/LoginButton'
@@ -27,7 +27,7 @@ const ICONOS: Record<string, React.ReactNode> = {
   inicio: <Home size={16} />,
   vehiculos: <Car size={16} />,
   reservas: <CalendarCheck size={16} />,
-  estaciones: <PlugZap size={16} />,
+  estaciones: <Plug size={16} />,
   talleres: <Wrench size={16} />,
   emergencias: <Siren size={16} />,
   panel: <LayoutDashboard size={16} />,
@@ -56,9 +56,7 @@ function Aplicacion() {
       <header className="cabecera-sitio">
         <div className="cabecera-sitio__interior">
           <button className="cabecera-sitio__marca" onClick={() => irA(INICIO_POR_ROL[rol])}>
-            <span className="cabecera-sitio__logo">
-              <Zap size={18} />
-            </span>
+            
             <span className="cabecera-sitio__nombre">QUANTUM</span>
           </button>
 
@@ -122,15 +120,15 @@ function Aplicacion() {
       <footer className="pie-sitio">
         <div className="pie-sitio__columna pie-sitio__bloque-marca">
           <span className="pie-sitio__logo">
-            <Zap size={13} /> QUANTUM
+            {/* ICONO: colocar aquÃ­ el icono a usar */} QUANTUM
           </span>
-          <p className="pie-sitio__frase">Movilidad eléctrica para un futuro sostenible.</p>
-          <div className="pie-sitio__copy">© {new Date().getFullYear()} Quantum Mobility · Voltus</div>
+          <p className="pie-sitio__frase">Movilidad elÃ©ctrica para un futuro sostenible.</p>
+          <div className="pie-sitio__copy">Â© {new Date().getFullYear()} Quantum Mobility Â· Voltus</div>
         </div>
         <nav className="pie-sitio__columna">
           <h4 className="pie-sitio__titulo">Producto</h4>
           <a href="#" className="pie-sitio__enlace">
-            Vehículos
+            VehÃ­culos
           </a>
           <a href="#" className="pie-sitio__enlace">
             Reservas
@@ -160,7 +158,7 @@ function Aplicacion() {
             Privacidad
           </a>
           <a href="#" className="pie-sitio__enlace">
-            Términos
+            TÃ©rminos
           </a>
         </nav>
       </footer>

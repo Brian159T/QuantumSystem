@@ -1,44 +1,49 @@
 // =====================================================
 // vectorizar_datos.ts  (metodo ESTANDAR: embeddings de IA)
 // Vectoriza SOLO las filas cuyo campo "embedding" esta en
-// NULL en las tablas con campo vectorial
-// (Usuarios, Vehiculos, Reservas, Servicios_Tecnicos,
-//  Estaciones_Carga):
-//   1. Concatena todos los campos de la fila en texto
+// NULL en las 3 tablas con campo vectorial y datos no personales
+// (Vehiculos, Servicios_Tecnicos, Estaciones_Carga):
+//   1. Arma el texto de la fila con la ALLOWLIST de columnas
+//      compartida con src/embeddings/index.ts
 //      ("columna:valor columna:valor ...").
 //   2. Llama al modelo de embeddings de Google Gemini
-//      (gemini-embedding-001/002) y obtiene un vector
+//      (gemini-embedding-001) y obtiene un vector
 //      semantico de DIM dimensiones.
 //   3. Guarda ese vector en la columna "embedding".
+//
+// SEGURIDAD: "Usuarios" y "Reservas" quedan FUERA a proposito
+// (contienen correo, hash de contrasena, nombres y cedula).
+// El texto se valida con la denylist compartida antes de salir.
+// Ver docs/Decisiones-tecnicas.md, seccion "Plan de seguridad:
+// dejar de enviar datos personales a Gemini".
 //
 // Como omite las filas ya vectorizadas (embedding != NULL),
 // se puede reejecutar tras cada alta: solo procesa las filas
 // nuevas que todavia no tienen vector.
 //
-// Asi, mas adelante el backend puede hacer busquedas por
-// similitud (operador <=> de pgvector), pasar el contexto
-// a la IA del chatbot y devolver la respuesta al frontend.
+// Asi, el backend puede hacer busquedas por similitud
+// (operador <=> de pgvector), pasar el contexto a la IA del
+// chatbot y devolver la respuesta al frontend.
 //
 // SI la API key no esta configurada, usa un fallback de
 // feature hashing local (deterministico, sin IA).
 // La clave se lee del .env del Backend (carpeta superior):
 //   API_KEY_GOOGLE_AI_STUDIO=...   (o GEMINI_API_KEY=...)
 //
-// Uso (desde la carpeta Backend/scripts/):
-//   set PGPASSWORD=tu_password
-//   npx ts-node vectorizar_datos.ts
+// Uso (desde la carpeta Backend/):
+//   npx ts-node scripts/vectorizar_datos.ts
 //
 // Conexion por variables de entorno (o defaults):
 //   PGHOST | PGUSER | PGPORT | PGDATABASE
 // Modelo configurable con GEMINI_EMBEDDING_MODEL
-// (default "gemini-embedding-001"; tambien disponible
-//  "gemini-embedding-2"). Dimension recomendada 768.
+// (default "gemini-embedding-001"). Dimension recomendada 768.
 // =====================================================
 
 import { createHash } from 'crypto';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Client } from 'pg';
+import { COLUMNAS_POR_TABLA, textoDeFila, contieneProhibido } from '../src/embeddings';
 
 interface Tabla {
     tabla: string;
@@ -53,31 +58,24 @@ const API_KEY: string | undefined =
 const MODELO: string = process.env.GEMINI_EMBEDDING_MODEL || 'gemini-embedding-001';
 const MAX_CHARS = 8000;
 
+// Las unicas tablas que el backend vectoriza. La allowlist de
+// columnas vive en src/embeddings/index.ts y es la misma que
+// usan los controladores en los POST/PUT.
 const TABLAS: Tabla[] = [
-    { tabla: 'Usuarios', pk: 'id_usuario' },
     { tabla: 'Vehiculos', pk: 'id_vehiculo' },
-    { tabla: 'Reservas', pk: 'id_reserva' },
     { tabla: 'Servicios_Tecnicos', pk: 'id_servicio' },
     { tabla: 'Estaciones_Carga', pk: 'id_estacion' },
 ];
 
-function textoDeFila(fila: Record<string, any>, columnas: string[]): string {
-    return columnas
-        .map((col) => {
-            const valor = fila[col];
-            if (valor === null || valor === undefined) return null;
-            return `${col}:${String(valor)}`;
-        })
-        .filter((t) => t !== null)
-        .join(' ');
-}
-
 // ---------- Metodo estandar: Gemini (semantico) ----------
 async function embeddingGemini(texto: string): Promise<string> {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:embedContent?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODELO}:embedContent`;
     const res = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': API_KEY as string,
+        },
         body: JSON.stringify({
             model: `models/${MODELO}`,
             content: { parts: [{ text: texto }] },
@@ -138,16 +136,12 @@ async function main(): Promise<void> {
     );
 
     for (const { tabla, pk } of TABLAS) {
-        const columnasRes = await client.query<{ column_name: string }>(
-            `SELECT column_name
-               FROM information_schema.columns
-              WHERE table_schema = 'public' AND table_name = $1
-              ORDER BY ordinal_position`,
-            [tabla]
-        );
-        const columnas = columnasRes.rows
-            .map((c) => c.column_name)
-            .filter((c) => c !== 'embedding');
+        const columnas = COLUMNAS_POR_TABLA[tabla];
+
+        if (!columnas) {
+            console.log(`${tabla}: sin allowlist de columnas, se omite`);
+            continue;
+        }
 
         const selectCols = columnas.map((c) => `"${c}"`).join(', ');
         const filasRes = await client.query(
@@ -156,17 +150,25 @@ async function main(): Promise<void> {
 
         let actualizadas = 0;
         let sinTexto = 0;
+        let bloqueados = 0;
         let errores = 0;
 
         await client.query('BEGIN');
         for (const fila of filasRes.rows) {
-            let texto = textoDeFila(fila, columnas);
-            if (!texto) {
+            const textoBase = textoDeFila(tabla, fila);
+            if (!textoBase) {
                 sinTexto++;
                 continue;
             }
+            let texto = textoBase;
             if (texto.length > MAX_CHARS) {
                 texto = texto.slice(0, MAX_CHARS);
+            }
+
+            if (contieneProhibido(texto)) {
+                bloqueados++;
+                console.error(`  ${tabla} id=${fila[pk]}: bloqueado por la denylist`);
+                continue;
             }
 
             try {
@@ -194,6 +196,7 @@ async function main(): Promise<void> {
         console.log(
             `${tabla}: ${actualizadas} filas vectorizadas` +
                 (sinTexto ? `, ${sinTexto} sin texto` : '') +
+                (bloqueados ? `, ${bloqueados} bloqueadas por la denylist` : '') +
                 (errores ? `, ${errores} con error` : '')
         );
     }

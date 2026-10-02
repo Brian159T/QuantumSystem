@@ -1,6 +1,10 @@
 import dbPg from '../../DB/pg';
 import bcrypt from 'bcrypt';
-import embeddings from '../../embeddings';
+
+// Esta tabla NO se vectoriza a proposito: es la unica con correo y
+// hash de contrasena, y el chatbot del catalogo no la necesita.
+// Ver docs/Decisiones-tecnicas.md, seccion "Plan de seguridad:
+// dejar de enviar datos personales a Gemini".
 
 const TABLA = 'Usuarios';
 const CAMPO_ID = 'id_usuario';
@@ -68,9 +72,6 @@ export default function (dbInyectada?: any) {
 
         };
 
-        const literal = await embeddings.embeddingDeObjeto(usuario);
-        if (literal) usuario.embedding = { vector: literal };
-
         return db.agregar(
             TABLA,
             usuario
@@ -101,14 +102,6 @@ export default function (dbInyectada?: any) {
             );
 
         }
-
-        const actual = (await db.uno(
-            TABLA,
-            CAMPO_ID,
-            id
-        )) || {};
-        const literal = await embeddings.embeddingDeActualizacion(actual, usuario);
-        if (literal) usuario.embedding = { vector: literal };
 
         return db.actualizar(
             TABLA,

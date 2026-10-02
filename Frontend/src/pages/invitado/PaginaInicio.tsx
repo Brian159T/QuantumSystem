@@ -13,7 +13,7 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
     <div className="pagina-inicio">
       <section className="hero">
         <div className="hero__imagen">
-          <img src={modelos[0]?.imagen} alt={modelos[0]?.Nombre_Modelo ?? 'Voltus Neo'} />
+          <img src={modelos[0]?.imagen} alt={modelos[0]?.Nombre_Modelo ?? ''} />
         </div>
         <div className="hero__lienzo" />
         <div className="hero__contenido">

@@ -125,7 +125,7 @@ export default function (dbInyectada?: any) {
 
         };
 
-        const literal = await embeddings.embeddingDeObjeto(vehiculo);
+        const literal = await embeddings.embeddingDeFila(TABLA, vehiculo);
         if (literal) vehiculo.embedding = { vector: literal };
 
         return db.agregar(
@@ -171,7 +171,7 @@ export default function (dbInyectada?: any) {
             CAMPO_ID,
             id
         )) || {};
-        const literal = await embeddings.embeddingDeActualizacion(actual, vehiculo);
+        const literal = await embeddings.embeddingDeActualizacion(TABLA, actual, vehiculo);
         if (literal) vehiculo.embedding = { vector: literal };
 
         return db.actualizar(

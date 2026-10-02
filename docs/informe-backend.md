@@ -4,6 +4,8 @@
 
 **Stack real:** Express 5.2.1, TypeScript (ts-node/nodemon), `pg` 8.13, `jsonwebtoken`, `bcrypt` 6, `cors`, `morgan`, `dotenv`. CommonJS. Arranca con `npm run dev` = `nodemon --exec ts-node src/index.ts`. No hay tests configurados.
 
+> ⚠️ **Actualizado oct 2026 — la seccion 5 (vectorizacion) describe el estado anterior.** Cambio aplicado: `Usuarios` y `Reservas` **ya no se vectorizan**, las 3 tablas restantes usan la **allowlist `COLUMNAS_POR_TABLA`** + **denylist por regex**, `embeddingDeObjeto` paso a **`embeddingDeFila(tabla, fila)`**, y la clave va en el header `x-goog-api-key`. Los vectores de `Usuarios`/`Reservas` se vaciaron y las otras 3 tablas se re-vectorizaron. **Estado vigente: `docs/Decisiones-tecnicas.md`, seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".**
+
 ---
 
 ## 1. Mapa del proyecto y funcion de CADA archivo

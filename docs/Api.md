@@ -189,19 +189,61 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
 
 ---
 
-## Manejo de errores (backend)
+## Chatbot (IA con RAG)
 
-- Los handlers usan `try/catch` y delegan con `next(error)`.
-- `middleware/errors.ts` crea el error con `statusCode` opcional.
-- `red/errors.ts` (global) responde: `{ error: true, status: <statusCode||500>, body: <message> }`.
+El asistente responde usando **busqueda vectorial** sobre `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`. Las preguntas fuera de dominio reciben una respuesta que dice que no hay informacion registrada.
 
-**Errores tipicos:**
-- `500` "Error interno" si el mensaje no viene.
-- `401` con `"No viene token"` / `"Formato inválido"` si se intenta autorizar (via `auth.chequearToken`) — aunque hoy las rutas no exigen token.
+| Metodo | Ruta | Cuerpo | Respuesta |
+|---|---|---|---|
+| `GET` | `/api/chatbot/estado` | — | `{enLinea, proveedor, modelo, ragOperativo, tablasIndexadas, mensaje}`. Si hay clave en el backend, `enLinea = true`. |
+| `POST` | `/api/chatbot` | `{mensaje: string, historial?: [{rol:'user'|'assistant', texto:string}]}` | `{texto, fuentes: [{tabla,id,titulo,texto,similitud}], proveedor, modelo}`. Sobre uniforme `{error,status,body}`. |
+| `POST` | `/api/chatbot/stream` | `{mensaje: string, historial?: [...]}` | **SSE** (`text/event-stream`). Eventos: `contexto` (fuentes+proveedor+modelo), `token` (trozo), `fin` (texto completo y fuentes), `error` (si falla tras enviar headers). |
 
----
+Notas:
+- `historial` se sanea: solo 6 ultimos turnos, roles `user/assistant`, 1000 chars por turno. No se pasa a SQL.
+- `fuentes` son las filas mas parecidas (`<=>` coseno) con `similitud >= RAG_UMBRAL_SIMILITUD`. Solo las 3 tablas de la allowlist.
+- Proveedor configurable via `.env`: `CHAT_PROVEEDOR=gemini` (`GEMINI_CHAT_MODEL`) o `deepseek` (`DEEPSEEK_CHAT_MODEL`). El nombre del modelo NUNCA va hardcodeado. (ver `docs/Decisiones-tecnicas.md`)
 
-## Consumo desde los frontends
+### Ejemplos
+
+**POST /api/chatbot**
+```json
+{
+  "mensaje": "¿Que vehiculos electricos tienen?",
+  "historial": []
+}
+```
+Respuesta:
+```json
+{
+  "error": false,
+  "status": 200,
+  "body": {
+    "texto": "Tenemos el auto E4 MONTAÑERO a 7300, NEXUS PLUS a 14500, KAIYI EQUTE a 19700 y la motocicleta TS STREET HUNTER PRO a 4000.",
+    "fuentes": [
+      {"tabla":"Vehiculos","id":5,"titulo":"vehiculo electrico","texto":"vehiculo electrico \"E4 MONTAÑERO\": Modelo: E4 MONTAÑERO. Tipo: Auto. Autonomia: 100 km. Bateria: 100 Ah/72 V. Velocidad maxima: 55 km/h. Carga rapida: Sí. Tiempo de carga normal: 8-10 horas. Traccion: Posterior (4x2). Asientos: 3. Precio: 7300.","similitud":0.7059}
+    ],
+    "proveedor":"gemini",
+    "modelo":"gemini-3.5-flash-lite"
+  }
+}
+```
+
+**GET /api/chatbot/estado**
+```json
+{
+  "error": false,
+  "status": 200,
+  "body": {
+    "enLinea": true,
+    "proveedor": "gemini",
+    "modelo": "gemini-3.5-flash-lite",
+    "ragOperativo": true,
+    "tablasIndexadas": ["Vehiculos","Servicios_Tecnicos","Estaciones_Carga"],
+    "mensaje": "Asistente listo"
+  }
+}
+```
 
 ### Mobile (`Mobile/src/Model/`)
 - `AuthService.login` → `POST /auth/login`, devuelve `response.data.body`.

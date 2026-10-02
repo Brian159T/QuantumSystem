@@ -29,7 +29,7 @@ Roles (1) ──── (N) Usuarios
 
 - Se instalo la extension **`vector` (pgvector)** a nivel de sistema (binarios compilados para PostgreSQL 17 en Windows: `vector.dll`, `vector.control`, scripts SQL; se reinicio el servicio `postgresql-x64-17`).
 - Activacion por base: `CREATE EXTENSION IF NOT EXISTS vector;`.
-- Las tablas **Vehiculos, Servicios_Tecnicos y Estaciones_Carga** tienen una columna `"embedding" vector(768)` poblada con **embeddings semánticos de Google Gemini** (`gemini-embedding-001`, 768 dimensiones). **`Usuarios` y `Reservas` tambien la tienen hoy pero han dejado de vectorizarse por decision de privacidad** (sept 2026): son las unicas tablas con datos personales y el chatbot del catalogo no las necesita. Ver la seccion "Plan de seguridad" de `docs/Decisiones-tecnicas.md`. Sus 25 vectores existentes se pueden vaciar con `UPDATE "Usuarios" SET "embedding" = NULL` cuando se implemente el cambio.
+- Las tablas **Vehiculos, Servicios_Tecnicos y Estaciones_Carga** son las **unicas 3 con columna `"embedding" vector(768)`**, poblada con **embeddings semánticos de Google Gemini** (`gemini-embedding-001`, 768 dimensiones) calculados **solo con las columnas de la allowlist** (`COLUMNAS_POR_TABLA` en `Backend/src/embeddings/index.ts`). **`Usuarios` y `Reservas` ya no tienen columna de vector** (decisión de privacidad, sept/oct 2026): son las unicas tablas con datos personales y el chatbot del catalogo no las necesita. Se vaciaron (`SET "embedding" = NULL`) y despues se **eliminaron** con `DROP COLUMN`; las otras 3 se re-vectorizaron (22 vectores) porque el texto paso de "todas las columnas" a la allowlist. Ver la seccion "Plan de seguridad" de `docs/Decisiones-tecnicas.md`.
 - Para buscar por similitud: `ORDER BY "embedding" <=> '<vector>'::vector` (coseno). Para vectores rapidos se puede crear `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)`. **Nota:** ese indice HNSW esta documentado pero **aun no se ha creado** en `QuantumSystemDB`; con ~25 filas el seq scan es aceptable, pero hay que crearlo antes de que las tablas crezcan.
 - **Que guarda y para que sirve la columna**: hay **un vector por fila** (1 peticion a Gemini por fila; cada vector se guarda en la fila que le corresponde, con `UPDATE ... WHERE pk = <fila>`). Cada vector es la representacion **semantica del contenido de las demas columnas de esa fila** (el texto `"columna:valor ..."` es lo que Gemini convierte en vector). Su unico objetivo es servir de **clave de busqueda semantica**: cuando llega una pregunta, se la vectoriza con el mismo modelo y `<=>` compara ese vector contra los guardados para hallar que filas "hablan del mismo tema"; el **vector de la pregunta es solo la llave de busqueda y nunca se le pasa a la IA** (a la IA se le entrega el texto de la fila encontrada, no el vector).
 - **Modelo de IA del chatbot**: `gemini-2.5-flash-lite` en free tier, con paso previsto a `deepseek-flash` de pago. No afecta a los embeddings (siguen en `gemini-embedding-001`). Ver `docs/Decisiones-tecnicas.md`.
@@ -73,7 +73,6 @@ Problemas conocidos: credenciales **hardcodeadas** (`user: b`, `password: a`), `
 | `correo` | VARCHAR(70) | NOT NULL |
 | `contrasena` | VARCHAR(255) | NOT NULL — hash bcrypt (salt 5) |
 | `id_rol` | INT | FK → Roles(id_rol), NOT NULL |
-| `embedding` | vector(768) | embeddings Gemini de la fila |
 
 ### Colores
 
@@ -98,7 +97,7 @@ Problemas conocidos: credenciales **hardcodeadas** (`user: b`, `password: a`), `
 | `Nro_Asientos` | VARCHAR(20) | NOT NULL |
 | `id_color` | INT | FK → Colores(id_color), NOT NULL — **color principal** del modelo |
 | `Precio_USD` | DECIMAL(10,2) | NOT NULL |
-| `embedding` | vector(768) | embeddings Gemini de la fila |
+| `embedding` | vector(768) | embeddings Gemini de la fila (texto de la allowlist de columnas) |
 
 ### Vehiculos_Colores (N:M)
 
@@ -123,7 +122,6 @@ Relacion muchos-a-muchos entre Vehiculos y Colores: **un modelo se ofrece en var
 | `cedula_identidad` | VARCHAR(20) | NOT NULL |
 | `modelo` | VARCHAR(50) | NOT NULL |
 | `color` | INT | FK → Colores(id_color) |
-| `embedding` | vector(768) | embeddings Gemini de la fila |
 
 ### Usuarios_Reservas (N:M)
 
@@ -150,7 +148,7 @@ Relacion muchos-a-muchos entre Vehiculos y Colores: **un modelo se ofrece en var
 | `horarios` | VARCHAR(200) | NOT NULL — se amplio respecto a MySQL (50) porque los textos superaban el limite |
 | `telefono` | VARCHAR(30) | — |
 | `Estado` | VARCHAR(30) | — |
-| `embedding` | vector(768) | embeddings Gemini de la fila |
+| `embedding` | vector(768) | embeddings Gemini de la fila (texto de la allowlist de columnas) |
 
 ### Estaciones_Carga
 
@@ -163,7 +161,9 @@ Relacion muchos-a-muchos entre Vehiculos y Colores: **un modelo se ofrece en var
 | `horarios` | VARCHAR(200) | NOT NULL |
 | `telefono` | VARCHAR(30) | — |
 | `Estado` | VARCHAR(30) | — |
-| `embedding` | vector(768) | embeddings Gemini de la fila |
+| `embedding` | vector(768) | embeddings Gemini de la fila (texto de la allowlist de columnas) |
+
+> `Usuarios` (2) y `Reservas` (3) **ya no tienen columna `embedding`**: se elimino con `ALTER TABLE "Usuarios" DROP COLUMN "embedding"` y `ALTER TABLE "Reservas" DROP COLUMN "embedding"` (oct 2026). Son las unicas tablas con datos personales y el chatbot del catalogo no las necesita. Las 3 unicas tablas que el RAG indexa son `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`.
 
 ## Datos cargados en `QuantumSystemDB`
 
@@ -182,7 +182,7 @@ Verificado al ejecutar el script (septiembre 2026): 34 registros en total.
 | `Usuarios_Reservas` | 0 |
 | `Usuarios_Vehiculos` | 0 |
 
-> Los `embedding` de las 25 filas de las tablas con campo vectorial estan poblados (vectorizacion con Gemini ejecutada y verificada).
+> Los `embedding` de las **22 filas** de las 3 tablas con campo vectorial estan poblados (vectorizacion con Gemini ejecutada y verificada en oct 2026). Antes eran 25: los 3 vectores de `Usuarios` (2) y `Reservas` (2 filas) se eliminaron junto con su columna.
 
 ## Notas de la migracion MySQL -> Postgres
 
@@ -195,21 +195,22 @@ Verificado al ejecutar el script (septiembre 2026): 34 registros en total.
 
 ## Flujo de vectorizacion (metodo estandar, actual)
 
-Desde que existe `Backend/src/embeddings/`, **el propio backend vectoriza en tiempo real**: cada POST/PUT de `Usuarios`, `Vehiculos`, `Reservas`, `Servicios_Tecnicos` y `Estaciones_Carga` calcula el embedding de la fila (Gemini, o fallback local sin clave) y lo guarda en la columna `embedding` al mismo tiempo que inserta/actualiza. El script describe abajo queda como **respaldo/reproceso** para filas que quedaron con `embedding` en NULL (p. ej. la migracion inicial).
+> Verificado en oct 2026 tras aplicar la allowlist y eliminar las columnas de las 2 tablas con PII: hay **22 vectores** (Vehiculos 6 + Servicios_Tecnicos 11 + Estaciones_Carga 5) y **0 columnas de vector** en `Usuarios`/`Reservas`.
 
-> **Cambio aprobado (sept 2026), pendiente de implementar:** los POST/PUT de **`Usuarios` y `Reservas` dejaran de vectorizar**. Se quitan los `import embeddings` de sus controladores y sus lineas de `embeddingDeObjeto` / `embeddingDeActualizacion`, de modo que esas tablas ya no envien nada a Google. Motivo: son las unicas con datos personales (`correo`, hash bcrypt, `cedula_identidad`, nombres) y el chatbot del catalogo no las necesita. Sus vectores actuales se pueden vaciar con `UPDATE "Usuarios" SET "embedding" = NULL` y `UPDATE "Reservas" SET "embedding" = NULL`. El detalle completo del plan esta en `docs/Decisiones-tecnicas.md`, seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".
+Desde que existe `Backend/src/embeddings/`, **el propio backend vectoriza en tiempo real**: cada POST/PUT de `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga` calcula el embedding de la fila (Gemini, o fallback local sin clave) y lo guarda en la columna `embedding` al mismo tiempo que inserta/actualiza. `Usuarios` y `Reservas` **quedaron fuera** (decisión de privacidad, implementada oct 2026): sus controladores ya no importan el servicio de embeddings. El script de abajo queda como **respaldo/reproceso** para filas que quedaron con `embedding` en NULL.
 
 El script `Backend/scripts/vectorizar_datos.ts` es el **orquestador** entre la base y Gemini. El servicio de Gemini solo transforma texto en vector; **no lee ni guarda en la base de datos** — eso lo hace el script. Pasos:
 
 1. Se conecta a `QuantumSystemDB` (usa `PGPASSWORD` y demas variables `PG*`).
-2. Consulta las columnas reales de cada tabla (excluyendo `embedding`) y lee **solo las filas cuyo `embedding` es `NULL`** (`WHERE "embedding" IS NULL`); las ya vectorizadas se omiten.
-3. Arma un texto por fila concatenando los campos: `"columna:valor columna:valor ..."` (p. ej. `Nombre_Modelo:KAIYI EQUTE Tipo:Auto Autonomia:300 km ...`); si supera 8000 caracteres lo recorta.
-4. Envia ese texto a **Gemini** (`POST .../models/gemini-embedding-001:embedContent?key=<API_KEY>`, con `outputDimensionality: 768`).
-5. **Gemini lo transforma en un vector** de 768 numeros y lo devuelve en la respuesta.
-6. El script **recibe ese vector** y lo **guarda** en el campo `embedding` de la fila correspondiente (`UPDATE ... SET "embedding" = '<vector>'::vector WHERE "id" = ...`).
-7. Repite por cada fila de cada tabla (con un retardo de 120 ms para el free tier).
+2. Recorre **solo las 3 tablas de la allowlist** (`Vehiculos`, `Servicios_Tecnicos`, `Estaciones_Carga`) y lee **solo las filas cuyo `embedding` es `NULL`** (`WHERE "embedding" IS NULL`); las ya vectorizadas se omiten.
+3. Arma el texto de cada fila con **las columnas de `COLUMNAS_POR_TABLA`** (las mismas que usan los POST/PUT), con el formato `"columna:valor columna:valor ..."` (p. ej. `Nombre_Modelo:KAIYI EQUTE Tipo:Auto Autonomia:300 km ...`); si supera 8000 caracteres lo recorta.
+4. Valida el texto contra la **denylist** (correo, bloque de 7-14 digitos, claves). Si coincide, **no llama a Gemini** y cuenta la fila como bloqueada.
+5. Envia ese texto a **Gemini** (`POST .../models/gemini-embedding-001:embedContent`, clave en el header `x-goog-api-key`, con `outputDimensionality: 768`).
+6. **Gemini lo transforma en un vector** de 768 numeros y lo devuelve en la respuesta.
+7. El script **recibe ese vector** y lo **guarda** en el campo `embedding` de la fila correspondiente (`UPDATE ... SET "embedding" = $1::vector WHERE "id" = $2`).
+8. Repite por cada fila de cada tabla (con un retardo de 120 ms para el free tier).
 
-> Omite las filas ya vectorizadas (`embedding IS NULL`), asi que es **incremental**: tras agregar una reserva (u otra fila) basta con reejecutar `npx ts-node vectorizar_datos.ts` y solo procesara la fila nueva. Para **recalcular** todos los vectores habria que borrar los `embedding` antes. Es determinista si se usa el mismo modelo. Sin clave (`API_KEY_GOOGLE_AI_STUDIO` en `Backend/.env`) el script cae a un fallback local (feature hashing, sin IA).
+> Omite las filas ya vectorizadas (`embedding IS NULL`), asi que es **incremental**: tras agregar un vehiculo, taller o estacion basta con reejecutar `npx ts-node scripts/vectorizar_datos.ts` (desde `Backend/`) y solo procesara la fila nueva. Para **recalcular** todos los vectores habria que borrar los `embedding` antes. Es determinista si se usa el mismo modelo. Sin clave (`API_KEY_GOOGLE_AI_STUDIO` en `Backend/.env`) el script cae a un fallback local (feature hashing, sin IA): vectores de 768 dims **validos en formato pero inservibles semanticamente**, ver la nota de `docs/Decisiones-tecnicas.md`.
 
 ## Flujo del chatbot (RAG, pendiente de implementar)
 
@@ -217,7 +218,7 @@ Mas adelante el backend hara algo **parecido pero al reves** para responder preg
 
 1. El usuario escribe una pregunta en el frontend (chatbot).
 2. El backend **vectoriza la pregunta** con el **mismo modelo** de embeddings (`gemini-embedding-001`).
-3. Busca en Postgres las filas mas parecidas: `SELECT ... FROM "<Tabla>" ORDER BY "embedding" <=> '<vector_pregunta>'::vector LIMIT k` (operador coseno de pgvector; opcional: indice HNSW). El vector de la pregunta solo sirve de **llave de busqueda**: se compara contra los vectores guardados por fila en `embedding`.
+3. Busca en Postgres las filas mas parecidas: `SELECT ... FROM "<Tabla>" ORDER BY "embedding" <=> '<vector_pregunta>'::vector LIMIT k` (operador coseno de pgvector; opcional: indice HNSW). El vector de la pregunta solo sirve de **llave de busqueda**: se compara contra los vectores guardados por fila en `embedding`. **La busqueda debe cubrir `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`, y solo esas**: `Usuarios` y `Reservas` quedan fuera por privacidad.
 4. Toma esas filas y extrae **su texto** (`"columna:valor ..."`); ese texto (no el vector) es el **contexto** que se le pasa al modelo de texto junto con la pregunta. **Aplica el umbral de similitud y `top_k`** (patron tomado de `db_vectorial/buscar_imagen.py:92-97`, que usa distancia coseno `< 0.30` y `top_k=3`): sin umbral, el modelo recibe filas irrelevantes y alucina.
 5. El modelo responde basandose en ese contexto y el backend entrega la respuesta **al frontend** (ida y vuelta: BD → IA → frontend). El vector guardado en BD permite **encontrar** que filas son relevantes, pero la IA solo ve texto.
 6. **Modelo de generacion**: `gemini-2.5-flash-lite` en free tier, con paso previsto a `deepseek-flash` de pago. El embedder **no cambia** (sigue siendo `gemini-embedding-001`); el nombre del modelo de texto va en variable de entorno para poder migrar sin tocar codigo. Ver `docs/Decisiones-tecnicas.md`, seccion "Modelo de IA del chatbot: decision y plan de migracion".
@@ -245,7 +246,7 @@ El sobre de respuesta, los modulos, las rutas y el flujo de peticiones **no camb
 
 > **Estado: ideas anotadas, NADA implementado.** Ver el detalle completo en `docs/Decisiones-tecnicas.md`, subseccion 6 **"Mejoras propuestas (pendiente de decidir)"**. Resumen:
 
-1. ~~**Allowlist de columnas al vectorizar (riesgo de privacidad actual).**~~ **DECIDIDO:** dejar de vectorizar `Usuarios` y `Reservas` (las unicas con datos personales) y aplicar allowlist explicita a `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`. Pendiente de implementar. Ver `docs/Decisiones-tecnicas.md`, seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".
+1. ~~**Allowlist de columnas al vectorizar (riesgo de privacidad actual).**~~ **RESUELTO (oct 2026):** `Usuarios` y `Reservas` ya no se vectorizan, y `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga` usan allowlist explicita de columnas + denylist por regex. Ver `docs/Decisiones-tecnicas.md`, seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".
 2. **Vectorizar imagenes del catalogo.** Requiere una tabla nueva (p. ej. `Vehiculo_Imagenes (id_vehiculo FK, ruta, mime_type, embedding vector(N))`; el binario en disco y luego Supabase Storage, nunca bytes en Postgres) y un script `Backend/scripts/vectorizar_imagenes.ts`. Modelo recomendado: **`gemini-embedding-2`** (multimodal, imagen y texto en el mismo espacio vectorial, 128-3072 dims, free tier). Se descarta `multimodalembedding@001` por ser exclusivo de Vertex AI. La carpeta `db_vectorial` ya tiene una prueba de concepto funcional con **CLIP** (512 dims, imagen -> imagen), que sirve de referencia pero obliga a buscar solo imagen -> imagen.
 3. **Ojo con mezclar modelos:** si las imagenes van con `gemini-embedding-2` y el texto se queda en `gemini-embedding-001`, los vectores **no son comparables** entre modalidades. Habria que re-vectorizar todas las tablas con `gemini-embedding-2` a 768 dims (recomendado) o separar en columnas distintas y solo buscar imagen -> imagen.
 4. **Terminos de Google:** en el **free tier** Google si puede usar lo enviado para mejorar sus productos y hay revision humana; en el **paid tier** no. Ver los terminos vigentes en <https://ai.google.dev/gemini-api/terms>.

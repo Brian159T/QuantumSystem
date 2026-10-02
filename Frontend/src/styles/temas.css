@@ -31,7 +31,7 @@
 
 /* ============ INVITADO · Azul oscuro / superficies #2b2e36 ============ */
 .aplicacion--invitado {
-  --fondo: #2b2e36;
+  --fondo: #0f141e;
   --navy: #1e2430;
   --navy-medio: #262b36;
   --navy-claro: #313646;
@@ -49,7 +49,7 @@
   --texto-pagina: #f5f7fa;
   --texto-pagina-suave: #b4bac4;
 
-  --gradiente-fondo: linear-gradient(175deg, #2b2e36 0%, #262a32 55%, #23272f 100%);
+  --gradiente-fondo: linear-gradient(175deg, #0f141e 0%, #0f141e 55%, #0f141e 100%);
   --gradiente-tarjeta: linear-gradient(160deg, #333848 0%, #2b2e36 100%);
   --gradiente-encabezado: linear-gradient(135deg, #242a38 0%, #1e2430 100%);
 

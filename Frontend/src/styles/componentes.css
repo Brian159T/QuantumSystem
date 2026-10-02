@@ -874,6 +874,10 @@ select.campo__entrada option {
   background: var(--verde);
 }
 
+.chatbot-panel__punto--error {
+  background: var(--rojo);
+}
+
 .chatbot-panel__cerrar {
   height: 32px;
   width: 32px;
@@ -921,6 +925,80 @@ select.campo__entrada option {
   margin: 0;
   font-size: 14px;
   line-height: 20px;
+  color: var(--blanco);
+}
+
+/* Respuesta que no llego: el error se ve en rojo y con icono, para que no
+   se confunda con una respuesta del asistente. */
+.chatbot-burbuja--error {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border: 1px solid rgba(230, 90, 90, 0.35);
+  background: rgba(230, 90, 90, 0.10);
+  color: #ff9b9b;
+}
+
+.chatbot-burbuja--error > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.chatbot-burbuja--error p {
+  color: #ff9b9b;
+}
+
+/* "3 fuentes del catalogo": deja ver que la respuesta vino de la base de
+   datos y no del modelo improvisando. */
+.chatbot-burbuja__fuentes {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(47, 182, 118, 0.14);
+  font-size: 10px;
+  color: var(--verde);
+}
+
+.chatbot-burbuja__pensando {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 0;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.chatbot-giro {
+  animation: chatbot-giro 900ms linear infinite;
+}
+
+@keyframes chatbot-giro {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Preguntas sugeridas: solo mientras no haya conversacion. */
+.chatbot-panel__sugerencias {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 0 14px 12px;
+}
+
+.chatbot-panel__sugerencias button {
+  padding: 6px 12px;
+  border: 1px solid rgba(47, 182, 118, 0.22);
+  border-radius: 14px;
+  background: rgba(47, 182, 118, 0.06);
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--velocidad-transicion), color var(--velocidad-transicion);
+}
+
+.chatbot-panel__sugerencias button:hover {
+  border-color: var(--verde-transparente);
   color: var(--blanco);
 }
 

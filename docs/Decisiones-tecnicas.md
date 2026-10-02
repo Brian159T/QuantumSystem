@@ -242,7 +242,7 @@ Precios de referencia (verificados sept 2026): Gemini `2.5-flash-lite` paid $0.1
 | Egresion de datos | **Si**, a Google | **Ninguna** (todo local) |
 | PII enviada | Si (ver plan de seguridad mas abajo) | Ninguna, pero tampoco toca datos de la empresa |
 | API keys | 1, en `.env` | 0, pero **password en el codigo** |
-| Clave en query string | **Si** (`?key=`, queda en logs de proxy) | No aplica |
+| Clave en query string | No (header `x-goog-api-key`) | No aplica |
 | Superficie de ataque | Fallback silencioso que escribe vectores inservibles | **SSRF** (descarga URLs sin validar host), `torch`, Ollama sin auth en `:11434` |
 | Datos usados para entrenar | **Si** en free tier | No aplica |
 
@@ -273,7 +273,7 @@ El metodo nuevo gana en privacidad y pierde en higiene de secretos y superficie 
 
 ### Plan de seguridad: dejar de enviar datos personales a Gemini
 
-> **Estado: DECIDIDO (sept 2026), pendiente de implementar.** Objetivo: que **ningun dato de `Usuarios` ni `Reservas`** salga del servidor.
+> **Estado: IMPLEMENTADO (oct 2026).** `Usuarios` y `Reservas` ya no se vectorizan; las 3 tablas restantes usan allowlist explicita de columnas + denylist por regex; la clave viaja en el header `x-goog-api-key`. Objetivo cumplido: **ningun dato de `Usuarios` ni `Reservas` sale del servidor**.
 
 #### Diagnostico
 
@@ -301,26 +301,41 @@ Justificacion funcional: el chatbot responde sobre el **catalogo** (vehiculos, e
 
 #### Medidas complementarias
 
-| # | Medida | Esfuerzo | Impacto |
-|---|--------|----------|---------|
-| 1 | Quitar `Usuarios` y `Reservas` de la vectorizacion (quitar los imports en sus 2 controladores) | Bajo | **Elimina toda la PII** |
-| 2 | Allowlist por tabla en `src/embeddings/index.ts` y en `scripts/vectorizar_datos.ts` | Bajo | Estructural, no por configuracion |
-| 3 | Denylist de regex (correo, cedula, telefono, `contrasena`) | Bajo | Defensa en profundidad |
-| 4 | `EMBEDDINGS_ALLOW_REMOTE=false` | Bajo | Modo garantizado sin egress |
-| 5 | `EMBEDDINGS_ENABLED=false` | Bajo | Apagar vectorizacion sin redesplegar logica |
-| 6 | `EMBEDDINGS_DRYRUN=true` | Bajo | Imprime el texto exacto sin llamar a Gemini (unica forma de verificar el allowlist) |
-| 7 | Log de huella SHA-256 del texto enviado (tabla, id, modelo, nº chars) | Medio | Evidencia para auditoria |
-| 8 | Mover la key de `?key=` a header `x-goog-api-key` | Bajo | La query string acaba en logs de proxy/plataforma |
-| 9 | Rotar la clave actual de `Backend/.env` y restrictarla en la consola de Google | Bajo | Superficie de credenciales |
-| 10 | Banner de proveedor al arrancar + eliminar el fallback silencioso | Bajo | Detecta la averia antes que el usuario |
-| 11 | `.env.example` (ya whitelisteado en `.gitignore:7`, nunca creado) | Bajo | Documenta que variables existen |
-| 12 | Mover `dotenv` de `devDependencies` a `dependencies` | Bajo | El backend no arranca en `npm ci --omit=dev` |
+| # | Medida | Esfuerzo | Impacto | Estado |
+|---|--------|----------|---------|--------|
+| 1 | Quitar `Usuarios` y `Reservas` de la vectorizacion (quitar los imports en sus 2 controladores) | Bajo | **Elimina toda la PII** | **Hecho** |
+| 2 | Allowlist por tabla en `src/embeddings/index.ts`, compartida por `scripts/vectorizar_datos.ts` | Bajo | Estructural, no por configuracion | **Hecho** |
+| 3 | Denylist de regex (correo, cedula/telefono, `contrasena`) | Bajo | Defensa en profundidad | **Hecho** |
+| 4 | `EMBEDDINGS_ALLOW_REMOTE=false` | Bajo | Modo garantizado sin egress | Pendiente |
+| 5 | `EMBEDDINGS_ENABLED=false` | Bajo | Apagar vectorizacion sin redesplegar logica | Pendiente |
+| 6 | `EMBEDDINGS_DRYRUN=true` | Bajo | Imprime el texto exacto sin llamar a Gemini (unica forma de verificar el allowlist) | Pendiente |
+| 7 | Log de huella SHA-256 del texto enviado (tabla, id, modelo, nº chars) | Medio | Evidencia para auditoria | Pendiente |
+| 8 | Mover la key de `?key=` a header `x-goog-api-key` | Bajo | La query string acaba en logs de proxy/plataforma | **Hecho** |
+| 9 | Rotar la clave actual de `Backend/.env` y restrictarla en la consola de Google | Bajo | Superficie de credenciales | Pendiente |
+| 10 | Banner de proveedor al arrancar + eliminar el fallback silencioso | Bajo | Detecta la averia antes que el usuario | Pendiente |
+| 11 | `.env.example` (ya whitelisteado en `.gitignore:7`, nunca creado) | Bajo | Documenta que variables existen | Pendiente |
+| 12 | Mover `dotenv` de `devDependencies` a `dependencies` | Bajo | El backend no arranca en `npm ci --omit=dev` | Pendiente |
+
+#### Como quedo implementado
+
+`Backend/src/embeddings/index.ts` es ahora la **unica fuente de verdad** de que sale del servidor:
+
+1. **`COLUMNAS_POR_TABLA`**: allowlist con las 3 tablas y sus columnas. `Vehiculos` (10 columnas de catalogo), `Servicios_Tecnicos` y `Estaciones_Carga` (direccion, horarios, Estado, latitud, longitud).
+2. **Tabla fuera de la allowlist = no se vectoriza.** `textoDeFila` devuelve `null` y avisa por consola, asi que anadir una llamada a embeddings en `Usuarios` o `Reservas` **no envia nada** (fallo por construccion, no por configuracion).
+3. **`PATRONES_PROHIBIDOS` (denylist)** sobre el texto ya armado: correo, bloque de 7-14 digitos (cedula/telefono) y cualquier `contrase|contrasena|password|clave_hash|secret`. Si coincide, **no se llama a Gemini** y se loguea en `error`.
+4. `embeddingDeObjeto` paso a **`embeddingDeFila(tabla, fila)`** y `embeddingDeActualizacion` exige la tabla como primer argumento: no hay forma de vectorizar sin nombrar la tabla.
+5. La **clave va en el header `x-goog-api-key`**, no en `?key=` (tambien en `scripts/vectorizar_datos.ts`).
+6. `scripts/vectorizar_datos.ts` importa la allowlist y el denylist del servicio: **una sola definicion**, y su lista `TABLAS` quedo en las 3 tablas seguras.
+
+> **`telefono` quedo fuera a proposito.** Es el telefono comercial de los talleres/estaciones (no es un dato personal), pero incluirlo choca con el patron numerico de la denylist. Si mas adelante se quiere que el chatbot lo responda, la opcion limpia es consultarlo por query estructurada y no por RAG.
+
+**Migracion aplicada a la base (oct 2026):** primero se vaciaron los vectores (`SET "embedding" = NULL`) porque se habían calculado con PII dentro; despues se **eliminaron las columnas** con `ALTER TABLE "Usuarios" DROP COLUMN "embedding"` y `ALTER TABLE "Reservas" DROP COLUMN "embedding"`. Ninguna FK ni indice dependia de ellas (las N:M `Usuarios_Reservas` y `Usuarios_Vehiculos` siguen en pie; la FK de `Usuarios` va por `id_usuario`, la de `Reservas` por `id_reserva`). Ademas se **re-vectorizaron las 3 tablas restantes** (`Vehiculos` 6, `Servicios_Tecnicos` 11, `Estaciones_Carga` 5) porque el texto cambio al pasar de "todas las columnas" a la allowlist; si no, los vectores viejos seguirian representando un texto que ya no se envia. La **extension `vector` (pgvector 0.8.2) se mantiene**: la necesitan las 3 tablas del chatbot.
 
 #### El segundo fallo, independiente de la privacidad
 
-**El fallback silencioso es peor que el problema de datos.** En `index.ts:101-111`, si falta la clave o falla la API, `vectorizar` captura el error y devuelve `null`; si la clave falta del todo, escribe `vectorHashing` (lineas 74-97): vectores de 768 dims **aparentemente validos pero semanticamente inservibles**. El endpoint responde 200, la columna se llena y nadie se entera hasta que el chatbot responde absurdo.
+**El fallback silencioso es peor que el problema de datos.** En `index.ts`, si falta la clave o falla la API, `vectorizar` captura el error y devuelve `null`; si la clave falta del todo, escribe `vectorHashing`: vectores de 768 dims **aparentemente validos pero semanticamente inservibles**. El endpoint responde 200, la columna se llena y nadie se entera hasta que el chatbot responde absurdo.
 
-Un fallback que produce basura y no se distingue del camino bueno es peor que no tener fallback. Opciones: loguear en `error` con banner visible al arrancar, o escribir `NULL` para que el RAG detecte que falta indexar.
+Un fallback que produce basura y no se distingue del camino bueno es peor que no tener fallback. Opciones: loguear en `error` con banner visible al arrancar, o escribir `NULL` para que el RAG detecte que falta indexar. **Al construir el chatbot hay que resolverlo**, porque el RAG depende de que los vectores significen algo.
 
 #### Nota sobre la privacidad frente al coste
 

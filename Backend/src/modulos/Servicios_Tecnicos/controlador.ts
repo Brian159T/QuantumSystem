@@ -72,7 +72,7 @@ export default function (dbInyectada?: any) {
 
         };
 
-        const literal = await embeddings.embeddingDeObjeto(servicio);
+        const literal = await embeddings.embeddingDeFila(TABLA, servicio);
         if (literal) servicio.embedding = { vector: literal };
 
         return db.agregar(
@@ -108,7 +108,7 @@ export default function (dbInyectada?: any) {
             CAMPO_ID,
             id
         )) || {};
-        const literal = await embeddings.embeddingDeActualizacion(actual, servicio);
+        const literal = await embeddings.embeddingDeActualizacion(TABLA, actual, servicio);
         if (literal) servicio.embedding = { vector: literal };
 
         return db.actualizar(
