@@ -11,6 +11,16 @@ interface UsuarioLogin {
 
 }
 
+interface UsuarioRegistro {
+
+    nombre_usuario: string;
+
+    correo: string;
+
+    contrasena: string;
+
+}
+
 export default function (dbInyectada?: any) {
 
     const db = dbInyectada || dbPg;
@@ -81,9 +91,82 @@ export default function (dbInyectada?: any) {
 
     }
 
+    async function registro(body: UsuarioRegistro): Promise<any> {
+
+        const nombre = typeof body.nombre_usuario === 'string' ? body.nombre_usuario.trim() : '';
+
+        const correo = typeof body.correo === 'string' ? body.correo.trim() : '';
+
+        const contrasena = typeof body.contrasena === 'string' ? body.contrasena : '';
+
+        if (!nombre || !correo || !contrasena) {
+            throw error('Todos los campos son obligatorios', 400);
+        }
+
+        if (!correo.includes('@')) {
+            throw error('El correo ingresado no es valido', 400);
+        }
+
+        const existente = await db.ejecutar(
+            'SELECT "id_usuario" FROM "Usuarios" WHERE "correo" = $1',
+            [correo]
+        );
+
+        if (existente.length > 0) {
+            throw error('Ya existe una cuenta con ese correo', 409);
+        }
+
+        const rol = await db.query('Roles', { Nombre: 'Cliente' });
+
+        if (!rol) {
+            throw error('No se encontro el rol Cliente en el sistema', 500);
+        }
+
+        await db.agregar('Usuarios', {
+
+            nombre_usuario: nombre,
+
+            correo,
+
+            contrasena: await bcrypt.hash(contrasena, 5),
+
+            id_rol: rol.id_rol,
+
+        });
+
+        const creado = await db.query('Usuarios', { correo });
+
+        const usuario = {
+
+            id_usuario: creado.id_usuario,
+
+            nombre_usuario: creado.nombre_usuario,
+
+            correo: creado.correo,
+
+            id_rol: creado.id_rol,
+
+            rol: rol.Nombre,
+
+        };
+
+        const token = auth.asignarToken(usuario);
+
+        return {
+
+            token,
+
+            usuario,
+
+        };
+
+    }
+
     return {
 
-        login
+        login,
+
+        registro,
 
     };
 

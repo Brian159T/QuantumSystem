@@ -18,6 +18,7 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | Metodo | Ruta | Modulo | Accion |
 |--------|------|--------|--------|
 | POST | `/api/auth/login` | auth | Iniciar sesion |
+| POST | `/api/auth/registro` | auth | Registrar usuario nuevo (rol Cliente) |
 | GET | `/api/clientes` | Clientes | Listar (tabla `Roles`) |
 | POST | `/api/clientes` | Clientes | Crear (tabla `Roles`) |
 | GET | `/api/clientes/:id` | Clientes | Obtener uno (tabla `Roles`) |
@@ -59,7 +60,7 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | PUT | `/api/servicios-tecnicos/:id` | Servicios_Tecnicos | Actualizar taller |
 | DELETE | `/api/servicios-tecnicos/:id` | Servicios_Tecnicos | Eliminar taller |
 
-> **No existen** endpoints para: `Usuarios_Reservas`, `Usuarios_Vehiculos` (tablas sin CRUD en backend). Tampoco existe `POST /api/auth/registro` (aunque los frontends lo consumen).
+> **No existen** endpoints para: `Usuarios_Reservas`, `Usuarios_Vehiculos` (tablas sin CRUD en backend).
 
 ---
 
@@ -96,7 +97,27 @@ Inicia sesion. Busca por correo, valida contrasena y devuelve token JWT + datos 
 - `body`: `"Correo o contraseña incorrectos"` si el correo no existe o la contrasena no coincide.
 - El status es **401** (verificado sept 2026; antes respondia 500 porque el controlador lanzaba `new Error` sin `statusCode` y el middleware global usa 500 por defecto). Corregido en `auth/controlador.ts` con `error(msg, 401)`.
 
-> **Nota**: el frontend movil llama a `POST /api/auth/registro`, pero **el backend no define esa ruta**. El frontend web resuelve el registro llamando `POST /api/usuarios` (rol cliente) + `POST /api/auth/login`.
+> **Nota**: el frontend movil llama a `POST /api/auth/registro` (el backend ya define la ruta desde oct 2026). El frontend web tambien usa esa misma ruta para el registro.
+
+---
+
+### POST `/api/auth/registro`
+
+Crea un usuario nuevo **siempre con el rol Cliente** (busca el rol por nombre en la tabla `Roles`; el cliente no puede auto-registrarse como administrador) y devuelve `{token, usuario}` igual que el login (queda logueado de una vez).
+
+**Body:**
+```json
+{ "nombre_usuario": "string", "correo": "string", "contrasena": "string" }
+```
+
+**Respuesta (201):** igual que `POST /api/auth/login` (el `body` trae `token` y `usuario` con `id_rol` y `rol`).
+
+**Errores:**
+- `400` si falta alguno de los 3 campos o el correo no contiene `@`. Body: `"Todos los campos son obligatorios"` / `"El correo ingresado no es valido"`.
+- `409` si ya existe un usuario con ese correo. Body: `"Ya existe una cuenta con ese correo"`.
+- `500` si no existe el rol `Cliente` en la tabla `Roles`.
+
+> La contrasena se hashea con bcrypt (salt 5) antes de guardar, igual que en `POST /usuarios`.
 
 ---
 
@@ -247,7 +268,7 @@ Respuesta:
 
 ### Mobile (`Mobile/src/Model/`)
 - `AuthService.login` → `POST /auth/login`, devuelve `response.data.body`.
-- `AuthService.registro` → `POST /auth/registro` (endpoint inexistente en backend).
+- `AuthService.registro` → `POST /auth/registro` con `{nombre_usuario, correo, contrasena}`. **OJO (movil)**: aun envia `{correo, contrasena}` sin `nombre_usuario`, asi que la ruta responde `400` — sigue siendo M6 del tablero.
 - `EstacionesService.obtenerEstaciones` → `GET /estaciones-carga`, devuelve `response.data.body`.
 - `TalleresService.obtenerTalleres` → `GET /servicios-tecnicos`, devuelve `response.data.body`.
 - `ColoresService.obtenerColores` → `GET /colores`, devuelve `response.data.body`.
@@ -257,7 +278,7 @@ Respuesta:
 ### Web (`Frontend/src/services/apiClient.ts`)
 - `peticion(ruta, opciones)` usa `fetch`, parse el sobre `{error, status, body}` y devuelve `body`; lanza `Error` si `error === true`.
 - **Envia `Authorization: Bearer <token>`** si hay sesion guardada (token persistido en `localStorage` por `utils/sesion.ts`).
-- Llamadas (via `services/*Service.ts`): `/auth/login`, `/usuarios` (GET, POST para registrar y para crear usuarios admin, DELETE para eliminar), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio devuelven **listas vacias** (no caen a mocks).
+- Llamadas (via `services/*Service.ts`): `/auth/login`, `/auth/registro` (registro publico, rol Cliente), `/usuarios` (GET, POST para crear usuarios admin, DELETE para eliminar), `/clientes` (roles para el combobox del admin), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio devuelven **listas vacias** (no caen a mocks).
 
 ---
 

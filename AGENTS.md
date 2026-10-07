@@ -73,7 +73,7 @@ Base `/api`. **Detalle completo en `docs/Api.md`.**
 - `GET|POST|PUT|DELETE /api/estaciones-carga[/:id]`.
 - `GET|POST|PUT|DELETE /api/colores[/:id]` y `GET|POST|PUT|DELETE /api/reservas[/:id]`.
 - `/api/vehiculos-colores`: `GET /` (listar), `GET /vehiculo/:id` (colores de un vehiculo), `GET /color/:id` (vehiculos de un color), `POST /` (crear N:M), `DELETE /:idVehiculo/color/:idColor`.
-- Los frontends llaman a `/api/auth/registro` pero **el backend no define esa ruta** (solo `login`). El web lo resuelve con `POST /usuarios` + `POST /auth/login`.
+- El backend define `POST /api/auth/registro` (oct 2026): crea el usuario **siempre con rol Cliente** (busca el rol por nombre en `Roles`) y devuelve `{token, usuario}`, igual que el login. El web lo consume directo; el movil lo llama pero aun sin `nombre_usuario` (M6 en el tablero).
 
 ## Tipos de usuario y funcionalidades
 
@@ -84,6 +84,8 @@ Roles determinados por `Roles.Nombre` (string) y flags de `useAuth()`; las tabs/
 - **Administrador**: Inicio (stats y gestion de contenido con conteos reales desde la API) y Usuarios (CRUD real via API: listar, buscar, filtrar, **crear** y **eliminar**; sin suspender porque no hay campo de estado).
 
 La mayoria de pantallas usa **datos mock hardcodeados**; en el web, login/registro, Vehiculos, Reservas y Estaciones/Talleres consumen la **API real** y el admin hace **CRUD real** de usuarios. El resto son mocks (ver `docs/Funcionalidades.md`).
+
+**▶ Trabajo pendiente activo (tablero de kanban):** la lista completa de tareas por hacer (y ya hechas) esta en `docs/Funcionalidades.md`, seccion **6 "Pendientes funcionales"** — movil M1-M10, web W1-W9, comunes C1-C5 (incluye la **mejora de CSS del frontend web y mobile**). Tambien son pasos 8 y 9 del roadmap en `docs/Decisiones-tecnicas.md`. Revisarla antes de asumir que una pantalla ya funciona.
 
 ## Convenciones de codigo
 

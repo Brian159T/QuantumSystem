@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Search, UserPlus, Users, ShieldCheck, Trash2, X } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
-import { useUsuarios } from '../../hooks/useDatos'
+import { useUsuarios, useRoles } from '../../hooks/useDatos'
 import { crearUsuario, eliminarUsuario } from '../../services/usuariosService'
 import { obtenerIniciales } from '../../utils/iniciales'
 import type { UsuarioAdministracion } from '../../types/Usuario'
@@ -10,20 +10,29 @@ interface NuevoUsuario {
   nombre: string
   correo: string
   contrasena: string
-  rol: 'Usuario' | 'Administrador'
+  idRol: number | null
 }
 
-const FORMULARIO_INICIAL: NuevoUsuario = { nombre: '', correo: '', contrasena: '', rol: 'Usuario' }
+const FORMULARIO_INICIAL: NuevoUsuario = { nombre: '', correo: '', contrasena: '', idRol: null }
 
 export default function PaginaUsuarios() {
   const { datos: usuarios, recargar } = useUsuarios()
+  const { datos: roles } = useRoles()
   const [busqueda, setBusqueda] = useState('')
-  const [filtroRol, setFiltroRol] = useState<'Todos' | 'Usuario' | 'Administrador'>('Todos')
+  const [filtroRol, setFiltroRol] = useState('Todos')
   const [mostrarFormulario, setMostrarFormulario] = useState(false)
   const [formulario, setFormulario] = useState<NuevoUsuario>(FORMULARIO_INICIAL)
   const [guardando, setGuardando] = useState(false)
   const [errorAccion, setErrorAccion] = useState('')
   const [confirmarEliminar, setConfirmarEliminar] = useState<UsuarioAdministracion | null>(null)
+
+  const mapaRoles = useMemo(() => {
+    return new Map(roles.map((rol) => [rol.id_rol, rol.Nombre]))
+  }, [roles])
+
+  const opcionesFiltro = useMemo(() => {
+    return ['Todos', ...new Set(roles.map((rol) => rol.Nombre))]
+  }, [roles])
 
   const filtrados = useMemo(() => {
     return usuarios.filter((usuario) => {
@@ -31,10 +40,11 @@ export default function PaginaUsuarios() {
         busqueda.trim().length === 0 ||
         usuario.name.toLowerCase().includes(busqueda.toLowerCase()) ||
         usuario.email.toLowerCase().includes(busqueda.toLowerCase())
-      const coincideRol = filtroRol === 'Todos' || usuario.role === filtroRol
+      const nombreRol = mapaRoles.get(usuario.id_rol) ?? usuario.role
+      const coincideRol = filtroRol === 'Todos' || nombreRol === filtroRol
       return coincideBusqueda && coincideRol
     })
-  }, [usuarios, busqueda, filtroRol])
+  }, [usuarios, busqueda, filtroRol, mapaRoles])
 
   const estadisticas = useMemo(() => {
     return {
@@ -44,15 +54,23 @@ export default function PaginaUsuarios() {
   }, [usuarios])
 
   const crearUsuarioNuevo = async () => {
-    if (!formulario.nombre.trim() || !formulario.correo.trim() || !formulario.contrasena) return
     setErrorAccion('')
+    if (
+      !formulario.nombre.trim() ||
+      !formulario.correo.trim() ||
+      !formulario.contrasena ||
+      formulario.idRol === null
+    ) {
+      setErrorAccion('Completa todos los campos y selecciona un rol')
+      return
+    }
     setGuardando(true)
     try {
       await crearUsuario({
         nombre_usuario: formulario.nombre.trim(),
         correo: formulario.correo.trim(),
         contrasena: formulario.contrasena,
-        id_rol: formulario.rol === 'Administrador' ? 1 : 2,
+        id_rol: formulario.idRol,
       })
       await recargar()
       setFormulario(FORMULARIO_INICIAL)
@@ -62,6 +80,13 @@ export default function PaginaUsuarios() {
     } finally {
       setGuardando(false)
     }
+  }
+
+  const abrirFormulario = () => {
+    setErrorAccion('')
+    const cliente = roles.find((rol) => rol.Nombre.toLowerCase().includes('client'))
+    setFormulario({ ...FORMULARIO_INICIAL, idRol: cliente?.id_rol ?? null })
+    setMostrarFormulario(true)
   }
 
   const eliminar = async () => {
@@ -98,7 +123,7 @@ export default function PaginaUsuarios() {
             <div className="tarjeta__titulo">Gestión de usuarios</div>
             <div className="tarjeta__subtitulo">Administra las cuentas registradas en la plataforma</div>
           </div>
-          <button className="boton boton--primario" onClick={() => setMostrarFormulario((previo) => !previo)}>
+          <button className="boton boton--primario" onClick={abrirFormulario}>
             <UserPlus size={16} />
             Nuevo usuario
           </button>
@@ -166,13 +191,19 @@ export default function PaginaUsuarios() {
               <label className="campo__etiqueta">Rol</label>
               <select
                 className="campo__entrada"
-                value={formulario.rol}
+                value={formulario.idRol ?? ''}
                 onChange={(evento) =>
-                  setFormulario({ ...formulario, rol: evento.target.value as 'Usuario' | 'Administrador' })
+                  setFormulario({ ...formulario, idRol: Number(evento.target.value) })
                 }
               >
-                <option value="Usuario">Usuario</option>
-                <option value="Administrador">Administrador</option>
+                <option value="" disabled>
+                  {roles.length === 0 ? 'No hay roles disponibles' : 'Selecciona un rol'}
+                </option>
+                {roles.map((rol) => (
+                  <option key={rol.id_rol} value={rol.id_rol}>
+                    {rol.Nombre}
+                  </option>
+                ))}
               </select>
             </div>
             <button className="boton boton--primario" onClick={crearUsuarioNuevo} disabled={guardando}>
@@ -198,7 +229,7 @@ export default function PaginaUsuarios() {
       </div>
 
       <div className="fila-filtros" style={{ marginBottom: 18 }}>
-        {(['Todos', 'Usuario', 'Administrador'] as const).map((rol) => (
+        {opcionesFiltro.map((rol) => (
           <button
             key={rol}
             className={`chip${filtroRol === rol ? ' chip--activo' : ''}`}
@@ -230,7 +261,9 @@ export default function PaginaUsuarios() {
                 </span>
               </span>
               <span>
-                <span className="insignia insignia--azul">{usuario.role}</span>
+                <span className="insignia insignia--azul">
+                  {mapaRoles.get(usuario.id_rol) ?? usuario.role}
+                </span>
               </span>
               <span className="tabla-usuarios__acciones">
                 <button

@@ -7,6 +7,8 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 > **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
 >
 > **Cambios sept 2026 (frontend web)**: se elimino el **fallback a mocks** de los services (si la API falla o devuelve lista vacia, la UI muestra **listas vacias**, nunca datos falsos); el CRUD de usuarios del admin ahora **crea/elimina via `/usuarios`** y envia el **token JWT** en todas las peticiones. El codigo de confirmacion de reserva sigue generado en el cliente (pendiente de campo en BD).
+>
+> **▶ Trabajo pendiente (a realizar durante los proximos dias)**: ver la **seccion 6 "Pendientes funcionales (tablero de kanban)"** al final de este archivo. Incluye la mejora de CSS del frontend web y mobile.
 
 ---
 
@@ -93,7 +95,7 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 - Se quitaron los valores hardcodeados ("Ingresos", "Actividad reciente") y el conteo fijo de talleres (sept 2026).
 
 ### 3.2 Gestion de Usuarios (Movil: `Interfaz_Administrador_usuarios.tsx` / Web: `PaginaUsuarios.tsx`)
-- **Web (sept 2026)**: lista real desde `GET /usuarios` (sin campos inventados; el rol se deriva de `id_rol`), **crear** usuario via `POST /usuarios` (nombre, correo, contrasena, rol) y **eliminar** via `DELETE /usuarios/:id`, ambos con refresco de la lista tras la operacion. **Buscar** por nombre/correo y **filtrar por rol**.
+- **Web (sept/oct 2026)**: lista real desde `GET /usuarios` (sin campos inventados; el rol se deriva de `id_rol`), **crear** usuario via `POST /usuarios` (nombre, correo, contrasena y rol elegido en un **combobox cargado desde `GET /clientes`**, la tabla `Roles`, para que el administrador escoja el rol) y **eliminar** via `DELETE /usuarios/:id`, ambos con refresco de la lista tras la operacion. **Buscar** por nombre/correo y **filtrar por rol**.
 - **Suspender/reactivar se quitaron** en el web: la tabla `Usuarios` no tiene campo de estado para persistirlo (no se debe simular).
 - Movil: sigue siendo CRUD **mock** (`INITIAL_USERS`).
 
@@ -114,7 +116,8 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 | `EmergenciasScreen_usuario_vehiculo.tsx` | Mock |
 | `Interfaz_Administrador_Inicio.tsx` | Mock (`OVERVIEW`, `MANAGEMENT_SECTIONS`, `RECENT_ACTIVITY`) |
 | `Interfaz_Administrador_usuarios.tsx` | Mock (`INITIAL_USERS`) |
-| Login / Registro (`AuthService`) | **Real API** |
+| Login (`AuthService`) | **Real API** (`POST /auth/login`) |
+| Registro (`AuthService`) | **Roto**: la ruta `POST /auth/registro` **ya existe** en el backend, pero el movil envia `{correo, contrasena}` sin `nombre_usuario`, asi que responde `400` (campos obligatorios) |
 
 ### Frontend web (`Frontend/`)
 
@@ -131,7 +134,7 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 | `PaginaEmergencias.tsx` | Mock |
 | `PaginaPanel.tsx` | API (conteos reales; sin valores hardcodeados) |
 | `PaginaUsuarios.tsx` | **Real API** (GET/POST/DELETE `/usuarios`) |
-| Login / Registro (`authService`) | **Real API** |
+| Login / Registro (`authService`) | **Real API** (login via `POST /auth/login`; registro via `POST /auth/registro`, que crea el usuario **siempre con rol Cliente**) |
 
 ---
 
@@ -147,3 +150,56 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 ### Aspecto visual del rol invitado (web, sept 2026)
 
 Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pagina paso de blanco a un **gris medio** (y el navbar se oscurecio); los textos/titulos destacados, iconos de estadisticas y enlaces se muestran en **negro**; el footer tiene **fondo negro con letras blancas**; los banners "Reserva ahora" y "Experiencia real / Test Drive" son **negros a todo el ancho** (pegados al navbar arriba y al footer abajo); el catalogo de modelos destacados va sobre una **franja gris** a todo el ancho. Estos ajustes se concentran en `Frontend/src/styles/paginas.css`, `temas.css` y `componentes.css`.
+
+---
+
+## 6. Pendientes funcionales (tablero de kanban)
+
+> **Estado: TRABAJO PENDIENTE (a realizar durante los proximos dias).** Lista de funcionalidades que aun **no funcionan** (mock, roto o inexistente) en cada plataforma, organizada para el tablero. Al terminar una tarea, moverla aqui como **Hecho** y actualizar la tabla de la seccion 4.
+
+### 6.1 App movil (`Mobile/`)
+
+| # | Pantalla / area | Pendiente | Tipo |
+|---|-----------------|-----------|------|
+| M1 | Inicio (invitado) `InicioScreen.tsx` | Catalogo hardcodeado (`CAR_MODELS`) → consumir `GET /vehiculos` | Mock → API |
+| M2 | Inicio cliente `InicioScreen_usuario_vehiculo.tsx` | Vehiculo propio, bateria, estaciones cercanas e historial de cargas mock (`VEHICLE`, `NEARBY_STATIONS`, `HISTORY`) | Mock → API |
+| M3 | Emergencias `EmergenciasScreen_usuario_vehiculo.tsx` | SOS, contactos y servicio de salud 100% local (sin backend) | Sin backend |
+| M4 | Panel admin `Interfaz_Administrador_Inicio.tsx` | Stats y gestion hardcodeados (`OVERVIEW`, `MANAGEMENT_SECTIONS`, `RECENT_ACTIVITY`) → conteos reales | Mock → API |
+| M5 | Usuarios admin `Interfaz_Administrador_usuarios.tsx` | CRUD mock (`INITIAL_USERS`) → GET/POST/DELETE `/usuarios` (como en el web) | Mock → API |
+| M6 | Registro (`AuthService.ts`) | La ruta `POST /auth/registro` **ya existe** en el backend, pero el movil envia `{correo, contrasena}` sin `nombre_usuario` → responde `400`. Falta enviar `nombre_usuario` (y el endpoint exige rol Cliente automaticamente) | **Roto a medias** |
+| M7 | Chatbot `components/Chatbot.tsx` | Solo capa visual, sin respuestas (falta RAG + Gemini) | Sin backend |
+| M8 | Reservas `ReservasScreen.tsx` | Pago simulado ("EFECTUAR PAGO Y CONFIRMAR") y codigo de confirmacion generado en el cliente (sin QR, sin campo en BD) | Parcial |
+| M9 | Global (todos los services) | No envia `Authorization: Bearer`; solo login/registro tocan la API | Seguridad |
+| M10 | Vehiculos / catalogo | Sin fotos reales (placeholder; `Vehiculos` no tiene columna de imagen) | Mejora |
+
+### 6.2 Frontend web (`Frontend/`)
+
+| # | Pagina / area | Pendiente | Tipo |
+|---|---------------|-----------|------|
+| W1 | `PaginaInicioCliente.tsx` | Panel de bateria (`VEHICULO.bateria`) e historial de cargas (`HISTORIAL`) hardcodeados; solo estaciones cercanas son API | Mock → API |
+| W2 | `PaginaEmergencias.tsx` | Contactos de emergencia hardcodeados (`CONTACTOS`), SOS solo local | Sin backend |
+| W3 | Chatbot `components/Chatbot.tsx` | Solo visual en todas las paginas/roles, sin API (RAG pendiente) | Sin backend |
+| W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Mapa placeholder (no hay mapa real en web) | Mejora |
+| W5 | `PaginaReservas.tsx` | Codigo de confirmacion generado en el cliente (falta campo en BD / QR) | Parcial |
+| W6 | `PaginaUsuarios.tsx` | Sin "suspender/reactivar" (la tabla `Usuarios` no tiene campo de estado) | Bloqueado por BD |
+| W7 | Vehiculos / catalogo | Sin fotos reales (placeholder) | Mejora |
+| W8 | Registro (`authService.ts`) | Consume `POST /auth/registro` (endpoint creado oct 2026; rol Cliente forzado) | **Hecho** |
+| W9 | Listas (general) | Sin spinners de carga; las listas se pintan vacias hasta resolver | UX |
+
+### 6.3 Tareas comunes (ambas plataformas)
+
+| # | Tarea | Notas |
+|---|-------|-------|
+| C1 | **Mejora de CSS del frontend web y mobile** | Tarea explicita del tablero; usar la skill `ui-web-mobile` |
+| C2 | Chatbot con IA (RAG + Gemini) | Capa visual ya existe en ambas; falta backend/IA. Ver roadmap paso 7 en `docs/Decisiones-tecnicas.md` |
+| C3 | Fotos del catalogo de vehiculos | Requiere añadir `imagen_url` a `Vehiculos` (o tabla `Vehiculo_Imagenes`). Seguir **plan de Gestion de Imagenes** (`docs/Decisiones-tecnicas.md` §9 y `docs/Arquitectura.md` §7) |
+| C4 | Estados de carga / vacio / error con spinner | Web y movil |
+| C5 | Despliegue (Supabase → Render → Vercel) | Ver roadmap seccion 6 de `docs/Decisiones-tecnicas.md` |
+
+### 6.4 Hecho (referencia)
+
+- Backend CRUD completo + JWT/bcrypt, migracion a PostgreSQL + pgvector con embeddings Gemini.
+- Backend: `POST /api/auth/registro` (oct 2026) — crea el usuario con rol Cliente (busca el rol por nombre) y devuelve `{token, usuario}`.
+- Mobile: Vehiculos, Reservas, Estaciones y Talleres con **API real**; stub de `react-native-maps` para web.
+- Web: sin fallback a mocks (`services` devuelven `[]`), CRUD real de usuarios con token JWT, **registro via `/auth/registro`**, combobox de roles del admin cargado desde `/clientes`, panel con conteos reales, rediseño del rol invitado.
+- Chatbot visual (FAB) en web y movil; seguridad de embeddings (allowlist/denylist, sin PII).

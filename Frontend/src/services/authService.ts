@@ -1,8 +1,6 @@
 import { peticion } from './apiClient'
 import type { Credenciales, DatosRegistro, RespuestaAuth } from '../types/Usuario'
 
-const ROL_CLIENTE = 2
-
 function validarSesion(datos: RespuestaAuth): RespuestaAuth {
   const tieneToken = typeof datos?.token === 'string' && datos.token.length > 0
   const tieneUsuario = typeof datos?.usuario === 'object' && datos.usuario !== null
@@ -24,15 +22,14 @@ export async function iniciarSesion(credenciales: Credenciales): Promise<Respues
 }
 
 export async function registrar(datos: DatosRegistro): Promise<RespuestaAuth> {
-  await peticion('/usuarios', {
+  const respuesta = await peticion<RespuestaAuth>('/auth/registro', {
     method: 'POST',
     body: JSON.stringify({
       nombre_usuario: datos.nombre_usuario,
       correo: datos.correo,
       contrasena: datos.contrasena,
-      id_rol: ROL_CLIENTE,
     }),
   })
 
-  return iniciarSesion({ correo: datos.correo, contrasena: datos.contrasena })
+  return validarSesion(respuesta)
 }

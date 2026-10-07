@@ -139,6 +139,10 @@ Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026*
 7. **Chatbot con IA**: usar **Google Gemini API** (free tier, $0) para el RAG/chat, pero **dejarlo desacoplado** para poder cambiarlo a un proveedor mas potente/de paga (p. ej. OpenAI, Claude) sin rehacer la app cuando se requiera. El flujo ya tiene la base: datos vectorizados en Postgres local → backend busca por similitud (`<=>`) → contexto a Gemini → respuesta al frontend. Aclaracion del flujo RAG: la columna `embedding` guarda **un vector por fila** (representacion semantica de sus demas columnas) y sirve de **clave de busqueda**; al recibir una pregunta, el backend la vectoriza, busca la(s) fila(s) mas parecida(s) con `<=>` y le pasa a la IA el **texto de esa fila** como contexto (nunca el vector, que solo es la llave de busqueda). **Estado actual**: la **capa visual** del chatbot ya existe en el movil (`Mobile/src/View/components/Chatbot.tsx`) y en el web (`Frontend/src/components/Chatbot.tsx`); falta implementar el backend/IA (el RAG sigue pendiente).
 
    **Modelo de generacion decidido (sept 2026):** `gemini-2.5-flash-lite` en **free tier** ($0, ~15 RPM / ~1.000 RPD), con paso previsto a `deepseek-flash` de pago cuando se agote el limite diario. Ver la seccion **"Modelo de IA del chatbot: decision y plan de migracion"** mas abajo para el detalle de precios, motivos y como se ejecuta el cambio.
+8. **Mejorar el CSS del frontend web y de la app movil** — pendiente (tarea explicita de UI, usar la skill `ui-web-mobile`).
+9. **Poner al dia las funcionalidades que aun no funcionan** (mocks pendientes en el movil, pantallas sin backend, registro roto, spinners, etc.) — pendiente. **Lista completa y detallada en `docs/Funcionalidades.md`, seccion 6 "Pendientes funcionales (tablero de kanban)"**, organizada por plataforma (M1-M10 movil, W1-W9 web, C1-C5 comunes).
+
+> **Trabajo previsto para los proximos dias:** pasos **8 y 9** de este roadmap + la lista de la seccion 6 de `docs/Funcionalidades.md` (el tablero de kanban del proyecto).
 
 Evolucion de la arquitectura:
 
@@ -353,12 +357,59 @@ Hoy `Vehiculos` **no tiene columna de imagen**, asi que hay que crear la capa pr
 - **Descartada `multimodalembedding@001`** (1408 dims, el modelo multimodal clasico): solo esta en **Vertex AI**, lo que ataria el proyecto a GCP y a un proyecto con facturacion.
 - Pasos propuestos:
   1. Crear `Vehiculo_Imagenes (id_vehiculo FK, ruta, mime_type, embedding vector(N))`. **No** guardar bytes en Postgres: el binario va en disco y luego en Supabase Storage (ya previsto en el roadmap).
-  2. Nuevo script `Backend/scripts/vectorizar_imagenes.ts` clonando el patron de `vectorizar_datos.ts`: `WHERE "embedding" IS NULL` -> base64 -> `content.parts: [{ inlineData: { mimeType, data } }]` -> `UPDATE ... SET "embedding" = $1::vector`. Reusar el retardo de 120 ms (rate limit del free tier).
-  3. **Enviar texto contextual junto a la imagen** (`Nombre_Modelo` + nombre del archivo): es lo que mas mejora la precision y distingue dos fotos casi iguales del mismo modelo.
-  4. indice `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)` (opcional: con pocas filas no hace falta).
+   2. Nuevo script `Backend/scripts/vectorizar_imagenes.ts` clonando el patron de `vectorizar_datos.ts`: `WHERE "embedding" IS NULL` -> base64 -> `content.parts: [{ inlineData: { mimeType, data } }]` -> `UPDATE ... SET "embedding" = $1::vector`. Reusar el retardo de 120 ms (rate limit del free tier).
+   3. **Enviar texto contextual junto a la imagen** (`Nombre_Modelo` + nombre del archivo): es lo que mas mejora la precision y distingue dos fotos casi iguales del mismo modelo.
+   4. indice `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)` (opcional: con pocas filas no hace falta).
 - **Decision critica (bloqueante):** si las imagenes se vectorizan con `gemini-embedding-2` y el texto se queda en `gemini-embedding-001`, **los vectores no son comparables** y `<=>` no significa nada entre modalidades. Dos salidas:
-  - (a) **Re-vectorizar todas las tablas** con `gemini-embedding-2` a 768 dims (recomendado: ademas mejora el multilingue y el RAG).
-  - (b) Columna aparte y limitarse a busqueda imagen -> imagen.
+   - (a) **Re-vectorizar todas las tablas** con `gemini-embedding-2` a 768 dims (recomendado: ademas mejora el multilingue y el RAG).
+   - (b) Columna aparte y limitarse a busqueda imagen -> imagen.
+
+> **Recomendacion operativa (imagenes del catalogo):** para la **muestra visual** del frontend (catalogo/vehiculos), no se recomienda guardar las imagenes en `bytea` ni en Large Objects dentro de PostgreSQL. **Usar Supabase Storage + guardar solo `imagen_url` en la BD** (o tabla `Vehiculo_Imagenes` para galeria). Esto mantiene la BD ligera, aprovecha CDN/cache y facilita el despliegue (ver **"9. Gestion de imagenes del sistema"** mas abajo).
+
+### 9. Gestion de imagenes del sistema
+
+**Principio:** separar almacenamiento de archivos binarios del motor de base de datos. Los **bytes** van a un object storage (S3-compatible), los **metadatos** quedan en PostgreSQL.
+
+#### 9.1 ¿Donde guardar las imagenes?
+
+| Opcion | Ubicacion de archivos | Peso de la BD | Rendimiento | CDN/Cache | Notas |
+|---|---|---|---|---|---|
+| **`bytea`** | Dentro de PostgreSQL | Alto (dumps incluyen binarios) | Lento al listar (trae bytes si se selecciona) | No | A evitar. Restaura todo dentro del Postgres de Supabase. |
+| **Large Objects (OID)** | Dentro de PostgreSQL (`pg_largeobject`) | Alto | Mejor con streaming, pero dentro del cluster | No | Requiere borrado manual (el OID no se elimina al borrar la fila). Mas codigo para subir/descargar. |
+| **Supabase Storage + URL** | Fuera de Postgres (S3-compatible) | **Bajo** (solo texto/URLs) | **Optimo** (el navegador descarga directo) | **Sí (CDN global)** | **Recomendado**. Aprovecha Image Transformations, URLs firmadas y cache HTTP. |
+
+> **Conclusión:** usar **Supabase Storage** para las imágenes y guardar **únicamente la ruta/URL** en la base de datos.
+
+#### 9.2 Límites relevantes (Supabase Free Tier)
+
+| Recurso | Free Tier | Observacion |
+|---|---|---|
+| **Storage** | **1 GB** | Suficiente para el catalogo si se optimizan en WebP/JPG comprimidos. |
+| **Tamaño máx. por archivo** | **50 MB** | No subir >50 MB. Fotos comprimidas (200–500 KB) cumplen sin problema. |
+| **Egress (descargas)** | **5 GB sin cache + 5 GB con cache** | Con CDN y `Cache-Control` el consumo baja considerablemente. |
+| **Global file size** | 50 MB | En Free no se puede aumentar; pasar a Pro para subir a 500 GB. |
+
+#### 9.3 Esquema de base de datos propuesto
+
+**Opción A (foto principal por vehículo) – recomendada para empezar:**
+
+```sql
+ALTER TABLE "Vehiculos" ADD COLUMN "imagen_url" TEXT;
+```
+
+**Opción B (galería de fotos) – mejor a futuro:**
+
+```sql
+CREATE TABLE "Vehiculo_Imagenes" (
+  "id_imagen" SERIAL PRIMARY KEY,
+  "id_vehiculo" INT NOT NULL REFERENCES "Vehiculos"("id_vehiculo") ON DELETE CASCADE,
+  "url" TEXT NOT NULL,
+  "es_principal" BOOLEAN DEFAULT FALSE,
+  "orden" INT DEFAULT 0
+);
+```
+
+Se recomienda **empezar con Opción A**. Si se requiere más de un ángulo, migrar a la tabla `Vehiculo_Imagenes` sin romper lo existente.
 
 #### B) Privacidad: allowlist de columnas antes de enviar a Gemini (riesgo actual)
 

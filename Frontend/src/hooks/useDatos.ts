@@ -3,6 +3,7 @@ import { obtenerEstaciones } from '../services/estacionesService'
 import { obtenerTalleres } from '../services/talleresService'
 import { obtenerUsuarios } from '../services/usuariosService'
 import { obtenerVehiculos } from '../services/vehiculosService'
+import { obtenerRoles, type RolApi } from '../services/rolesService'
 import type { EstacionCarga, ServicioTecnico } from '../types/EstacionesYTalleres'
 import type { UsuarioAdministracion } from '../types/Usuario'
 import type { Vehiculo } from '../types/Vehiculo'
@@ -58,4 +59,8 @@ export function useTalleres(): ResultadoDatos<ServicioTecnico> {
 
 export function useUsuarios(): ResultadoDatos<UsuarioAdministracion> {
   return useColeccion<UsuarioAdministracion>(obtenerUsuarios)
+}
+
+export function useRoles(): ResultadoDatos<RolApi> {
+  return useColeccion<RolApi>(obtenerRoles)
 }
