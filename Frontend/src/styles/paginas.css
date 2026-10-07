@@ -1096,6 +1096,201 @@
   color: var(--texto-suave);
 }
 
+/* ---------- Mapa Leaflet (talleres y estaciones) ---------- */
+.seccion-mapa {
+  scroll-margin-top: 90px;
+}
+
+.mapa-contenedor {
+  position: relative;
+  border-radius: var(--radio);
+  overflow: hidden;
+  border: 1px solid var(--borde-claro);
+  box-shadow: var(--sombra);
+}
+
+.mapa-leaflet {
+  width: 100%;
+  height: 430px;
+  background: #e8ecf0;
+  z-index: 1;
+}
+
+.mapa-contenedor .leaflet-container {
+  font-family: inherit;
+}
+
+.mapa-contenedor .leaflet-popup-content {
+  font-size: 13px;
+}
+
+.mapa-contenedor .leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.pin-mapa {
+  position: relative;
+  width: 32px;
+  height: 42px;
+}
+
+.pin-mapa__circulo {
+  position: absolute;
+  top: 0;
+  left: 1px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-pin, var(--verde));
+  border: 2.5px solid #ffffff;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+  display: grid;
+  place-items: center;
+  z-index: 2;
+  transition: transform var(--velocidad-transicion);
+}
+
+.pin-mapa__pico {
+  position: absolute;
+  top: 21px;
+  left: 9px;
+  width: 14px;
+  height: 14px;
+  background: var(--color-pin, var(--verde));
+  transform: rotate(45deg);
+  border-radius: 0 0 4px 0;
+  z-index: 1;
+}
+
+.pin-mapa__icono {
+  color: #ffffff;
+  display: grid;
+  place-items: center;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
+}
+
+.pin-mapa--activo .pin-mapa__circulo {
+  box-shadow:
+    0 0 0 6px color-mix(in srgb, var(--color-pin, var(--verde)) 25%, transparent),
+    0 4px 12px rgba(0, 0, 0, 0.4);
+  transform: scale(1.18);
+}
+
+.marcador-usuario {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+
+.marcador-usuario__punto {
+  position: relative;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  margin: 3px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #5b9bff, #1a73e8);
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  box-sizing: border-box;
+}
+
+.marcador-usuario__halo {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: rgba(26, 115, 232, 0.35);
+  animation: pulsar-mapa 2.2s ease-out infinite;
+}
+
+@keyframes pulsar-mapa {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* ---------- Tarjeta de ruta (resultado del camino) ---------- */
+.tarjeta-ruta {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 16px 18px;
+  border-radius: var(--radio);
+  background: var(--verde-suave);
+  border: 1px solid var(--verde-transparente);
+}
+
+.tarjeta-ruta__destino {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tarjeta-ruta__icono {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--verde);
+  color: #ffffff;
+}
+
+.tarjeta-ruta__nombre {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--texto-principal);
+}
+
+.tarjeta-ruta__direccion {
+  font-size: 12px;
+  color: var(--texto-suave);
+  margin-top: 2px;
+}
+
+.tarjeta-ruta__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tarjeta-ruta__dato {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 1px solid var(--borde-claro);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--texto-principal);
+}
+
+.tarjeta-ruta__dato svg {
+  color: var(--verde);
+}
+
+.tarjeta-ruta__nota {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--texto-suave);
+}
+
+.tarjeta-ruta__barra {
+  margin-top: 14px;
+}
+
 .fila-filtros {
   display: flex;
   flex-wrap: wrap;

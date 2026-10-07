@@ -39,7 +39,7 @@ docs/         # Documentacion de contexto (leerla primero)
 
 - **Backend (`Backend/`)**: Node.js + Express 5 + TypeScript (ts-node/nodemon), PostgreSQL (driver `pg`, base `QuantumSystemDB`), JWT (`jsonwebtoken`), `bcrypt` (salt 5), `morgan`, `dotenv`.
 - **App movil (`Mobile/`)**: Expo SDK 54, React 19.1, React Native 0.81, TypeScript, React Navigation (bottom-tabs), NativeWind v4 (configurado pero **no usado** en pantallas), axios, `@expo/vector-icons` (MaterialCommunityIcons), react-native-maps, expo-location, fuentes Poppins.
-- **Frontend web (`Frontend/`)**: Vite + React 19 + TS, `lucide-react`, `fetch` nativo. SPA **basado en componentes** (`components/`, `pages/`, `hooks/`, `services/`, `utils/`, `types/`, `routes/`). Desde sept 2026 los services **no caen a mocks**: si la API falla o devuelve lista vacia, devuelven `[]` (la UI no inventa datos).
+- **Frontend web (`Frontend/`)**: Vite + React 19 + TS, `lucide-react`, `fetch` nativo, **Leaflet** (mapas) + `@types/leaflet`. SPA **basado en componentes** (`components/`, `pages/`, `hooks/`, `services/`, `utils/`, `types/`, `routes/`). Desde sept 2026 los services **no caen a mocks**: si la API falla o devuelve lista vacia, devuelven `[]` (la UI no inventa datos).
 
 ## Comunicacion Backend <-> Frontend
 
@@ -73,14 +73,14 @@ Base `/api`. **Detalle completo en `docs/Api.md`.**
 - `GET|POST|PUT|DELETE /api/estaciones-carga[/:id]`.
 - `GET|POST|PUT|DELETE /api/colores[/:id]` y `GET|POST|PUT|DELETE /api/reservas[/:id]`.
 - `/api/vehiculos-colores`: `GET /` (listar), `GET /vehiculo/:id` (colores de un vehiculo), `GET /color/:id` (vehiculos de un color), `POST /` (crear N:M), `DELETE /:idVehiculo/color/:idColor`.
-- El backend define `POST /api/auth/registro` (oct 2026): crea el usuario **siempre con rol Cliente** (busca el rol por nombre en `Roles`) y devuelve `{token, usuario}`, igual que el login. El web lo consume directo; el movil lo llama pero aun sin `nombre_usuario` (M6 en el tablero).
+- El backend define `POST /api/auth/registro` (oct 2026): crea el usuario **siempre con rol Cliente** (busca el rol por nombre en `Roles`) y devuelve `{token, usuario}`, igual que el login. El web lo consume directo pero **no auto-loguea**: muestra un mensaje de "Registro exitoso" y el usuario entra manualmente (`AuthProvider.registrar()` descarta la sesion; estado `exito` en `LoginModal.tsx`). El movil lo llama pero aun sin `nombre_usuario` (M6 en el tablero).
 
 ## Tipos de usuario y funcionalidades
 
 Roles determinados por `Roles.Nombre` (string) y flags de `useAuth()`; las tabs/paginas cambian segun rol. **Detalle por pantalla en `docs/Funcionalidades.md`.**
 
 - **Invitado** (sin login): Inicio (catalogo Voltus, planes, test drive), Vehiculos (API real: listado + detalle con colores N:M y placeholder de foto), Reservas (formulario validado, modelos/colores desde API y guardado via API real, sin QR).
-- **Cliente** (usuario con vehiculo electrico): Inicio (bateria, estaciones cercanas, historial), Estaciones de Carga (API real), Talleres Autorizados (API real), Emergencias (SOS, contactos).
+- **Cliente** (usuario con vehiculo electrico): Inicio (bateria, estaciones cercanas, historial), Estaciones de Carga (API real, **mapa Leaflet con ruta por calles via OSRM**), Talleres Autorizados (API real, **mapa Leaflet con ruta por calles**), Emergencias (SOS, contactos).
 - **Administrador**: Inicio (stats y gestion de contenido con conteos reales desde la API) y Usuarios (CRUD real via API: listar, buscar, filtrar, **crear** y **eliminar**; sin suspender porque no hay campo de estado).
 
 La mayoria de pantallas usa **datos mock hardcodeados**; en el web, login/registro, Vehiculos, Reservas y Estaciones/Talleres consumen la **API real** y el admin hace **CRUD real** de usuarios. El resto son mocks (ver `docs/Funcionalidades.md`).

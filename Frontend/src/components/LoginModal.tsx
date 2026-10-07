@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X, ShieldCheck, LogIn, UserPlus } from 'lucide-react'
+import { X, ShieldCheck, LogIn, UserPlus, CircleCheckBig } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
 interface LoginModalProps {
@@ -7,7 +7,7 @@ interface LoginModalProps {
   onCerrar: () => void
 }
 
-type Pantalla = 'login' | 'registro'
+type Pantalla = 'login' | 'registro' | 'exito'
 
 export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
   const { iniciarSesion, registrar, cargandoLogin, cargandoRegistro, errorLogin, errorRegistro } =
@@ -42,7 +42,17 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
       correo: correoRegistro,
       contrasena: contrasenaRegistro,
     })
-    if (correcto) cerrar()
+    if (correcto) setPantalla('exito')
+  }
+
+  const irALogin = () => {
+    setCorreo(correoRegistro)
+    setContrasena('')
+    setNombreRegistro('')
+    setCorreoRegistro('')
+    setContrasenaRegistro('')
+    setConfirmacionRegistro('')
+    setPantalla('login')
   }
 
   const cerrar = () => {
@@ -56,7 +66,11 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
       <div className="modal" onClick={(evento) => evento.stopPropagation()}>
         <div className="modal__encabezado">
           <div className="modal__titulo">
-            {pantalla === 'login' ? 'Iniciar sesión' : 'Crear cuenta'}
+            {pantalla === 'login'
+              ? 'Iniciar sesión'
+              : pantalla === 'registro'
+                ? 'Crear cuenta'
+                : 'Registro exitoso'}
           </div>
           <button className="boton boton--icono" onClick={cerrar} aria-label="Cerrar">
             <X size={18} />
@@ -64,38 +78,40 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
         </div>
 
         <div className="modal__cuerpo">
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              textAlign: 'center',
-              marginBottom: 22,
-            }}
-          >
+          {pantalla !== 'exito' && (
             <div
               style={{
-                width: 60,
-                height: 60,
-                display: 'grid',
-                placeItems: 'center',
-                borderRadius: 18,
-                background: 'var(--verde-suave)',
-                color: 'var(--verde)',
-                marginBottom: 12,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                textAlign: 'center',
+                marginBottom: 22,
               }}
             >
-              <ShieldCheck size={30} />
+              <div
+                style={{
+                  width: 60,
+                  height: 60,
+                  display: 'grid',
+                  placeItems: 'center',
+                  borderRadius: 18,
+                  background: 'var(--verde-suave)',
+                  color: 'var(--verde)',
+                  marginBottom: 12,
+                }}
+              >
+                <ShieldCheck size={30} />
+              </div>
+              <div style={{ fontWeight: 700, fontSize: 18, color: 'var(--texto-principal)' }}>
+                {pantalla === 'login' ? 'Bienvenido de nuevo' : 'Únete a Voltus'}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--texto-suave)', marginTop: 4 }}>
+                {pantalla === 'login'
+                  ? 'Ingresa tus datos para continuar'
+                  : 'Completa el formulario para registrarte'}
+              </div>
             </div>
-            <div style={{ fontWeight: 700, fontSize: 18, color: 'var(--texto-principal)' }}>
-              {pantalla === 'login' ? 'Bienvenido de nuevo' : 'Únete a Voltus'}
-            </div>
-            <div style={{ fontSize: 13, color: 'var(--texto-suave)', marginTop: 4 }}>
-              {pantalla === 'login'
-                ? 'Ingresa tus datos para continuar'
-                : 'Completa el formulario para registrarte'}
-            </div>
-          </div>
+          )}
 
           {pantalla === 'login' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -139,7 +155,7 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
                 ¿No tienes cuenta? Crear una cuenta
               </button>
             </div>
-          ) : (
+          ) : pantalla === 'registro' ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div className="campo">
                 <label className="campo__etiqueta">Nombre completo</label>
@@ -199,6 +215,50 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
                 onClick={() => setPantalla('login')}
               >
                 Volver a iniciar sesión
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 22 }}>
+              <div
+                style={{
+                  width: 76,
+                  height: 76,
+                  display: 'grid',
+                  placeItems: 'center',
+                  borderRadius: 24,
+                  background: 'var(--verde-suave)',
+                  color: 'var(--verde)',
+                  boxShadow: '0 0 0 8px var(--verde-suave)',
+                }}
+              >
+                <CircleCheckBig size={40} />
+              </div>
+
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontWeight: 700, fontSize: 20, color: 'var(--texto-principal)' }}>
+                  ¡Bienvenido a Voltus!
+                </div>
+                <div
+                  style={{
+                    fontSize: 14,
+                    color: 'var(--texto-suave)',
+                    marginTop: 6,
+                    lineHeight: 1.5,
+                  }}
+                >
+                  Tu cuenta fue creada exitosamente.
+                  <br />
+                  Ahora ingresa tus credenciales para iniciar sesión.
+                </div>
+              </div>
+
+              <button className="boton boton--primario boton--completo" onClick={irALogin}>
+                <LogIn size={16} />
+                Ir a iniciar sesión
+              </button>
+
+              <button className="boton boton--borde-verde boton--completo" onClick={cerrar}>
+                Cerrar
               </button>
             </div>
           )}

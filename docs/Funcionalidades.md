@@ -65,7 +65,8 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 ### 2.2 Estaciones de Carga (Movil: `EstacionesScreen_usuario_vehiculo.tsx` / Web: `PaginaEstaciones.tsx`)
 - **Integrado con la API real** (`EstacionesService.obtenerEstaciones`).
 - **Ubicacion del usuario** (expo-location).
-- **Mapa** con las estaciones (react-native-maps en movil; mapa placeholder en web).
+- **Mapa** con las estaciones (react-native-maps en movil; **Leaflet en web**, ver `components/MapaLugar.tsx`).
+- **Ruta mas corta por las calles** (web): usa el servicio publico **OSRM** (`services/rutasService.ts`); si OSRM falla cae a la linea recta con la distancia **Haversine** real (`utils/geo.ts`) y lo marca como aproximado. El destino es el lugar seleccionado en el mapa o la **estacion mas cercana**; el marcador del usuario es el punto azul pulsante via `navigator.geolocation` (`hooks/useUbicacion.ts`, re-pedible con el boton de mira).
 - **Buscador** y **filtros por tipo de conector** (CCS, CHAdeMO, Tipo 2, Tesla).
 - Toggle de **solo disponibles/abiertas** y **estadisticas** (total, activas).
 - Tarjetas de servicio con disponibilidad, precio, rating, conectores, 24 horas.
@@ -74,6 +75,7 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 - **Integrado con la API real** (`TalleresService.obtenerTalleres` + `useTalleresViewModel`).
 - **Ubicacion del usuario** (permiso + coordenadas).
 - **Mapa** con talleres; se resalta el **taller mas cercano** (calculo Haversine) y el **taller seleccionado para ruta**.
+- **Ruta mas corta por las calles** (web): igual que en Estaciones de Carga, OSRM con fallback a linea recta; tarjeta de ruta con distancia y duracion estimada.
 - **Buscador** por direccion y toggle **"solo abiertos/disponibles"** (`Estado === 'disponible'`).
 - **Estadisticas**: total, disponibles, con telefono.
 - Tarjetas con estado abierto/cerrado, tiempo de espera, especialidades, rating.
@@ -179,11 +181,11 @@ Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pag
 | W1 | `PaginaInicioCliente.tsx` | Panel de bateria (`VEHICULO.bateria`) e historial de cargas (`HISTORIAL`) hardcodeados; solo estaciones cercanas son API | Mock → API |
 | W2 | `PaginaEmergencias.tsx` | Contactos de emergencia hardcodeados (`CONTACTOS`), SOS solo local | Sin backend |
 | W3 | Chatbot `components/Chatbot.tsx` | Solo visual en todas las paginas/roles, sin API (RAG pendiente) | Sin backend |
-| W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Mapa placeholder (no hay mapa real en web) | Mejora |
+| W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Mapa Leaflet real con ubicacion del usuario, marcadores por lugar, ruta por calles con **OSRM** (fallback linea recta) | **Hecho** |
 | W5 | `PaginaReservas.tsx` | Codigo de confirmacion generado en el cliente (falta campo en BD / QR) | Parcial |
 | W6 | `PaginaUsuarios.tsx` | Sin "suspender/reactivar" (la tabla `Usuarios` no tiene campo de estado) | Bloqueado por BD |
 | W7 | Vehiculos / catalogo | Sin fotos reales (placeholder) | Mejora |
-| W8 | Registro (`authService.ts`) | Consume `POST /auth/registro` (endpoint creado oct 2026; rol Cliente forzado) | **Hecho** |
+| W8 | Registro (`authService.ts` + `LoginModal.tsx`) | Consume `POST /auth/registro` (endpoint creado oct 2026; rol Cliente forzado). **No auto-loguea**: tras crear la cuenta muestra un mensaje de "Registro exitoso" (verde del sistema) y el usuario debe **iniciar sesion manualmente** con sus credenciales | **Hecho** |
 | W9 | Listas (general) | Sin spinners de carga; las listas se pintan vacias hasta resolver | UX |
 
 ### 6.3 Tareas comunes (ambas plataformas)

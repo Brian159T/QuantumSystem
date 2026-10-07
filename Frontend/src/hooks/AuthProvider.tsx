@@ -39,10 +39,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setErrorRegistro(null)
     setCargandoRegistro(true)
     try {
-      const datosAuth = await authService.registrar(datos)
-      setUsuario(datosAuth.usuario)
-      setToken(datosAuth.token)
-      guardarSesion(datosAuth.token, datosAuth.usuario)
+      // Solo crea la cuenta; NO inicia sesion para que el usuario
+      // entre manualmente con sus credenciales.
+      await authService.registrar(datos)
       return true
     } catch (error) {
       setErrorRegistro(error instanceof Error ? error.message : 'No se pudo crear la cuenta')

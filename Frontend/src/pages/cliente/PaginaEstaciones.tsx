@@ -1,8 +1,30 @@
-import { useMemo, useState } from 'react'
-import { Search, Crosshair, MapPinned, Zap, Plug, Car, Layers, Star, MapPin, Check } from 'lucide-react'
+import { useCallback, useMemo, useRef, useState } from 'react'
+import {
+  Search,
+  Crosshair,
+  Zap,
+  Plug,
+  Car,
+  Layers,
+  Star,
+  MapPin,
+  Check,
+  Navigation,
+  Route,
+  Timer,
+} from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
+import MapaLugar, { type LugarEnMapa } from '../../components/MapaLugar'
 import { useEstaciones } from '../../hooks/useDatos'
-import type { VelocidadCarga } from '../../types/EstacionesYTalleres'
+import { useUbicacion } from '../../hooks/useUbicacion'
+import { useRuta } from '../../hooks/useRuta'
+import {
+  calcularDistanciaKm,
+  formatearDistancia,
+  formatearMinutos,
+  type Coordenada,
+} from '../../utils/geo'
+import type { EstacionCarga, VelocidadCarga } from '../../types/EstacionesYTalleres'
 
 type FiltroConector = 'Todos' | 'CCS' | 'CHAdeMO' | 'Tipo 2' | 'Tesla'
 
@@ -14,17 +36,50 @@ const FILTROS: { clave: FiltroConector; etiqueta: string }[] = [
   { clave: 'Tesla', etiqueta: 'Tesla' },
 ]
 
+const COLOR_ESTACION = '#16a34a'
+
 function colorVelocidad(velocidad: VelocidadCarga | undefined): string {
   if (velocidad === 'Ultra rápida') return 'var(--verde)'
   if (velocidad === 'Rápida') return 'var(--azul)'
   return 'var(--naranja)'
 }
 
+function coordenadasValidas(item: { latitud?: number; longitud?: number }): boolean {
+  return (
+    typeof item.latitud !== 'undefined' &&
+    typeof item.longitud !== 'undefined' &&
+    !isNaN(Number(item.latitud)) &&
+    !isNaN(Number(item.longitud))
+  )
+}
+
+function punto(estacion: EstacionCarga): Coordenada | null {
+  if (!coordenadasValidas(estacion)) return null
+  return { latitud: Number(estacion.latitud), longitud: Number(estacion.longitud) }
+}
+
+function aEstacionLugar(estacion: EstacionCarga): LugarEnMapa | null {
+  const coordenadas = punto(estacion)
+  if (!coordenadas) return null
+  return {
+    id: estacion.id_estacion ?? estacion.direccion,
+    nombre: estacion.nombre ?? 'Estación de carga',
+    direccion: estacion.direccion,
+    latitud: coordenadas.latitud,
+    longitud: coordenadas.longitud,
+    icono: <Zap size={15} />,
+    color: COLOR_ESTACION,
+  }
+}
+
 export default function PaginaEstaciones() {
   const { datos: estaciones } = useEstaciones()
+  const { ubicacion, cargando: cargandoUbicacion, error: errorUbicacion, solicitar } = useUbicacion()
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState<FiltroConector>('Todos')
   const [soloDisponibles, setSoloDisponibles] = useState(false)
+  const [seleccionada, setSeleccionada] = useState<LugarEnMapa | null>(null)
+  const seccionMapaRef = useRef<HTMLElement | null>(null)
 
   const filtradas = useMemo(() => {
     return estaciones
@@ -38,8 +93,51 @@ export default function PaginaEstaciones() {
         const coincideDisponibilidad = !soloDisponibles || (estacion.disponibles ?? 0) > 0
         return coincideBusqueda && coincideFiltro && coincideDisponibilidad
       })
-      .sort((a, b) => (a.distanciaKm ?? 0) - (b.distanciaKm ?? 0))
-  }, [estaciones, busqueda, filtro, soloDisponibles])
+      .sort((a, b) => {
+        const dA = ubicacion && punto(a) ? calcularDistanciaKm(ubicacion, punto(a)!) : (a.distanciaKm ?? Infinity)
+        const dB = ubicacion && punto(b) ? calcularDistanciaKm(ubicacion, punto(b)!) : (b.distanciaKm ?? Infinity)
+        return dA - dB
+      })
+  }, [estaciones, busqueda, filtro, soloDisponibles, ubicacion])
+
+  const lugares = useMemo(
+    () =>
+      filtradas
+        .map(aEstacionLugar)
+        .filter((lugar): lugar is LugarEnMapa => lugar !== null),
+    [filtradas]
+  )
+
+  const masCercana = useMemo<LugarEnMapa | null>(() => {
+    if (!ubicacion || lugares.length === 0) return null
+    let menor: LugarEnMapa | null = null
+    let distanciaMenor = Infinity
+    lugares.forEach((lugar) => {
+      const distancia = calcularDistanciaKm(ubicacion, lugar)
+      if (distancia < distanciaMenor) {
+        distanciaMenor = distancia
+        menor = lugar
+      }
+    })
+    return menor
+  }, [ubicacion, lugares])
+
+  const alSeleccionar = useCallback((lugar: LugarEnMapa) => {
+    setSeleccionada(lugar)
+  }, [])
+
+  const destino = seleccionada ?? masCercana
+  const destinoCoordenada = destino
+    ? { latitud: destino.latitud, longitud: destino.longitud }
+    : null
+  const { ruta, cargando: cargandoRuta } = useRuta(ubicacion, destinoCoordenada)
+
+  const verRuta = (estacion: EstacionCarga) => {
+    const lugar = aEstacionLugar(estacion)
+    if (!lugar) return
+    setSeleccionada(lugar)
+    seccionMapaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   const totalDisponibles = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.disponibles ?? 0), 0)
   const totalPuertos = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.totales ?? 0), 0)
@@ -59,18 +157,79 @@ export default function PaginaEstaciones() {
             onChange={(evento) => setBusqueda(evento.target.value)}
           />
         </div>
-        <button className="boton boton--azul" title="Usar mi ubicación">
+        <button className="boton boton--azul" title="Usar mi ubicación" onClick={solicitar}>
           <Crosshair size={16} />
         </button>
       </div>
 
-      <div className="mapa-lugar" style={{ marginBottom: 22 }}>
-        <MapPinned size={32} style={{ color: 'var(--verde)' }} />
-        <div>
-          <strong style={{ color: 'var(--texto-principal)' }}>Mapa interactivo</strong>
-          <div>Aquí se mostrará la ruta más corta a la estación seleccionada</div>
-        </div>
-      </div>
+      <section className="seccion seccion-mapa" ref={seccionMapaRef}>
+        <EncabezadoSeccion
+          titulo="Mapa interactivo"
+          contador={ubicacion ? 'Ruta más corta por calles' : 'Habilita tu ubicación para ver rutas'}
+        />
+
+        <MapaLugar
+          lugares={lugares}
+          ubicacion={ubicacion}
+          coordenadasRuta={ruta?.coordenadas ?? null}
+          rutaPorCalles={ruta?.porCalles}
+          colorRuta={COLOR_ESTACION}
+          destinoId={destino?.id ?? null}
+          alSeleccionar={alSeleccionar}
+        />
+
+        {destino && (
+          <div className="tarjeta-ruta">
+            <div className="tarjeta-ruta__destino">
+              <span className="tarjeta-ruta__icono">
+                <Zap size={18} />
+              </span>
+              <div>
+                <div className="tarjeta-ruta__nombre">{destino.nombre}</div>
+                <div className="tarjeta-ruta__direccion">
+                  <MapPin size={11} /> {destino.direccion}
+                </div>
+              </div>
+            </div>
+
+            {cargandoRuta ? (
+              <div className="tarjeta-ruta__nota">Calculando la ruta más corta por las calles...</div>
+            ) : !ubicacion ? (
+              <div className="tarjeta-ruta__nota">
+                <MapPin size={13} />
+                {errorUbicacion ?? 'Habilita tu ubicación para trazar la ruta por las calles.'}
+              </div>
+            ) : ruta ? (
+              <>
+                <div className="tarjeta-ruta__datos">
+                  <span className="tarjeta-ruta__dato">
+                    <Route size={14} /> {ruta.porCalles ? 'Distancia por calles' : 'Distancia'}
+                    <strong>{formatearDistancia(ruta.distanciaKm)}</strong>
+                  </span>
+                  <span className="tarjeta-ruta__dato">
+                    <Timer size={14} /> {formatearMinutos(ruta.duracionMin)}
+                  </span>
+                  <span className="tarjeta-ruta__dato">
+                    <Navigation size={14} /> {ruta.porCalles ? 'Por calles' : 'Línea recta'}
+                  </span>
+                </div>
+                {!ruta.porCalles && (
+                  <div className="tarjeta-ruta__nota">
+                    No se pudo calcular una ruta por calles para este destino; se muestra la distancia en línea
+                    recta desde tu ubicación actual.
+                  </div>
+                )}
+              </>
+            ) : null}
+          </div>
+        )}
+
+        {cargandoUbicacion && (
+          <div className="tarjeta-ruta__nota" style={{ marginTop: 12 }}>
+            <Crosshair size={13} /> Obteniendo tu ubicación actual...
+          </div>
+        )}
+      </section>
 
       <div className="fila-estadisticas">
         <div className="tarjeta-estadistica">
@@ -148,6 +307,10 @@ export default function PaginaEstaciones() {
           <div className="lista-resultados">
             {filtradas.map((estacion) => {
               const llena = (estacion.disponibles ?? 0) === 0
+              const puntoEstacion = punto(estacion)
+              const distanciaUbicacion =
+                ubicacion && puntoEstacion ? calcularDistanciaKm(ubicacion, puntoEstacion) : null
+              const distanciaMostrada = distanciaUbicacion ?? estacion.distanciaKm
               return (
                 <div key={estacion.id_estacion ?? estacion.direccion} className="tarjeta-servicio">
                   <div className="tarjeta-servicio__superior">
@@ -165,7 +328,7 @@ export default function PaginaEstaciones() {
                     </div>
                     <div className="tarjeta-servicio__distancia">
                       <div className="tarjeta-servicio__distancia-valor">
-                        {estacion.distanciaKm?.toFixed(1)}
+                        {distanciaMostrada?.toFixed(1)}
                       </div>
                       <div className="tarjeta-servicio__distancia-unidad">km</div>
                     </div>
@@ -207,7 +370,10 @@ export default function PaginaEstaciones() {
                       {estacion.rating?.toFixed(1) ?? '—'}
                       {estacion.precioPorKwh ? ` · ${estacion.precioPorKwh} / kWh` : ''}
                     </span>
-                    <button className="boton boton--primario boton--compacto">
+                    <button
+                      className="boton boton--primario boton--compacto"
+                      onClick={() => verRuta(estacion)}
+                    >
                       <MapPin size={14} />
                       Ver ruta
                     </button>
