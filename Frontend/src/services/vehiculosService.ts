@@ -1,3 +1,4 @@
+import { FOTOS_VEHICULOS } from '../config/multimedia'
 import { peticion } from './apiClient'
 import type { ColorVehiculo, Vehiculo } from '../types/Vehiculo'
 
@@ -13,7 +14,6 @@ function hexParaColor(nombre: string): string | undefined {
 }
 
 function adaptar(datos: Vehiculo): Vehiculo {
-  const clave = datos.Nombre_Modelo || `Modelo ${datos.id_vehiculo ?? ''}`
   const coloresApi =
     Array.isArray(datos.colores) && datos.colores.length > 0 ? datos.colores : null
   const colores: ColorVehiculo[] = coloresApi
@@ -30,7 +30,7 @@ function adaptar(datos: Vehiculo): Vehiculo {
 
   return {
     ...datos,
-    imagen: datos.imagen ?? `https://placehold.co/500x280/0f1f3d/4D9FFF?text=${encodeURIComponent(clave)}`,
+    imagen: FOTOS_VEHICULOS[String(datos.id_vehiculo)] || datos.imagen || '',
     colores,
   }
 }

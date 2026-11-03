@@ -1,3 +1,5 @@
+import BarraLateral from '../components/BarraLateral'
+import EncabezadoPrivado from '../components/EncabezadoPrivado'
 import { useState } from 'react'
 import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth'
@@ -49,11 +51,12 @@ function Aplicacion() {
   const idsValidos = navegacion.map((item) => item.id)
   const pantallaActual = idsValidos.includes(pantalla) ? pantalla : INICIO_POR_ROL[rol]
 
-  const irA = (id: string) => setPantalla(id)
+  const irA = (id: string) => { setPantalla(id); window.scrollTo({ top: 0, behavior: 'instant' }) }
 
   return (
-    <div className={`aplicacion aplicacion--${rol}`}>
-      <header className="cabecera-sitio">
+    <div className={`aplicacion aplicacion--${rol}${esInvitado ? '' : ' espacio-privado'}`}>
+      {!esInvitado && <BarraLateral elementos={navegacion} actual={pantallaActual} alNavegar={irA} inicio={INICIO_POR_ROL[rol]} icono={nombre => <IconoNav nombre={nombre} />} cuenta={<><Saludo /><LogoutButton /></>} />}
+      {esInvitado && <header className="cabecera-sitio">
         <div className="cabecera-sitio__interior">
           <button className="cabecera-sitio__marca" onClick={() => irA(INICIO_POR_ROL[rol])}>
             
@@ -64,6 +67,7 @@ function Aplicacion() {
             {navegacion.map((item) => (
               <button
                 key={item.id}
+                aria-current={pantallaActual === item.id ? 'page' : undefined}
                 className={`cabecera-sitio__enlace${
                   pantallaActual === item.id ? ' cabecera-sitio__enlace--activo' : ''
                 }`}
@@ -86,10 +90,11 @@ function Aplicacion() {
             )}
           </div>
         </div>
-      </header>
+      </header>}
 
       <main className="contenido">
         <div className="contenido__cuerpo">
+          {!esInvitado && <EncabezadoPrivado pantalla={pantallaActual} administrador={esAdministrador} />}
           {rol === 'invitado' && pantallaActual === 'inicio' && (
             <PaginaInicio alVerVehiculos={() => irA('vehiculos')} />
           )}

@@ -1,0 +1,96 @@
+﻿.aplicacion { --fondo:#f5f5f7; --fondo-claro:#f4f8fb; --superficie:#fff; --superficie-elevada:#fff; --superficie-hover:#eaf0f5; --texto-principal:#1d1d1f; --texto-pagina:#1d1d1f; --texto-medio:#474747; --texto-suave:#707070; --texto-pagina-suave:#707070; --borde-claro:#d2d2d7; --radio:8px; --radio-suave:8px; --sombra:none; --sombra-media:none; --sombra-fuerte:none; background:#f5f5f7; color:#1d1d1f; }
+.aplicacion :is(button,a):focus-visible { outline:2px solid #0071e3; outline-offset:3px; }
+.aplicacion .tarjeta { box-shadow:none; }
+.aplicacion--invitado { --verde:#0066cc; --verde-suave:#edf4fb; --azul:#0066cc; --accent:#0071e3; --accent-contraste:#fff; --gradiente-verde:#0071e3; --radio-boton:980px; font-size:17px; letter-spacing:-.016em; }
+.aplicacion--invitado .contenido__cuerpo { max-width:none; padding:64px 0 0; }
+.aplicacion--invitado .cabecera-sitio { background:#ffffffed; border-bottom:1px solid #d2d2d7; backdrop-filter:blur(18px); }
+.aplicacion--invitado .cabecera-sitio__interior { height:64px; max-width:1200px; }
+.aplicacion--invitado .cabecera-sitio__nombre { font-size:19px; color:#1d1d1f; letter-spacing:-.02em; }
+.aplicacion--invitado .cabecera-sitio__enlace { color:#474747; background:transparent; font-size:12px; }
+.aplicacion--invitado .cabecera-sitio__enlace--activo { color:#0066cc; }
+.aplicacion--invitado .boton { border-radius:980px; box-shadow:none; font-weight:400; text-transform:none; letter-spacing:-.01em; padding:11px 22px; }
+.aplicacion--invitado .boton--primario { background:#0071e3; color:white; border:1px solid #0071e3; }
+.aplicacion--invitado :is(.boton--claro,.boton-cuenta) { background:transparent; color:#0066cc; border:1px solid #0066cc; }
+.aplicacion--invitado .boton:disabled { background:#e2e2e5; border-color:#e2e2e5; color:#707070; opacity:1; }
+.editorial :is(h1,h2) { font-weight:600; letter-spacing:-.035em; line-height:1.07; }
+.editorial h1 { font-size:clamp(40px,6vw,72px); max-width:960px; margin:12px auto 20px; }
+.editorial h2 { font-size:clamp(32px,4vw,48px); margin:12px auto 20px; }
+.editorial h3 { font-size:28px; font-weight:600; margin:24px 0 8px; }
+.editorial__hero { text-align:center; padding:72px 0 0; background:#f5f5f7; }
+.editorial__ceja { font-size:12px; font-weight:600; letter-spacing:.12em; color:#707070; padding:0 24px; }
+.editorial__subtitulo { font-size:clamp(19px,2.5vw,26px); font-weight:300; max-width:760px; padding:0 24px; margin:0 auto 28px; line-height:1.4; }
+.editorial__acciones { display:flex; justify-content:center; flex-wrap:wrap; gap:12px; padding:0 20px; }
+.editorial__seccion { padding:80px 32px; text-align:center; background:#fff; scroll-margin-top:80px; }
+.editorial__lavado { background:#f4f8fb; }
+.editorial__modelos { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:32px; max-width:1440px; margin:48px auto 0; }
+.editorial__enlace { color:#0066cc; margin-top:20px; font-size:17px; }
+.editorial__enlace:hover { text-decoration:underline; }
+.editorial__estado { color:#707070; padding:40px 20px; }
+.medio-visual { position:relative; width:100%; overflow:hidden; background:#f5f5f7; aspect-ratio:16/8; }
+.editorial__hero > .medio-visual { margin-top:48px; min-height:260px; max-height:720px; }
+.medio-visual :is(img,video) { display:block; width:100%; height:100%; object-fit:cover; }
+.medio-visual__reserva { height:100%; min-height:180px; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:20px; color:#858585; font-size:14px; padding:24px; }
+.medio-visual__control { position:absolute; right:20px; bottom:20px; background:#fff; color:#1d1d1f; border:1px solid #d2d2d7; border-radius:980px; padding:12px 20px; }
+.aplicacion--invitado .rejilla-vehiculos { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:48px 32px; max-width:1440px; margin:40px auto 0; }
+.aplicacion--invitado .tarjeta-vehiculo { display:flex; flex-direction:column; height:auto; min-height:0; background:#f5f5f7; color:#1d1d1f; border:0; border-radius:8px; box-shadow:none; padding:0; overflow:hidden; text-align:center; transform:none; }
+.aplicacion--invitado .tarjeta-vehiculo__indice { display:none; }
+.aplicacion--invitado .tarjeta-vehiculo__info { padding:32px; width:100%; order:1; }
+.aplicacion--invitado :is(.tarjeta-vehiculo__fila-nombre,.swatches) { justify-content:center; }
+.aplicacion--invitado .tarjeta-vehiculo__nombre { color:#1d1d1f; font-size:28px; font-weight:600; }
+.aplicacion--invitado .tarjeta-vehiculo__precio { color:#1d1d1f; }
+.aplicacion--invitado .tarjeta-vehiculo .medio-visual img { object-fit:contain; }
+.detalle-editorial { padding:48px 32px 80px; max-width:1440px; margin:auto; }
+.detalle-editorial > .medio-visual { margin-bottom:40px; }
+.detalle-editorial .ficha-tecnica { box-shadow:none; background:transparent; }
+.aplicacion--invitado .pagina-reservas { max-width:980px; padding:56px 24px 80px; margin:auto; }
+.aplicacion--invitado .pagina-reservas .banner { background:transparent; border:none; box-shadow:none; color:#1d1d1f; text-align:center; justify-content:center; }
+.aplicacion--invitado .pagina-reservas :is(.banner__lienzo,.banner__icono) { display:none; }
+.aplicacion--invitado .banner__titulo { color:#1d1d1f; font-size:clamp(32px,5vw,56px); font-weight:600; }
+.aplicacion--invitado :is(.banner__subtitulo,.banner__ceja) { color:#707070; }
+.aplicacion--invitado .pagina-reservas .tarjeta { background:transparent; border:0; border-top:1px solid #d2d2d7; border-radius:0; padding:24px 0; }
+.aplicacion--invitado .campo__entrada { background:#f5f5f7; color:#1d1d1f; border:1px solid #d2d2d7; border-radius:8px; }
+.aplicacion--invitado :is(.opcion-modelo,.opcion-color) { border-radius:8px; box-shadow:none; }
+.aplicacion .pie-sitio { background:#f5f5f7; border-top:1px solid #d2d2d7; color:#707070; }
+.aplicacion .pie-sitio :is(.pie-sitio__logo,.pie-sitio__titulo) { color:#1d1d1f; }
+.aplicacion .pie-sitio :is(.pie-sitio__frase,.pie-sitio__copy,.pie-sitio__enlace) { color:#707070; }
+.aplicacion:not(.aplicacion--invitado) { padding-left:240px; }
+.aplicacion:not(.aplicacion--invitado) .contenido__cuerpo { padding:40px 36px 64px; }
+.barra-lateral { position:fixed; inset:0 auto 0 0; width:240px; padding:24px 20px; overflow-y:auto; z-index:50; }
+.barra-lateral,.panel-lateral { background:#f4f8fb; color:#1d1d1f; border:0; border-right:1px solid #d2d2d7; }
+.barra-lateral__marca { display:flex; align-items:center; gap:8px; min-height:44px; font-size:19px; font-weight:600; letter-spacing:-.02em; margin-bottom:40px; }
+.barra-lateral__marca img { width:24px; height:24px; object-fit:contain; }
+.barra-lateral__etiqueta { color:#707070; font-size:12px; margin:0 12px 16px; }
+.barra-lateral__nav { display:grid; gap:6px; }
+.barra-lateral__nav a { display:flex; align-items:center; gap:10px; min-height:44px; padding:10px 12px; border-radius:999px; font-size:14px; line-height:20px; }
+.barra-lateral__nav svg { width:18px; height:18px; flex-shrink:0; stroke-width:1.75; }
+.barra-lateral__nav a:hover { background:#eaf0f5; }
+.barra-lateral__nav a[aria-current=page] { background:#fff; font-weight:500; }
+.barra-lateral__cuenta { display:flex; flex-direction:column; align-items:start; gap:16px; margin-top:48px; padding-top:24px; border-top:1px solid #d2d2d7; }
+.barra-movil,.panel-lateral { display:none; }
+@media(max-width:767px) {
+.aplicacion:not(.aplicacion--invitado) { padding-left:0; padding-top:64px; }
+.barra-lateral { display:none; }
+.barra-movil { display:flex; position:fixed; inset:0 0 auto; height:64px; align-items:center; gap:16px; padding:0 16px; background:#f4f8fb; border-bottom:1px solid #d2d2d7; z-index:45; }
+.barra-movil button,.panel-lateral__cerrar { min-width:44px; min-height:44px; }
+.panel-lateral[open] { display:block; position:fixed; inset:0 auto 0 0; height:100dvh; max-height:none; width:min(280px,calc(100vw - 32px)); margin:0; padding:0; }
+.panel-lateral::backdrop { background:#0005; }
+.panel-lateral__interior { padding:20px; min-height:100%; }
+.panel-lateral__cerrar { display:block; margin-left:auto; }
+.aplicacion:not(.aplicacion--invitado) .contenido__cuerpo { padding:24px 16px 48px; }
+.aplicacion--invitado .cabecera-sitio__interior { gap:12px; padding:0 12px; height:auto; min-height:64px; flex-wrap:wrap; }
+.aplicacion--invitado .cabecera-sitio__nav { order:3; width:100%; justify-content:center; }
+.aplicacion--invitado .contenido__cuerpo { padding-top:112px; }
+.editorial__hero { padding-top:48px; }
+.editorial__seccion { padding:56px 20px; }
+.editorial__modelos,.aplicacion--invitado .rejilla-vehiculos { grid-template-columns:1fr; }
+.detalle-editorial { padding:32px 16px 48px; }
+.detalle-vehiculo__encabezado { flex-wrap:wrap; gap:20px; }
+}
+@media(prefers-reduced-motion:reduce) { .aplicacion * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
+.aplicacion { --navy:#f4f8fb; --navy-medio:#f4f8fb; --navy-claro:#eaf0f5; --gradiente-tarjeta:linear-gradient(#fff,#fff); --gradiente-encabezado:linear-gradient(#f4f8fb,#f4f8fb); }
+.aplicacion--invitado .pie-sitio { background:#f5f5f7; border-top:1px solid #d2d2d7; }
+.aplicacion--invitado .cabecera-sitio__enlace:hover { color:#0066cc; }
+.aplicacion--invitado .pie-sitio :is(.pie-sitio__logo,.pie-sitio__titulo) { color:#1d1d1f; }
+.aplicacion--invitado .pie-sitio :is(.pie-sitio__frase,.pie-sitio__copy,.pie-sitio__enlace) { color:#707070; }
+.barra-lateral__cuenta .saludo { color:#474747; }
+@media(max-width:767px) { .aplicacion--invitado .cabecera-sitio__acciones { margin-left:auto; } .aplicacion--invitado .formulario-reserva { grid-template-columns:1fr; } }

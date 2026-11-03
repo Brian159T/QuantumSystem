@@ -4,6 +4,22 @@ Registro del **stack**, **herramientas** y **decisiones de diseno** tomadas en e
 
 ---
 
+## Justificacion tecnologica
+
+El proyecto se sostiene en decisiones de arquitectura que responden a problemas reales del sistema, no a la eleccion de tecnologias por moda. Cada punto es verificable en este documento y en `docs/Funcionalidades.md`.
+
+1. **Centralizacion en una sola fuente de verdad.** Hoy el personal trabaja con Excel, papel y WhatsApp, con datos duplicados y sin seguimiento. El backend sobre **PostgreSQL `QuantumSystemDB`** centraliza vehiculos, colores, reservas, estaciones, talleres y usuarios en un modelo relacional normalizado (incluye las N:M `Vehiculos_Colores`, etc.). El valor no es "usar una BD" sino eliminar la duplicacion y el error manual por diseno.
+2. **Cobertura multiplataforma con un solo desarrollo.** El publico es heterogeneo (invitado, cliente, administrador). **Expo SDK 54 / React Native** cubre iOS y Android desde una base unica en TypeScript y **Vite + React 19** cubre la web. La logica de negocio vive una sola vez en el backend **Express 5**; el frontend no la duplica. Menos costo de mantenimiento con recursos limitados.
+3. **IA aplicada con RAG, no "IA de adorno".** Los datos de `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga` se convierten en **embeddings de 768 dimensiones** (`gemini-embedding-001`), se guardan en **`pgvector`** y ante una pregunta se busca por **similitud coseno (`<=>`) con umbral y `top_k`**; al modelo se le pasa el **texto de la fila encontrada como contexto**. Resultado: el asistente responde solo con informacion verificada (reduce alucinaciones por diseno) y se aprovecha **busqueda semantica dentro de PostgreSQL**. El proveedor esta **desacoplado por variable de entorno** (`GEMINI_CHAT_MODEL`): migrar de Gemini a DeepSeek es editar el `.env`, no reescribir la app (ver "Modelo de IA del chatbot").
+4. **Privacidad y seguridad por diseno.** `Usuarios` y `Reservas` quedan **fuera de la vectorizacion** (allowlist explicita) y una **denylist por regex** (correo, cedula/telefono, contrasenas) aborta el envio a la IA. La autenticacion usa **JWT + bcrypt**. La seguridad no es una capa posterior: esta en el flujo de datos (ver "Plan de seguridad: dejar de enviar datos personales a Gemini").
+5. **Geolocalizacion y movilidad, nucleo del dominio.** Un vehiculo electrico implica carga y asistencia. El sistema integra **mapas (Leaflet / react-native-maps)**, ubicacion real del usuario y **ruta por calles con OSRM** con *fallback* a distancia Haversine. Eso convierte el catalogo en una herramienta de uso diario.
+6. **Escalabilidad y bajo costo.** El roadmap (`Supabase -> Render -> Vercel`) aprovecha que **PostgreSQL + pgvector es el mismo motor** en local y en la nube (migracion sin friccion) y la IA corre en **free tier ($0)**. El proyecto es tecnicamente ambicioso pero operable sin presupuesto de infraestructura.
+7. **Coherencia de decisiones.** Se migro de MySQL a PostgreSQL por `pgvector`/Supabase; se descarto guardar imagenes en `bytea` (se usa storage + URL); se descarto el experimento `db_vectorial` por embeddings incompatibles y credenciales inseguras. Elegir tecnologia es tambien saber que descartar y por que.
+
+> **Nota de estado**: conviene presentar el estado real del proyecto (pantallas aun en mock, RAG en implementacion, tareas del tablero M1-M10 / W1-W9 / C1-C6) y justificar el diseno aunque no todo este terminado.
+
+---
+
 ## 1. Stack del proyecto
 
 ### Backend (`Backend/`)
@@ -142,7 +158,7 @@ Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026*
 
    **Modelo de generacion decidido (sept 2026):** `gemini-2.5-flash-lite` en **free tier** ($0, ~15 RPM / ~1.000 RPD), con paso previsto a `deepseek-flash` de pago cuando se agote el limite diario. Ver la seccion **"Modelo de IA del chatbot: decision y plan de migracion"** mas abajo para el detalle de precios, motivos y como se ejecuta el cambio.
 8. **Mejorar el CSS del frontend web y de la app movil** — pendiente (tarea explicita de UI, usar la skill `ui-web-mobile`).
-9. **Poner al dia las funcionalidades que aun no funcionan** (mocks pendientes en el movil, pantallas sin backend, registro roto, spinners, etc.) — pendiente. **Lista completa y detallada en `docs/Funcionalidades.md`, seccion 6 "Pendientes funcionales (tablero de kanban)"**, organizada por plataforma (M1-M10 movil, W1-W9 web, C1-C5 comunes).
+9. **Poner al dia las funcionalidades que aun no funcionan** (mocks pendientes en el movil, pantallas sin backend, registro roto, spinners, etc.) — pendiente. **Lista completa y detallada en `docs/Funcionalidades.md`, seccion 6 "Pendientes funcionales (tablero de kanban)"**, organizada por plataforma (M1-M10 movil, W1-W9 web, C1-C6 comunes).
 
 > **Trabajo previsto para los proximos dias:** pasos **8 y 9** de este roadmap + la lista de la seccion 6 de `docs/Funcionalidades.md` (el tablero de kanban del proyecto).
 
@@ -441,6 +457,14 @@ Segun los [Gemini API Additional Terms](https://ai.google.dev/gemini-api/terms) 
 - Dato adicional ya correcto en el proyecto: la API key vive en `Backend/.env` y **nunca** en `Mobile/` ni `Frontend/`.
 
 ---
+
+### Plan de Grafana
+
+Se acuerda incorporar Grafana OSS, comenzando en Windows con una conexión directa a PostgreSQL y un panel de estadísticas de reservas. El primer avance no requiere Prometheus. Para Grafana se creará un usuario específico de solo lectura; `postgres` es el usuario actualmente configurado en el backend, no el usuario previsto para los paneles.
+
+Orden acordado: conexión y reservas → salud del backend con Prometheus → eventos de uso de estaciones y talleres → pronóstico semanal de reservas mediante regresión lineal. La instalación y la conexión aún no se han verificado. El alcance, los indicadores, la validación y las tareas están en [Plan-Grafana.md](Plan-Grafana.md).
+
+Los paneles se prepararán localmente y luego se trasladarán como configuraciones a una instancia alojada, conectada a la base de producción según la migración prevista a Supabase. El alojamiento de Grafana y Prometheus permanece por definir. No se publicarán contraseñas ni datos personales en los paneles.
 
 ## 7. Comandos utiles
 

@@ -1,217 +1,42 @@
-import { Flame, ArrowRight, BatteryCharging, Clock, ShieldCheck, Award, Banknote, KeyRound, CalendarCheck, Zap, CheckCircle } from 'lucide-react'
-import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 import { useVehiculos } from '../../hooks/useDatos'
+import MedioVisual from '../../components/MedioVisual'
+import { MULTIMEDIA } from '../../config/multimedia'
 
-interface PaginaInicioProps {
-  alVerVehiculos: () => void
-}
-
+interface PaginaInicioProps { alVerVehiculos: () => void }
 export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
-  const { datos: modelos } = useVehiculos()
-
-  return (
-    <div className="pagina-inicio">
-      <section className="hero">
-        <div className="hero__imagen">
-          <img src={modelos[0]?.imagen} alt={modelos[0]?.Nombre_Modelo ?? ''} />
-        </div>
-        <div className="hero__lienzo" />
-        <div className="hero__contenido">
-          <span className="hero__insignia">
-            <Flame size={13} />
-            Oferta del mes
-          </span>
-          <h1 className="hero__titulo">
-            Hasta 20% OFF <br />
-            <span>Voltus Neo 2024</span>
-          </h1>
-          <p className="hero__subtitulo">
-            Redescubre la movilidad eléctrica con la nueva generación de vehículos Quantum.
-          </p>
-          <div className="hero__acciones">
-            <button className="boton boton--primario" onClick={alVerVehiculos}>
-              Ver Modelos
-              <ArrowRight size={16} />
-            </button>
-            <button className="boton boton--claro" onClick={alVerVehiculos}>
-              Conocer más
-            </button>
-          </div>
-        </div>
-        <div className="hero__decoracion" />
-      </section>
-
-      <section className="fila-estadisticas fila-estadisticas--cuatro">
-        <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono">
-            <BatteryCharging size={22} />
-          </div>
-          <div>
-            <div className="tarjeta-estadistica__valor">420 km</div>
-            <div className="tarjeta-estadistica__etiqueta">Autonomía</div>
-          </div>
-        </div>
-        <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono">
-            <Clock size={22} />
-          </div>
-          <div>
-            <div className="tarjeta-estadistica__valor">45 min</div>
-            <div className="tarjeta-estadistica__etiqueta">Carga rápida</div>
-          </div>
-        </div>
-        <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono">
-            <ShieldCheck size={22} />
-          </div>
-          <div>
-            <div className="tarjeta-estadistica__valor">5★</div>
-            <div className="tarjeta-estadistica__etiqueta">Seguridad</div>
-          </div>
-        </div>
-        <div className="tarjeta-estadistica">
-          <div className="tarjeta-estadistica__icono">
-            <Award size={22} />
-          </div>
-          <div>
-            <div className="tarjeta-estadistica__valor">8 años</div>
-            <div className="tarjeta-estadistica__etiqueta">Garantía</div>
-          </div>
-        </div>
-      </section>
-
-      <section className="seccion">
-        <EncabezadoSeccion titulo="Modelos Destacados" enlace="Ver todos" alHacerClicEnlace={alVerVehiculos} />
-        <div className="destacados-fondo">
-        <div className="rejilla-destacados">
-          <div className="destacado-intro">
-            <div className="destacado-intro__ceja">Nuestra familia</div>
-            <div className="destacado-intro__titulo">
-              La nueva
-              <br />
-              generación
-              <br />
-              eléctrica
-            </div>
-            <div className="destacado-intro__texto">
-              Diseño, autonomía y tecnología en cada modelo. Explora los vehículos Voltus.
-            </div>
-            <button className="boton boton--primario boton--compacto" onClick={alVerVehiculos}>
-              Ver catálogo
-              <ArrowRight size={14} />
-            </button>
-          </div>
-          {modelos.slice(0, 3).map((modelo) => (
-            <div key={modelo.id_vehiculo ?? modelo.Nombre_Modelo} className="rejilla-destacados__item">
-              <div className="tarjeta-modelo">
-                <div className="tarjeta-modelo__imagen">
-                  <img src={modelo.imagen} alt={modelo.Nombre_Modelo} loading="lazy" />
-                  {modelo.etiqueta && (
-                    <span className="insignia insignia--verde tarjeta-modelo__insignia">
-                      {modelo.etiqueta}
-                    </span>
-                  )}
-                </div>
-                <div className="tarjeta-modelo__cuerpo">
-                  <div className="tarjeta-modelo__nombre">{modelo.Nombre_Modelo}</div>
-                  <div className="tarjeta-modelo__tipo">{modelo.Tipo}</div>
-                  <div className="tarjeta-modelo__datos">
-                    <span className="dato-rapido">
-                      <BatteryCharging size={12} style={{ color: 'var(--verde)' }} />
-                      {modelo.Autonomia}
-                    </span>
-                    <span className="dato-rapido">
-                      <Zap size={12} style={{ color: 'var(--azul)' }} />
-                      {modelo.Carga_Rapida}
-                    </span>
-                  </div>
-                  <div className="tarjeta-modelo__pie">
-                    <div className="tarjeta-modelo__precio">
-                      {modelo.precio ?? 'Consultar'} <span>USD</span>
-                    </div>
-                    <button className="boton boton--claro boton--compacto" onClick={alVerVehiculos}>
-                      Ver
-                      <ArrowRight size={14} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        </div>
-      </section>
-
-      <section className="seccion">
-        <EncabezadoSeccion titulo="Planes de Pago Flexibles" />
-        <div className="rejilla-planes">
-          <div className="tarjeta-plan">
-            <div
-              className="tarjeta-plan__icono"
-              style={{ background: 'var(--azul-suave)', color: 'var(--azul)' }}
-            >
-              <Banknote size={26} />
-            </div>
-            <div className="tarjeta-plan__etiqueta">Crédito Automotriz</div>
-            <div className="tarjeta-plan__precio">
-              Desde $499 <small>USD/mes*</small>
-            </div>
-            <div className="tarjeta-plan__caracteristica">
-              <CheckCircle color="var(--azul)" size={15} /> Plazos hasta 72 meses
-            </div>
-            <div className="tarjeta-plan__caracteristica">
-              <CheckCircle color="var(--azul)" size={15} /> Tasa preferencial
-            </div>
-            <div className="tarjeta-plan__accion">
-              <button className="boton boton--azul boton--completo">Cotizar Ahora</button>
-            </div>
-          </div>
-
-          <div className="tarjeta-plan">
-            <div
-              className="tarjeta-plan__icono"
-              style={{ background: 'var(--verde-suave)', color: 'var(--verde)' }}
-            >
-              <KeyRound size={26} />
-            </div>
-            <div className="tarjeta-plan__etiqueta">Arrendamiento</div>
-            <div className="tarjeta-plan__precio">
-              Desde $399 <small>USD/mes*</small>
-            </div>
-            <div className="tarjeta-plan__caracteristica">
-              <CheckCircle color="var(--verde)" size={15} /> Actualiza cada 3 años
-            </div>
-            <div className="tarjeta-plan__caracteristica">
-              <CheckCircle color="var(--verde)" size={15} /> Mantenimiento incluido
-            </div>
-            <div className="tarjeta-plan__accion">
-              <button className="boton boton--borde-verde boton--completo">Más Información</button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="seccion">
-        <div className="banner banner--mitad">
-          <div className="banner__lienzo" />
-          <div className="banner__contenido">
-            <div className="banner__ceja">Experiencia real</div>
-            <div className="banner__titulo">
-              Agenda tu <br />
-              Test Drive
-            </div>
-            <div className="banner__subtitulo">Gratis · Sin compromiso</div>
-            <button className="boton boton--primario">
-              <CalendarCheck size={15} />
-              Reservar
-            </button>
-          </div>
-          <div className="banner__visor">
-            <img className="banner__imagen" src={modelos[0]?.imagen} alt="Test drive Voltus" loading="lazy" />
-            <div className="banner__resplandor" />
-          </div>
-        </div>
-      </section>
-    </div>
-  )
+  const { datos: modelos, cargando } = useVehiculos()
+  return <div className="pagina-inicio editorial">
+    <section className="editorial__hero">
+      <p className="editorial__ceja">QUANTUM · MOVILIDAD ELÉCTRICA</p>
+      <h1>El futuro se mueve contigo.</h1>
+      <p className="editorial__subtitulo">Descubre una nueva forma de recorrer tu mundo.</p>
+      <div className="editorial__acciones">
+        <button className="boton boton--primario" onClick={alVerVehiculos}>Explorar vehículos</button>
+        <a className="boton boton--claro" href="#modelos">Conocer más</a>
+      </div>
+      <MedioVisual imagen={MULTIMEDIA.inicio} descripcion="La próxima generación eléctrica de Quantum" />
+    </section>
+    <section className="editorial__seccion" id="modelos">
+      <p className="editorial__ceja">ENCUENTRA TU QUANTUM</p><h2>Diseñado para tu día a día.</h2>
+      <p className="editorial__subtitulo">Conoce nuestra familia de vehículos eléctricos.</p>
+      <div className="editorial__modelos">
+        {modelos.slice(0, 3).map(modelo => <article key={modelo.id_vehiculo ?? modelo.Nombre_Modelo}>
+          <MedioVisual imagen={modelo.imagen} descripcion={modelo.Nombre_Modelo} />
+          <h3>{modelo.Nombre_Modelo}</h3><p>{modelo.Tipo}</p><p>{modelo.Autonomia}</p>
+          <button className="editorial__enlace" onClick={alVerVehiculos}>Conocer el modelo →</button>
+        </article>)}
+      </div>
+      {!modelos.length && <p className="editorial__estado" role="status">{cargando ? 'Cargando modelos…' : 'El catálogo no está disponible en este momento.'}</p>}
+    </section>
+    <section className="editorial__seccion editorial__lavado">
+      <p className="editorial__ceja">A TU RITMO</p><h2>Tu próximo paso. A tu manera.</h2>
+      <p className="editorial__subtitulo">Explora los modelos y consulta las opciones de compra y financiamiento.</p>
+      <button className="boton boton--claro" onClick={alVerVehiculos}>Encontrar mi Quantum</button>
+    </section>
+    <section className="editorial__seccion">
+      <p className="editorial__ceja">LA EXPERIENCIA QUANTUM</p><h2>Imagina el camino que viene.</h2>
+      <p className="editorial__subtitulo">Diseño, tecnología y movilidad eléctrica en cada recorrido.</p>
+      <MedioVisual imagen={MULTIMEDIA.experiencia} descripcion="La experiencia de conducir un Quantum" />
+    </section>
+  </div>
 }

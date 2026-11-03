@@ -1,3 +1,5 @@
+import MedioVisual from '../../components/MedioVisual'
+import { MULTIMEDIA } from '../../config/multimedia'
 import { useState } from 'react'
 import { ArrowLeft, BatteryCharging, Gauge, PlugZap, Users, CarFront, Palette, CalendarCheck } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
@@ -9,7 +11,7 @@ interface PaginaVehiculosProps {
 }
 
 export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
-  const { datos: modelos } = useVehiculos()
+  const { datos: modelos, cargando } = useVehiculos()
   const [seleccionado, setSeleccionado] = useState<Vehiculo | null>(null)
   const [colorPorModelo, setColorPorModelo] = useState<Record<string, number>>({})
 
@@ -26,7 +28,7 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
     ]
 
     return (
-      <div>
+      <div className="detalle-editorial">
         <div className="detalle-vehiculo__encabezado">
           <div>
             <h2 className="titulo-seccion">{seleccionado.Nombre_Modelo}</h2>
@@ -38,16 +40,7 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
           </button>
         </div>
 
-        <div
-          className="detalle-vehiculo__imagen"
-          style={{
-            background: colorActivo
-              ? `linear-gradient(160deg, ${colorActivo.hex}33, #0f172a)`
-              : undefined,
-          }}
-        >
-          <img src={seleccionado.imagen} alt={seleccionado.Nombre_Modelo} />
-        </div>
+        <MedioVisual key={seleccionado.id_vehiculo ?? seleccionado.Nombre_Modelo} imagen={seleccionado.imagen} descripcion={seleccionado.Nombre_Modelo} />
 
         <div className="tarjeta" style={{ marginBottom: 20 }}>
           <div className="tarjeta__encabezado">
@@ -64,6 +57,8 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
             <div className="swatches">
               {seleccionado.colores.map((color, indice) => (
                 <button
+                  aria-label={color.nombre}
+                  aria-pressed={indice === indiceColor}
                   key={color.nombre}
                   title={color.nombre}
                   className={`swatch${indice === indiceColor ? ' swatch--seleccionado' : ''}`}
@@ -120,7 +115,15 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
   }
 
   return (
-    <div className="pagina-vehiculos">
+    <div className="pagina-vehiculos editorial">
+      <section className="editorial__hero">
+        <p className="editorial__ceja">LA FAMILIA QUANTUM</p>
+        <h1>Eléctrico. Extraordinario.</h1>
+        <p className="editorial__subtitulo">Un modelo para cada forma de moverte.</p>
+        <a className="boton boton--primario" href="#catalogo">Explorar el catálogo</a>
+        <MedioVisual video={MULTIMEDIA.videoVehiculos} imagen={MULTIMEDIA.portadaVideo} descripcion="Quantum en movimiento" />
+      </section>
+      <section className="editorial__seccion" id="catalogo">
       <EncabezadoSeccion titulo="Catálogo de Vehículos" contador={`${modelos.length} modelos`} />
       <div className="rejilla-vehiculos">
         {modelos.map((modelo, indice) => (
@@ -157,10 +160,12 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
                 {modelo.precio ?? 'Consultar'} USD
               </div>
             </div>
-            <img className="tarjeta-vehiculo__imagen" src={modelo.imagen} alt={modelo.Nombre_Modelo} />
+            <MedioVisual imagen={modelo.imagen} descripcion={modelo.Nombre_Modelo} />
           </button>
         ))}
       </div>
+      {!modelos.length && <p className="editorial__estado" role="status">{cargando ? 'Cargando modelos…' : 'No hay modelos disponibles en este momento.'}</p>}
+      </section>
     </div>
   )
 }

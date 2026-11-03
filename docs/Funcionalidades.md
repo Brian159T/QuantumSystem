@@ -12,6 +12,31 @@ Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags d
 
 ---
 
+## Justificacion practica
+
+La justificacion practica responde no a "con que esta hecho" sino a **para que sirve en el dia a dia y que problema concreto resuelve**. Se sostiene en los tres actores del sistema.
+
+### Para el potencial cliente: comprar sin depender de un vendedor
+Hoy el interesado no encuentra precios actualizados, colores por modelo ni fichas tecnicas. En la practica el sistema le permite ver el **catalogo con precios, ficha tecnica y colores reales por modelo** (N:M `Vehiculos_Colores`), resolver dudas con el chatbot en el momento e **iniciar una reserva en linea con estado y confirmacion**, en vez de un mensaje de WhatsApp sin seguimiento.
+**Beneficio**: menos friccion y menos oportunidad de venta perdida; descarga al personal de tareas repetitivas.
+
+### Para el propietario: resolver la operacion diaria
+El dueno de un electrico tiene dos preguntas reales cada dia: *¿donde cargo?* y *¿donde lo reparo?*. El sistema las responde con **mapa, ubicacion del usuario y ruta por calles (OSRM)** hacia la estacion o taller mas cercano, mas el **boton SOS** para emergencias y consultas de **mantenimiento y repuestos** por el chatbot.
+**Beneficio**: el sistema se usa despues de la compra; ese uso continuo da retencion y posventa real.
+
+### Para el personal de Quantum: menos trabajo manual y mas control
+Hoy la informacion vive en Excel, papel y WhatsApp. En la practica el panel administrativo permite registrar y actualizar **vehiculos, precios y colores** en un solo lugar; **seguir reservas y solicitudes con estado** (pendiente, confirmada, entregada); consultar **reportes** (reservas por periodo, pendientes vs. confirmadas, modelos mas pedidos); y **controlar por rol** quien ve y edita que.
+**Beneficio**: se elimina la duplicacion, el error manual y el "se me paso la solicitud"; el mismo esfuerzo atiende mas reservas.
+
+### Para la empresa: ventaja en un mercado de producto nuevo
+Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y carga. Una plataforma que **centraliza, localiza puntos de carga y responde dudas con informacion oficial** ataca esa barrera y ademas genera **datos propios** (que modelos se consultan, cuantas reservas) que hoy no existen. No solo ordena lo que hay: **habilita decisiones comerciales antes imposibles**.
+
+> **En una frase**: el proyecto se justifica en la practica porque reemplaza procesos manuales, dispersos y sin seguimiento por flujos digitales concretos —catalogo y reserva para el cliente, carga y asistencia para el propietario, y gestion con reportes para el personal—, sobre informacion verificada y accesible desde el movil o la web.
+>
+> **Regla para la defensa**: la **justificacion tecnologica** dice *por que este stack resuelve bien el problema*; la **practica** dice *que mejora concreta produce en la operacion y la experiencia*. Presentarlas juntas y cerrar con el cuadro **problema real -> funcion del sistema -> beneficio practico**.
+
+---
+
 ## Roles y acceso
 
 | Rol | Flags | Descripcion |
@@ -197,6 +222,7 @@ Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pag
 | C3 | Fotos del catalogo de vehiculos | Requiere añadir `imagen_url` a `Vehiculos` (o tabla `Vehiculo_Imagenes`). Seguir **plan de Gestion de Imagenes** (`docs/Decisiones-tecnicas.md` §9 y `docs/Arquitectura.md` §7) |
 | C4 | Estados de carga / vacio / error con spinner | Web y movil |
 | C5 | Despliegue (Supabase → Render → Vercel) | Ver roadmap seccion 6 de `docs/Decisiones-tecnicas.md` |
+| C6 | Grafana y predicción de reservas | Pendiente. Primer avance: Grafana OSS en Windows conectado a PostgreSQL con acceso de solo lectura y panel de reservas. Después: salud del backend, eventos de estaciones/talleres y regresión lineal. Ver [Plan de Grafana](Plan-Grafana.md) |
 
 ### 6.4 Hecho (referencia)
 

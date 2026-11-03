@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import '@fontsource/inter/400.css'
+import '@fontsource/inter/300.css'
 import '@fontsource/inter/500.css'
 import '@fontsource/inter/600.css'
 import '@fontsource/inter/700.css'
@@ -10,6 +11,8 @@ import './styles/base.css'
 import './styles/componentes.css'
 import './styles/paginas.css'
 import './styles/temas.css'
+import './styles/diseno.css'
+import './styles/diseno-privado.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
