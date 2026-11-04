@@ -1,21 +1,13 @@
 import { useVehiculos } from '../../hooks/useDatos'
 import MedioVisual from '../../components/MedioVisual'
 import { MULTIMEDIA } from '../../config/multimedia'
+import CarruselInicio from '../../components/CarruselInicio'
 
 interface PaginaInicioProps { alVerVehiculos: () => void }
 export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
   const { datos: modelos, cargando } = useVehiculos()
   return <div className="pagina-inicio editorial">
-    <section className="editorial__hero">
-      <p className="editorial__ceja">QUANTUM · MOVILIDAD ELÉCTRICA</p>
-      <h1>El futuro se mueve contigo.</h1>
-      <p className="editorial__subtitulo">Descubre una nueva forma de recorrer tu mundo.</p>
-      <div className="editorial__acciones">
-        <button className="boton boton--primario" onClick={alVerVehiculos}>Explorar vehículos</button>
-        <a className="boton boton--claro" href="#modelos">Conocer más</a>
-      </div>
-      <MedioVisual imagen={MULTIMEDIA.inicio} descripcion="La próxima generación eléctrica de Quantum" />
-    </section>
+    <CarruselInicio alVerVehiculos={alVerVehiculos} />
     <section className="editorial__seccion" id="modelos">
       <p className="editorial__ceja">ENCUENTRA TU QUANTUM</p><h2>Diseñado para tu día a día.</h2>
       <p className="editorial__subtitulo">Conoce nuestra familia de vehículos eléctricos.</p>

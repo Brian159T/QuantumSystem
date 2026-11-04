@@ -25,7 +25,7 @@ import { StyleSheet } from 'react-native'
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    backgroundColor: 'rgba(10,15,30,0.88)',
+    backgroundColor: 'rgba(0,0,0,0.88)',
   },
   kav: {
     width: '100%',
@@ -36,7 +36,7 @@ import { StyleSheet } from 'react-native'
     borderRadius: 20,
     borderWidth: 1,
     borderColor: 'rgba(47,182,118,0.16)',
-    backgroundColor: '#0d1526',
+    backgroundColor: '#000000',
     padding: 28,
     paddingTop: 0,
   },
@@ -75,7 +75,7 @@ import { StyleSheet } from 'react-native'
   },
   fieldBlurred: {
     borderColor: 'rgba(47,182,118,0.16)',
-    backgroundColor: '#080d1a',
+    backgroundColor: '#000000',
   },
   fieldIcon: {
     marginRight: 10,

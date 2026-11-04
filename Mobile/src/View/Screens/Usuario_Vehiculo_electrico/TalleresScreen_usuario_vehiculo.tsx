@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   StatusBar,
   FlatList,
   TextInput,
@@ -362,7 +363,7 @@ const TalleresScreen_usuario_vehiculo = () => {
           </View>
 
 
-          <TouchableOpacity
+          <BotonAnimado
             style={styles.appointmentBtn}
             activeOpacity={0.85}
             onPress={() =>
@@ -380,7 +381,7 @@ const TalleresScreen_usuario_vehiculo = () => {
               {'Ver ruta'}
             </Text>
 
-          </TouchableOpacity>
+          </BotonAnimado>
 
         </View>
 
@@ -431,6 +432,7 @@ const TalleresScreen_usuario_vehiculo = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <EncabezadoPrivado titulo="Cuidamos cada recorrido." descripcion="Encuentra talleres autorizados y consulta sus servicios y disponibilidad." />
 
         {/* BUSCADOR */}
 
@@ -746,7 +748,7 @@ const TalleresScreen_usuario_vehiculo = () => {
 
         <View style={styles.filterSection}>
 
-          <TouchableOpacity
+          <BotonAnimado
             style={styles.openToggle}
             onPress={() =>
               setOnlyAvailable(!onlyAvailable)
@@ -777,7 +779,7 @@ const TalleresScreen_usuario_vehiculo = () => {
               {'Mostrar solo talleres disponibles'}
             </Text>
 
-          </TouchableOpacity>
+          </BotonAnimado>
 
         </View>
 

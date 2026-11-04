@@ -63,7 +63,7 @@ function Aplicacion() {
             <span className="cabecera-sitio__nombre">QUANTUM</span>
           </button>
 
-          <nav className="cabecera-sitio__nav">
+          <nav className="cabecera-sitio__nav" aria-label="Navegación principal">
             {navegacion.map((item) => (
               <button
                 key={item.id}
@@ -122,7 +122,7 @@ function Aplicacion() {
         </div>
       </main>
 
-      <footer className="pie-sitio">
+      {esInvitado && <footer className="pie-sitio">
         <div className="pie-sitio__columna pie-sitio__bloque-marca">
           <span className="pie-sitio__logo">
             {/* ICONO: colocar aquÃ­ el icono a usar */} QUANTUM
@@ -166,7 +166,7 @@ function Aplicacion() {
             TÃ©rminos
           </a>
         </nav>
-      </footer>
+      </footer>}
 
       <Chatbot />
     </div>

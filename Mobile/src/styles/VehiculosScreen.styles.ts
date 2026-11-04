@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 export const GREEN = '#2fb676';
-export const BLUE = '#4D9FFF';
-export const BG_DARK = '#0A0F1E';
+export const BLUE = '#000000';
+export const BG_DARK = '#000000';
 export const WHITE = '#ffffff';
 export const TEXT_DARK = '#0d1b3e';
 export const TEXT_SOFT = '#8a94b0';
@@ -13,10 +13,12 @@ export const styles = StyleSheet.create({
 
   // Header detalle
   detailHeader: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 20,
     paddingBottom: 5,
     paddingTop: 30,
@@ -233,11 +235,11 @@ export const styles = StyleSheet.create({
   priceValue: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#0d1b3e',
+    color: '#000000',
   },
   originalPrice: {
     fontSize: 14,
-    color: '#8a94b0',
+    color: '#000000',
     textDecorationLine: 'line-through',
   },
   driveBadge: {
@@ -285,7 +287,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 20,
     paddingBottom: 15,
     paddingTop: 30,
@@ -308,7 +310,7 @@ export const styles = StyleSheet.create({
     width: 20,
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#2fb676',
+    color: '#000000',
   },
   modelInfo: {
     flex: 1,
@@ -409,7 +411,7 @@ export const styles = StyleSheet.create({
   modelPriceText: {
     fontSize: 12,
     fontWeight: 'bold',
-    color: '#2fb676',
+    color: '#000000',
   },
 
   // Estados de carga/error

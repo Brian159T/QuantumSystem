@@ -23,6 +23,7 @@ body:has(.espacio-privado) { background: #000; }
 .encabezado-privado__etiqueta { font-size: 10px; font-weight: 400; letter-spacing: .1em; margin-bottom: 28px; }
 .encabezado-privado h1 { font-size: clamp(42px,5.8vw,84px); line-height: 1.04; font-weight: 300; letter-spacing: -.027em; margin: 0 0 28px; }
 .encabezado-privado h1 span { background: var(--espectro); background-clip: text; -webkit-background-clip: text; color: transparent; }
+.aplicacion--cliente .encabezado-privado h1 span { background: none; color: #fff; }
 .encabezado-privado__descripcion { max-width: 540px; color: #e5e7eb; font-size: 15px; line-height: 1.63; }
 .encabezado-privado__orbita { width: 100%; max-width: 320px; overflow: visible; animation: orbita-editorial 14s ease-in-out infinite; }
 .espacio-privado .seccion { margin-top: 45px; }
@@ -81,15 +82,15 @@ body:has(.espacio-privado) { background: #000; }
 .espacio-privado .leaflet-popup-content { color: #1d1d1f; }
 .espacio-privado .tarjeta-ruta__icono { background: #141414; color: #24dad9; border-radius: 9999px; }
 .espacio-privado .interruptor__caja { border-width: 1px; color: #000; }
-.espacio-privado .barra-lateral, .espacio-privado .panel-lateral { background: #1C1F2C; color: #fff; border-right: 1px solid #353535; }
+.espacio-privado .barra-lateral, .espacio-privado .panel-lateral { background: #F2F2F2; color: #1d1d1f; border-right: 1px solid #d2d2d7; }
 .espacio-privado .barra-lateral { display: flex; flex-direction: column; }
 .espacio-privado .barra-lateral__marca { font-weight: 400; }
-.espacio-privado .barra-lateral__etiqueta { color: #b3b5bd; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
-.espacio-privado .barra-lateral__nav a { color: #e5e7eb; border: 1px solid transparent; transition: background 180ms,border-color 180ms; }
-.espacio-privado .barra-lateral__nav a:hover { background: #111; }
+.espacio-privado .barra-lateral__etiqueta { color: #626262; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.espacio-privado .barra-lateral__nav a { color: #1d1d1f; border: 1px solid transparent; transition: background 180ms,border-color 180ms; }
+.espacio-privado .barra-lateral__nav a:hover { background: #e2e2e2; }
 .espacio-privado .barra-lateral__nav a[aria-current=page] { background: #141414; color: #fff; border-color: #707070; font-weight: 400; }
-.espacio-privado .barra-lateral__cuenta { margin-top: auto; padding-top: 28px; border-color: #353535; }
-.espacio-privado .barra-lateral__cuenta .saludo { color: #e5e7eb; }
+.espacio-privado .barra-lateral__cuenta { margin-top: auto; padding-top: 28px; border-color: #d2d2d7; }
+.espacio-privado .barra-lateral__cuenta .saludo { color: #474747; }
 .espacio-privado .barra-movil { background: #000; color: #fff; border-color: #353535; }
 .espacio-privado :is(button,a):focus-visible { outline-color: #24dad9; }
 .espacio-privado .pie-sitio { background: linear-gradient(90deg,#1e233c,#0a4099 55%,#1951a2); border: 0; padding-block: 56px; }
@@ -134,3 +135,15 @@ body:has(.espacio-privado) { background: #000; }
 .espacio-privado .saludo__avatar { background: #141414; color: #e5e7eb; border: 1px solid #4d4d4d; }
 .espacio-privado .saludo__nombre { color: #fff; }
 .espacio-privado .saludo__rol { color: #b3b5bd; }
+.espacio-privado :is(.barra-lateral,.panel-lateral),
+.espacio-privado :is(.barra-lateral,.panel-lateral) :is(a,button,p,span,.saludo,.saludo__nombre,.saludo__rol) { color: #000; }
+.espacio-privado :is(.barra-lateral,.panel-lateral) .barra-lateral__nav a[aria-current=page] { background: #dedede; color: #000; }
+.espacio-privado :is(.barra-lateral,.panel-lateral) .saludo__avatar { background: #dedede; }
+.espacio-privado :is(.barra-lateral,.panel-lateral) .barra-lateral__cuenta .boton:hover { color: #fff; }
+.espacio-privado :is(.tarjeta-estacion,.tarjeta-taller) { border: 1px solid #fff; border-radius: 12px; padding: 24px; }
+.espacio-privado .tarjeta-salud { background: transparent; border: 1px solid #fff; border-radius: 12px; padding: 24px; }
+.espacio-privado .banner-emergencia { background: transparent; border: 1px solid #fff; border-radius: 12px; }
+.espacio-privado .estaciones-inicio { grid-auto-rows: 1fr; }
+.espacio-privado .estaciones-inicio .carrusel__item { display: flex; }
+.espacio-privado .estaciones-inicio .tarjeta-estacion { width: 100%; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; }
+.espacio-privado .estaciones-inicio .tarjeta-estacion > :last-child { margin-top: auto !important; padding-top: 12px; }

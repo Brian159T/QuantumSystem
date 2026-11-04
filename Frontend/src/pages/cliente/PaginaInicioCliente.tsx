@@ -107,10 +107,10 @@ export default function PaginaInicioCliente({ alVerEstaciones }: PaginaInicioCli
           enlace="Ver todas"
           alHacerClicEnlace={alVerEstaciones}
         />
-        <div className="carrusel">
+        <div className="carrusel estaciones-inicio">
           {estaciones.map((estacion) => (
             <div key={estacion.id_estacion ?? estacion.direccion} className="carrusel__item">
-              <div className="tarjeta tarjeta--oscura">
+              <div className="tarjeta tarjeta--oscura tarjeta-estacion">
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
                   <span
                     className="tarjeta-servicio__icono"

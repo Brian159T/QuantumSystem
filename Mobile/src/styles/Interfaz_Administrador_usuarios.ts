@@ -1,15 +1,15 @@
-import { StyleSheet } from 'react-native'
-export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const ORANGE = '#f39c12'
-export const RED = '#e74c3c'
-export const PURPLE = '#a78bfa'
-export const BG = '#0A0F1E'
-export const WHITE = '#ffffff'
-export const OFF_WHITE = '#9FC4D3'
-export const SUBTLE = '#e8edf8'
-export const TEXT_DARK = '#0d1b3e'
-export const TEXT_MID = '#4a5578'
+import { StyleSheet } from 'react-native';
+export const GREEN = '#2fb676';
+export const BLUE = '#4D9FFF';
+export const ORANGE = '#f39c12';
+export const RED = '#e74c3c';
+export const PURPLE = '#a78bfa';
+export const BG = '#000000';
+export const WHITE = '#ffffff';
+export const OFF_WHITE = '#000000';
+export const SUBTLE = '#e8edf8';
+export const TEXT_DARK = '#ffffff';
+export const TEXT_MID = '#e5e7eb';
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -24,6 +24,8 @@ export const styles = StyleSheet.create({
   },
 
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -41,8 +43,9 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: WHITE,
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '300',
+    letterSpacing: -0.8,
     marginTop: 2,
   },
 
@@ -55,15 +58,17 @@ export const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: WHITE,
-    borderRadius: 16,
+    backgroundColor: BG,
+    borderRadius: 12,
     padding: 14,
     alignItems: 'center',
     gap: 6,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: WHITE,
   },
   statIconBox: {
     width: 36,
@@ -75,7 +80,7 @@ export const styles = StyleSheet.create({
   statValue: {
     color: TEXT_DARK,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   statLabel: {
     color: TEXT_MID,
@@ -95,14 +100,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderRadius: 16,
     paddingHorizontal: 14,
     gap: 8,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
   },
   searchInput: {
     flex: 1,
@@ -113,30 +118,32 @@ export const styles = StyleSheet.create({
   addBtn: {
     width: 46,
     height: 46,
-    borderRadius: 14,
+    borderRadius: 999,
     backgroundColor: GREEN,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
 
   // ADD FORM
   addForm: {
     marginHorizontal: 16,
     marginTop: 12,
-    backgroundColor: WHITE,
-    borderRadius: 18,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 16,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   addFormTitle: {
     color: TEXT_DARK,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   addFormBtn: {
     marginTop: 16,
@@ -145,13 +152,15 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: GREEN,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 12,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   addFormBtnText: {
     color: WHITE,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   fieldLabel: {
@@ -183,7 +192,7 @@ export const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderWidth: 1,
     borderColor: SUBTLE,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
   },
   roleChipActive: {
@@ -207,7 +216,7 @@ export const styles = StyleSheet.create({
     marginTop: 18,
   },
   filterChip: {
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderWidth: 1,
     borderColor: SUBTLE,
     borderRadius: 999,
@@ -239,8 +248,8 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT_DARK,
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300',
   },
   resultsCount: {
     color: TEXT_MID,
@@ -261,16 +270,16 @@ export const styles = StyleSheet.create({
 
   // USER CARD
   userCard: {
-    backgroundColor: WHITE,
-    borderRadius: 18,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 14,
     marginTop: 12,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   userTopRow: {
     flexDirection: 'row',
@@ -288,12 +297,12 @@ export const styles = StyleSheet.create({
   avatarText: {
     color: BLUE,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   userName: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   userEmail: {
     color: TEXT_MID,
@@ -324,7 +333,7 @@ export const styles = StyleSheet.create({
   },
   statusPillText: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   roleBadge: {
     backgroundColor: `${PURPLE}14`,
@@ -335,7 +344,7 @@ export const styles = StyleSheet.create({
   roleBadgeText: {
     color: PURPLE,
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   // EXPANDED AREA
@@ -377,13 +386,13 @@ export const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderWidth: 1,
     borderColor: SUBTLE,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
   },
   statusToggleBtnText: {
     color: TEXT_DARK,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   editBtn: {
     flex: 1,
@@ -392,15 +401,17 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: BG,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   deleteBtn: {
     width: 40,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: `${RED}14`,
-    borderRadius: 10,
+    borderRadius: 999,
     borderWidth: 1,
     borderColor: `${RED}33`,
   },
@@ -411,13 +422,13 @@ export const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderWidth: 1,
     borderColor: SUBTLE,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
   },
   cancelBtnText: {
     color: TEXT_MID,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   saveBtn: {
     flex: 1,
@@ -426,13 +437,15 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: GREEN,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   saveBtnText: {
     color: WHITE,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   deleteConfirmBtn: {
     flex: 1,
@@ -441,8 +454,10 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: RED,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
 
   confirmDeleteBox: {
@@ -459,4 +474,4 @@ export const styles = StyleSheet.create({
     marginTop: 6,
     lineHeight: 15,
   },
-})
+});

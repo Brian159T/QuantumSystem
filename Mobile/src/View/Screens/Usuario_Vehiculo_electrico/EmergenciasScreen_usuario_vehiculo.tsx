@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   StatusBar,
   StyleSheet,
   Linking,
@@ -73,6 +74,7 @@ const EmergenciasScreen_usuario_vehiculo = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <EncabezadoPrivado titulo="Asistencia a tu alcance." descripcion="Accede a los contactos y las opciones de asistencia en el camino." />
         {/* ── BOTÓN SOS PRINCIPAL ── */}
         <View style={styles.sosCard}>
           <View style={styles.sosIconRing}>
@@ -80,10 +82,10 @@ const EmergenciasScreen_usuario_vehiculo = () => {
           </View>
           <Text style={styles.sosTitle}>{'¿Tienes una emergencia?'}</Text>
           <Text style={styles.sosSub}>{'Comparte tu ubicación y pide ayuda al instante'}</Text>
-          <TouchableOpacity style={styles.sosBtn} activeOpacity={0.85} onPress={() => callNumber('911')}>
+          <BotonAnimado style={styles.sosBtn} activeOpacity={0.85} onPress={() => callNumber('911')}>
             <MaterialCommunityIcons name="phone-alert-outline" size={16} color={WHITE} />
             <Text style={styles.sosBtnText}>{'Llamar a emergencias'}</Text>
-          </TouchableOpacity>
+          </BotonAnimado>
         </View>
 
         {/* ── SERVICIO DE SALUD ── */}
@@ -120,23 +122,23 @@ const EmergenciasScreen_usuario_vehiculo = () => {
                 </View>
 
                 <View style={styles.healthBtnRow}>
-                  <TouchableOpacity
+                  <BotonAnimado
                     style={styles.configureBtn}
                     activeOpacity={0.85}
                     onPress={handleConfigure}
                   >
                     <MaterialCommunityIcons name="cog-outline" size={14} color={TEXT_DARK} />
                     <Text style={styles.configureBtnText}>{'Configurar'}</Text>
-                  </TouchableOpacity>
+                  </BotonAnimado>
 
-                  <TouchableOpacity
+                  <BotonAnimado
                     style={styles.callHealthBtn}
                     activeOpacity={0.85}
                     onPress={handleCallHealthService}
                   >
                     <MaterialCommunityIcons name="phone-outline" size={14} color={WHITE} />
                     <Text style={styles.callHealthBtnText}>{'Llamar ahora'}</Text>
-                  </TouchableOpacity>
+                  </BotonAnimado>
                 </View>
               </>
             ) : (
@@ -144,10 +146,10 @@ const EmergenciasScreen_usuario_vehiculo = () => {
                 <MaterialCommunityIcons name="hospital-box-outline" size={30} color={SUBTLE} />
                 <Text style={styles.healthEmptyTitle}>{'Aún no configuras tu servicio de salud'}</Text>
                 <Text style={styles.healthEmptySub}>{'Agrega tu seguro o contacto médico para tenerlo a mano en caso de emergencia'}</Text>
-                <TouchableOpacity style={styles.configureEmptyBtn} activeOpacity={0.85} onPress={handleConfigure}>
+                <BotonAnimado style={styles.configureEmptyBtn} activeOpacity={0.85} onPress={handleConfigure}>
                   <MaterialCommunityIcons name="plus" size={14} color={WHITE} />
                   <Text style={styles.configureEmptyBtnText}>{'Configurar servicio'}</Text>
-                </TouchableOpacity>
+                </BotonAnimado>
               </View>
             )}
           </View>
@@ -176,13 +178,13 @@ const EmergenciasScreen_usuario_vehiculo = () => {
                   <Text style={styles.contactLabel}>{c.label}</Text>
                   <Text style={styles.contactNumber}>{c.number}</Text>
                 </View>
-                <TouchableOpacity
+                <BotonAnimado
                   style={styles.contactCallBtn}
                   activeOpacity={0.85}
                   onPress={() => callNumber(c.number)}
                 >
                   <MaterialCommunityIcons name="phone" size={16} color={WHITE} />
-                </TouchableOpacity>
+                </BotonAnimado>
               </View>
             ))}
           </View>
@@ -194,10 +196,10 @@ const EmergenciasScreen_usuario_vehiculo = () => {
             <Text style={styles.locationBannerEyebrow}>{'Seguridad extra'}</Text>
             <Text style={styles.locationBannerTitle}>{'Comparte tu\nubicación en vivo'}</Text>
             <Text style={styles.locationBannerSub}>{'Un contacto de confianza podrá ver dónde estás'}</Text>
-            <TouchableOpacity style={styles.locationBannerBtn}>
+            <BotonAnimado style={styles.locationBannerBtn}>
               <MaterialCommunityIcons name="map-marker-radius-outline" size={13} color={WHITE} />
               <Text style={styles.locationBannerBtnText}>{' Compartir ahora'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
           <View style={styles.locationBannerIconBox}>
             <MaterialCommunityIcons name="crosshairs-gps" size={40} color={GREEN} />

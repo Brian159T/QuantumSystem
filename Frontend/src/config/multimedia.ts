@@ -1,8 +1,10 @@
-// Rutas relativas a Frontend/public o URLs completas. Vacío = espacio reservado.
+import videoVehiculos from '../../assets/E-QUTE.mp4'
+
+// Rutas relativas a Frontend/public, assets importados o URLs completas. Vacío = espacio reservado.
 export const MULTIMEDIA = {
   inicio: '',
   experiencia: '',
-  videoVehiculos: '',
+  videoVehiculos,
   portadaVideo: '',
 }
 

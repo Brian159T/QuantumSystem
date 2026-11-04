@@ -1,14 +1,14 @@
-import { StyleSheet } from 'react-native'
-export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const ORANGE = '#f39c12'
-export const RED = '#e74c3c'
-export const BG = '#0A0F1E'
-export const WHITE = '#ffffff'
-export const OFF_WHITE = '#527887'
-export const SUBTLE = '#e8edf8'
-export const TEXT_DARK = '#0d1b3e'
-export const TEXT_MID = '#4a5578'
+import { StyleSheet } from 'react-native';
+export const GREEN = '#2fb676';
+export const BLUE = '#4D9FFF';
+export const ORANGE = '#f39c12';
+export const RED = '#e74c3c';
+export const BG = '#000000';
+export const WHITE = '#ffffff';
+export const OFF_WHITE = '#000000';
+export const SUBTLE = '#e8edf8';
+export const TEXT_DARK = '#ffffff';
+export const TEXT_MID = '#e5e7eb';
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
@@ -23,6 +23,8 @@ export const styles = StyleSheet.create({
   },
 
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -40,8 +42,9 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: WHITE,
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '300',
+    letterSpacing: -0.8,
     marginTop: 2,
   },
 
@@ -50,15 +53,15 @@ export const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginTop: 14,
     borderRadius: 22,
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderWidth: 1,
     borderColor: `${RED}33`,
     padding: 20,
     alignItems: 'center',
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   sosIconRing: {
     width: 60,
@@ -72,7 +75,7 @@ export const styles = StyleSheet.create({
   sosTitle: {
     color: TEXT_DARK,
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   sosSub: {
     color: TEXT_MID,
@@ -85,15 +88,17 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: RED,
-    borderRadius: 14,
+    borderRadius: 999,
     paddingHorizontal: 20,
     paddingVertical: 12,
     gap: 8,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   sosBtnText: {
     color: WHITE,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   // SECTIONS
@@ -103,22 +108,22 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT_DARK,
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300',
   },
 
   // HEALTH CARD
   healthCard: {
     marginTop: 14,
-    backgroundColor: WHITE,
-    borderRadius: 18,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 16,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   healthTopRow: {
     flexDirection: 'row',
@@ -136,7 +141,7 @@ export const styles = StyleSheet.create({
   healthProvider: {
     color: TEXT_DARK,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   healthPlan: {
     color: TEXT_MID,
@@ -163,7 +168,7 @@ export const styles = StyleSheet.create({
   healthActiveText: {
     color: GREEN,
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   healthDetailsRow: {
@@ -188,7 +193,7 @@ export const styles = StyleSheet.create({
   healthDetailValue: {
     color: TEXT_DARK,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
     marginTop: 3,
   },
   healthDetailDivider: {
@@ -212,13 +217,13 @@ export const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderWidth: 1,
     borderColor: SUBTLE,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 11,
   },
   configureBtnText: {
     color: TEXT_DARK,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   callHealthBtn: {
     flex: 1,
@@ -227,13 +232,15 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
     backgroundColor: GREEN,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   callHealthBtnText: {
     color: WHITE,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   // HEALTH EMPTY STATE
@@ -245,7 +252,7 @@ export const styles = StyleSheet.create({
   healthEmptyTitle: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
     textAlign: 'center',
     marginTop: 6,
   },
@@ -261,14 +268,16 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 6,
     backgroundColor: GREEN,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 18,
     paddingVertical: 11,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   configureEmptyBtnText: {
     color: WHITE,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   configuringNotice: {
@@ -293,10 +302,10 @@ export const styles = StyleSheet.create({
   contactRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: WHITE,
-    borderRadius: 14,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 12,
     gap: 12,
   },
@@ -310,7 +319,7 @@ export const styles = StyleSheet.create({
   contactLabel: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   contactNumber: {
     color: TEXT_MID,
@@ -320,26 +329,30 @@ export const styles = StyleSheet.create({
   contactCallBtn: {
     width: 38,
     height: 38,
-    borderRadius: 12,
+    borderRadius: 999,
     backgroundColor: BG,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
 
   // LOCATION BANNER
   locationBanner: {
     marginHorizontal: 16,
     marginTop: 26,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: BG,
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0,
     shadowRadius: 14,
-    elevation: 5,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: WHITE,
   },
   locationBannerLeft: {
     flex: 1,
@@ -348,7 +361,7 @@ export const styles = StyleSheet.create({
   locationBannerEyebrow: {
     color: GREEN,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '400',
     letterSpacing: 2,
     textTransform: 'uppercase',
     marginBottom: 4,
@@ -356,7 +369,7 @@ export const styles = StyleSheet.create({
   locationBannerTitle: {
     color: WHITE,
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: '400',
     lineHeight: 23,
   },
   locationBannerSub: {
@@ -370,9 +383,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: GREEN,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   locationBannerBtnText: {
     color: WHITE,
@@ -389,4 +404,4 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-})
+});

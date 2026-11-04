@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   StatusBar,
   StyleSheet,
   TextInput,
@@ -171,7 +172,7 @@ const Interfaz_Administrador_usuarios = () => {
 
     return (
       <View style={styles.userCard}>
-        <TouchableOpacity
+        <BotonAnimado
           style={styles.userTopRow}
           activeOpacity={0.85}
           onPress={() => setExpandedId(isExpanded ? null : item.id)}
@@ -205,7 +206,7 @@ const Interfaz_Administrador_usuarios = () => {
             color={TEXT_MID}
             style={{ marginLeft: 6 }}
           />
-        </TouchableOpacity>
+        </BotonAnimado>
 
         {isExpanded && (
           <View style={styles.expandedArea}>
@@ -237,21 +238,21 @@ const Interfaz_Administrador_usuarios = () => {
                 </View>
 
                 <View style={styles.actionRow}>
-                  <TouchableOpacity
+                  <BotonAnimado
                     style={styles.cancelBtn}
                     activeOpacity={0.85}
                     onPress={() => setEditingId(null)}
                   >
                     <Text style={styles.cancelBtnText}>{'Cancelar'}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  </BotonAnimado>
+                  <BotonAnimado
                     style={styles.saveBtn}
                     activeOpacity={0.85}
                     onPress={() => saveEditing(item.id)}
                   >
                     <MaterialCommunityIcons name="check" size={14} color={WHITE} />
                     <Text style={styles.saveBtnText}>{'Guardar'}</Text>
-                  </TouchableOpacity>
+                  </BotonAnimado>
                 </View>
               </View>
             ) : (
@@ -276,26 +277,26 @@ const Interfaz_Administrador_usuarios = () => {
                     <MaterialCommunityIcons name="alert-outline" size={16} color={RED} />
                     <Text style={styles.confirmDeleteText}>{'¿Eliminar este usuario? Esta acción no se puede deshacer.'}</Text>
                     <View style={styles.actionRow}>
-                      <TouchableOpacity
+                      <BotonAnimado
                         style={styles.cancelBtn}
                         activeOpacity={0.85}
                         onPress={() => setConfirmDeleteId(null)}
                       >
                         <Text style={styles.cancelBtnText}>{'Cancelar'}</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity
+                      </BotonAnimado>
+                      <BotonAnimado
                         style={styles.deleteConfirmBtn}
                         activeOpacity={0.85}
                         onPress={() => handleDelete(item.id)}
                       >
                         <MaterialCommunityIcons name="trash-can-outline" size={14} color={WHITE} />
                         <Text style={styles.saveBtnText}>{'Eliminar'}</Text>
-                      </TouchableOpacity>
+                      </BotonAnimado>
                     </View>
                   </View>
                 ) : (
                   <View style={styles.actionRow}>
-                    <TouchableOpacity
+                    <BotonAnimado
                       style={styles.statusToggleBtn}
                       activeOpacity={0.85}
                       onPress={() => handleToggleStatus(item.id)}
@@ -308,24 +309,24 @@ const Interfaz_Administrador_usuarios = () => {
                       <Text style={styles.statusToggleBtnText}>
                         {item.status === 'Activo' ? 'Suspender' : 'Reactivar'}
                       </Text>
-                    </TouchableOpacity>
+                    </BotonAnimado>
 
-                    <TouchableOpacity
+                    <BotonAnimado
                       style={styles.editBtn}
                       activeOpacity={0.85}
                       onPress={() => startEditing(item)}
                     >
                       <MaterialCommunityIcons name="pencil-outline" size={14} color={WHITE} />
                       <Text style={styles.saveBtnText}>{'Editar'}</Text>
-                    </TouchableOpacity>
+                    </BotonAnimado>
 
-                    <TouchableOpacity
+                    <BotonAnimado
                       style={styles.deleteBtn}
                       activeOpacity={0.85}
                       onPress={() => setConfirmDeleteId(item.id)}
                     >
                       <MaterialCommunityIcons name="trash-can-outline" size={16} color={RED} />
-                    </TouchableOpacity>
+                    </BotonAnimado>
                   </View>
                 )}
               </>
@@ -354,6 +355,7 @@ const Interfaz_Administrador_usuarios = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <EncabezadoPrivado titulo="Personas que nos conectan." descripcion="Busca, crea y administra las cuentas y sus roles desde un mismo espacio." administrador />
         {/* ── STATS ── */}
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
@@ -392,13 +394,13 @@ const Interfaz_Administrador_usuarios = () => {
             />
           </View>
 
-          <TouchableOpacity
+          <BotonAnimado
             style={styles.addBtn}
             activeOpacity={0.85}
             onPress={() => setShowAddForm(!showAddForm)}
           >
             <MaterialCommunityIcons name={showAddForm ? 'close' : 'account-plus-outline'} size={18} color={WHITE} />
-          </TouchableOpacity>
+          </BotonAnimado>
         </View>
 
         {/* ── FORMULARIO AGREGAR USUARIO ── */}
@@ -434,22 +436,22 @@ const Interfaz_Administrador_usuarios = () => {
               <Text style={styles.fieldLabel}>{'Rol'}</Text>
               <View style={styles.roleRow}>
                 {(['Usuario', 'Administrador'] as Role[]).map(r => (
-                  <TouchableOpacity
+                  <BotonAnimado
                     key={r}
                     onPress={() => setNewUser(prev => ({ ...prev, role: r }))}
                     style={[styles.roleChip, newUser.role === r && styles.roleChipActive]}
                     activeOpacity={0.85}
                   >
                     <Text style={[styles.roleChipText, newUser.role === r && styles.roleChipTextActive]}>{r}</Text>
-                  </TouchableOpacity>
+                  </BotonAnimado>
                 ))}
               </View>
             </View>
 
-            <TouchableOpacity style={styles.addFormBtn} activeOpacity={0.85} onPress={handleAddUser}>
+            <BotonAnimado style={styles.addFormBtn} activeOpacity={0.85} onPress={handleAddUser}>
               <MaterialCommunityIcons name="check" size={15} color={WHITE} />
               <Text style={styles.addFormBtnText}>{'Crear usuario'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
         )}
 
@@ -458,14 +460,14 @@ const Interfaz_Administrador_usuarios = () => {
           {STATUS_FILTERS.map(f => {
             const active = statusFilter === f
             return (
-              <TouchableOpacity
+              <BotonAnimado
                 key={f}
                 onPress={() => setStatusFilter(f)}
                 style={[styles.filterChip, active && styles.filterChipActive]}
                 activeOpacity={0.85}
               >
                 <Text style={[styles.filterChipText, active && styles.filterChipTextActive]}>{f}</Text>
-              </TouchableOpacity>
+              </BotonAnimado>
             )
           })}
         </View>

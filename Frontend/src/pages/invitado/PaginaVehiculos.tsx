@@ -1,4 +1,10 @@
 import MedioVisual from '../../components/MedioVisual'
+import imagenEqute from '../../../assets/Equte completo blanco.png'
+import imagenE4 from '../../../assets/E4 rojo entero.jpeg'
+import imagenNexus from '../../../assets/nexus entero mejor calidad.webp'
+import imagenTrooper from '../../../assets/Trooper/DSC_5125.jpg'
+import imagenStreetHunter from '../../../assets/TS Street Hunter.png'
+import imagenStreetHunterPro from '../../../assets/ts street hunter pro.png'
 import { MULTIMEDIA } from '../../config/multimedia'
 import { useState } from 'react'
 import { ArrowLeft, BatteryCharging, Gauge, PlugZap, Users, CarFront, Palette, CalendarCheck } from 'lucide-react'
@@ -8,6 +14,19 @@ import type { Vehiculo } from '../../types/Vehiculo'
 
 interface PaginaVehiculosProps {
   alReservar: (vehiculo: Vehiculo) => void
+}
+
+const esEqute = (nombre: string) => nombre.toLowerCase().replace(/[^a-z]/g, '').includes('equte')
+const esE4 = (nombre: string) => /\be\s*-?\s*4\b/i.test(nombre)
+const esNexus = (nombre: string) => /nexus\s*plus/i.test(nombre)
+const esStreetHunter = (nombre: string) => /street\s*hunter/i.test(nombre)
+
+function presentacionModelo(nombre: string) {
+  if (esEqute(nombre)) return { imagen: imagenEqute, nombre: 'KAIYI EQUTE', textoBlanco: false }
+  if (esE4(nombre)) return { imagen: imagenE4, nombre: 'E4 MONTAÑERO', textoBlanco: true }
+  if (esNexus(nombre)) return { imagen: imagenNexus, nombre: 'NEXUS PLUS', textoBlanco: true }
+  if (/trooper/i.test(nombre)) return { imagen: imagenTrooper, nombre: 'TROOPER', textoBlanco: true }
+  return null
 }
 
 export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
@@ -116,22 +135,29 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
 
   return (
     <div className="pagina-vehiculos editorial">
+      <MedioVisual video={MULTIMEDIA.videoVehiculos} imagen={MULTIMEDIA.portadaVideo} descripcion="Quantum E-QUTE en movimiento" mostrarControl={false} />
       <section className="editorial__hero">
         <p className="editorial__ceja">LA FAMILIA QUANTUM</p>
         <h1>Eléctrico. Extraordinario.</h1>
         <p className="editorial__subtitulo">Un modelo para cada forma de moverte.</p>
         <a className="boton boton--primario" href="#catalogo">Explorar el catálogo</a>
-        <MedioVisual video={MULTIMEDIA.videoVehiculos} imagen={MULTIMEDIA.portadaVideo} descripcion="Quantum en movimiento" />
       </section>
       <section className="editorial__seccion" id="catalogo">
-      <EncabezadoSeccion titulo="Catálogo de Vehículos" contador={`${modelos.length} modelos`} />
+      <EncabezadoSeccion titulo="CATÁLOGO DE VEHÍCULOS" contador={`${modelos.length} modelos`} />
       <div className="rejilla-vehiculos">
-        {modelos.map((modelo, indice) => (
+        {modelos.map((modelo, indice) => {
+          const presentacion = presentacionModelo(modelo.Nombre_Modelo)
+          return (
           <button
             key={modelo.id_vehiculo ?? modelo.Nombre_Modelo}
-            className="tarjeta-vehiculo"
+            className={`tarjeta-vehiculo${presentacion ? ' tarjeta-vehiculo--equte' : ''}${esStreetHunter(modelo.Nombre_Modelo) ? ' tarjeta-vehiculo--street' : ''}`}
+            aria-label={esEqute(modelo.Nombre_Modelo) ? 'Kaiyi Equte' : modelo.Nombre_Modelo}
             onClick={() => setSeleccionado(modelo)}
           >
+            {presentacion ? <>
+              <img className="equte-imagen" src={presentacion.imagen} alt={presentacion.nombre} />
+              <span className={`equte-nombre${presentacion.textoBlanco ? ' equte-nombre--e4' : ''}`}>{presentacion.nombre}</span>
+            </> : <>
             <span className="tarjeta-vehiculo__indice">{indice + 1}.</span>
             <div className="tarjeta-vehiculo__info">
               <div className="tarjeta-vehiculo__fila-nombre">
@@ -160,9 +186,10 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
                 {modelo.precio ?? 'Consultar'} USD
               </div>
             </div>
-            <MedioVisual imagen={modelo.imagen} descripcion={modelo.Nombre_Modelo} />
+            <MedioVisual imagen={esStreetHunter(modelo.Nombre_Modelo) ? (/\bpro\b/i.test(modelo.Nombre_Modelo) ? imagenStreetHunterPro : imagenStreetHunter) : modelo.imagen} descripcion={modelo.Nombre_Modelo} />
+            </>}
           </button>
-        ))}
+        )})}
       </div>
       {!modelos.length && <p className="editorial__estado" role="status">{cargando ? 'Cargando modelos…' : 'No hay modelos disponibles en este momento.'}</p>}
       </section>

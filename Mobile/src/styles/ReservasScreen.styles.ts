@@ -3,10 +3,10 @@ export const COLORS = {
   primary: '#2fb676',
   primaryDark: '#239a61',
   primaryLight: '#e8f8f0',
-  navy: '#0A0F1E',
-  navyMid: '#1a2f5e',
-  blue: '#1e4fd8',
-  blueLight: '#2563eb',
+  navy: '#000000',
+  navyMid: '#000000',
+  blue: '#000000',
+  blueLight: '#000000',
   white: '#ffffff',
   gray: '#f4f6fb',
   grayMid: '#c8d0e0',
@@ -19,13 +19,15 @@ export const styles = StyleSheet.create({
   // Root / header / scroll
   root: {
     flex: 1,
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
   },
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 20,
     paddingBottom: 15,
     paddingTop: 30,
@@ -44,7 +46,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     overflow: 'hidden',
     borderRadius: 20,
-    backgroundColor: '#1a2f5e',
+    backgroundColor: '#000000',
     padding: 20,
   },
   bannerText: {
@@ -60,7 +62,7 @@ export const styles = StyleSheet.create({
     marginTop: 6,
     fontSize: 13,
     lineHeight: 18,
-    color: '#2fb676',
+    color: '#ffffff',
   },
   bannerIconWrap: {
     height: 70,
@@ -82,7 +84,7 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     textTransform: 'uppercase',
     letterSpacing: 1.2,
-    color: '#0A0F1E',
+    color: '#000000',
   },
   formSectionTitleMt: {
     marginTop: 24,
@@ -143,7 +145,7 @@ export const styles = StyleSheet.create({
     color: '#2fb676',
   },
   modelOptionNameUnselected: {
-    color: '#0A0F1E',
+    color: '#000000',
   },
   modelBasePrice: {
     marginTop: 2,
@@ -158,7 +160,7 @@ export const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 13,
     fontWeight: '800',
-    color: '#1e4fd8',
+    color: '#000000',
   },
   radioCircle: {
     height: 22,
@@ -235,18 +237,20 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#000000',
     backgroundColor: '#e8f8f0',
     padding: 14,
   },
   reservePriceLabel: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#0A0F1E',
+    color: '#000000',
   },
   reservePriceValue: {
     fontSize: 18,
     fontWeight: '900',
-    color: '#2fb676',
+    color: '#000000',
   },
 
   submitButton: {
@@ -296,7 +300,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     fontSize: 18,
     fontWeight: '800',
-    color: '#0A0F1E',
+    color: '#000000',
   },
   modalCloseButton: {
     height: 32,
@@ -358,7 +362,7 @@ export const styles = StyleSheet.create({
     textAlign: 'right',
     fontSize: 14,
     fontWeight: '600',
-    color: '#0A0F1E',
+    color: '#000000',
   },
   infoValueGreen: {
     maxWidth: '55%',
@@ -370,14 +374,14 @@ export const styles = StyleSheet.create({
   totalLabel: {
     fontSize: 13,
     fontWeight: 'bold',
-    color: '#0A0F1E',
+    color: '#000000',
   },
   totalValue: {
     maxWidth: '55%',
     textAlign: 'right',
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#0A0F1E',
+    color: '#000000',
   },
   divider: {
     height: 1,
@@ -524,7 +528,7 @@ export const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: '900',
     letterSpacing: 1,
-    color: '#0A0F1E',
+    color: '#000000',
   },
   successCarPlaceholder: {
     marginBottom: 16,
@@ -559,6 +563,6 @@ export const styles = StyleSheet.create({
   nextStepsItem: {
     marginBottom: 4,
     fontSize: 13,
-    color: '#0A0F1E',
+    color: '#000000',
   },
 });

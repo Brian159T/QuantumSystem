@@ -296,7 +296,7 @@ export default function PaginaTalleres() {
                 ubicacion && puntoTaller ? calcularDistanciaKm(ubicacion, puntoTaller) : null
               const distanciaMostrada = distanciaUbicacion ?? taller.distanciaKm
               return (
-                <div key={taller.id_servicio ?? taller.direccion} className="tarjeta-servicio">
+                <div key={taller.id_servicio ?? taller.direccion} className="tarjeta-servicio tarjeta-taller">
                   <div className="tarjeta-servicio__superior">
                     <span
                       className="tarjeta-servicio__icono"

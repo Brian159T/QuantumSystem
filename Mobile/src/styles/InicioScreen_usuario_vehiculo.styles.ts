@@ -1,20 +1,20 @@
-import { Dimensions, StyleSheet } from 'react-native'
+import { Dimensions, StyleSheet } from 'react-native';
 
-export const { width: SCREEN_WIDTH } = Dimensions.get('window')
-export const CARD_WIDTH = SCREEN_WIDTH * 0.72
-export const CARD_GAP = 12
-export const CARD_SIDE_PADDING = 20
+export const { width: SCREEN_WIDTH } = Dimensions.get('window');
+export const CARD_WIDTH = SCREEN_WIDTH * 0.72;
+export const CARD_GAP = 12;
+export const CARD_SIDE_PADDING = 20;
 
-export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const ORANGE = '#f39c12'
-export const RED = '#e74c3c'
-export const BG = '#0A0F1E'
-export const WHITE = '#ffffff'
-export const OFF_WHITE = '#527887'
-export const SUBTLE = '#e8edf8'
-export const TEXT_DARK = '#0d1b3e'
-export const TEXT_MID = '#4a5578'
+export const GREEN = '#2fb676';
+export const BLUE = '#4D9FFF';
+export const ORANGE = '#f39c12';
+export const RED = '#e74c3c';
+export const BG = '#000000';
+export const WHITE = '#ffffff';
+export const OFF_WHITE = '#000000';
+export const SUBTLE = '#e8edf8';
+export const TEXT_DARK = '#ffffff';
+export const TEXT_MID = '#e5e7eb';
 
 export const styles = StyleSheet.create({
   root: {
@@ -22,10 +22,10 @@ export const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   map: {
-  width: '100%',
-  height: 300,
-  borderRadius: 16,
-},
+    width: '100%',
+    height: 300,
+    borderRadius: 16,
+  },
   scroll: {
     flex: 1,
     backgroundColor: OFF_WHITE,
@@ -35,6 +35,8 @@ export const styles = StyleSheet.create({
   },
 
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -52,8 +54,9 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: WHITE,
-    fontSize: 24,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '300',
+    letterSpacing: -0.8,
     marginTop: 2,
   },
 
@@ -61,13 +64,15 @@ export const styles = StyleSheet.create({
   vehicleCard: {
     marginHorizontal: 16,
     marginTop: 12,
-    borderRadius: 24,
+    borderRadius: 12,
     backgroundColor: BG,
     padding: 18,
     shadowColor: '#000',
-    shadowOpacity: 0.18,
+    shadowOpacity: 0,
     shadowRadius: 16,
-    elevation: 6,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: WHITE,
   },
   vehicleTopRow: {
     flexDirection: 'row',
@@ -77,7 +82,7 @@ export const styles = StyleSheet.create({
   vehicleName: {
     color: WHITE,
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   vehiclePlate: {
     color: 'rgba(255,255,255,0.45)',
@@ -98,7 +103,7 @@ export const styles = StyleSheet.create({
   },
   vehicleStatusText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   batteryRow: {
@@ -123,7 +128,7 @@ export const styles = StyleSheet.create({
   batteryPct: {
     color: WHITE,
     fontSize: 17,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   batteryPctLabel: {
     color: 'rgba(255,255,255,0.5)',
@@ -204,8 +209,8 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT_DARK,
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300',
   },
   sectionLinkRow: {
     flexDirection: 'row',
@@ -225,15 +230,16 @@ export const styles = StyleSheet.create({
   // STATION CARD (carrusel)
   stationCard: {
     width: CARD_WIDTH,
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderWidth: 1,
-    borderColor: SUBTLE,
-    borderRadius: 18,
+    borderColor: WHITE,
+    borderRadius: 12,
     padding: 14,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
+    minHeight: 250,
   },
   stationCardTop: {
     flexDirection: 'row',
@@ -254,7 +260,7 @@ export const styles = StyleSheet.create({
   stationDistanceValue: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   stationDistanceUnit: {
     color: TEXT_MID,
@@ -263,8 +269,9 @@ export const styles = StyleSheet.create({
   stationName: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
     marginTop: 10,
+    minHeight: 38,
   },
   stationInfoRow: {
     marginTop: 8,
@@ -294,7 +301,7 @@ export const styles = StyleSheet.create({
   },
   availabilityText: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   stationFooter: {
     flexDirection: 'row',
@@ -317,19 +324,21 @@ export const styles = StyleSheet.create({
     fontWeight: '500',
   },
   routeBtn: {
-    marginTop: 12,
+    marginTop: 'auto',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: BG,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingVertical: 9,
     gap: 5,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   routeBtnText: {
     color: WHITE,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   // DOTS
@@ -354,16 +363,18 @@ export const styles = StyleSheet.create({
   tripBanner: {
     marginHorizontal: 16,
     marginTop: 26,
-    borderRadius: 20,
+    borderRadius: 12,
     backgroundColor: BG,
     padding: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     shadowColor: '#000',
-    shadowOpacity: 0.15,
+    shadowOpacity: 0,
     shadowRadius: 14,
-    elevation: 5,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: WHITE,
   },
   tripBannerLeft: {
     flex: 1,
@@ -372,7 +383,7 @@ export const styles = StyleSheet.create({
   tripBannerEyebrow: {
     color: GREEN,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '400',
     letterSpacing: 2,
     textTransform: 'uppercase',
     marginBottom: 4,
@@ -380,7 +391,7 @@ export const styles = StyleSheet.create({
   tripBannerTitle: {
     color: WHITE,
     fontSize: 18,
-    fontWeight: 'bold',
+    fontWeight: '400',
     lineHeight: 24,
   },
   tripBannerSub: {
@@ -394,9 +405,11 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: GREEN,
-    borderRadius: 12,
+    borderRadius: 999,
     paddingHorizontal: 16,
     paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   tripBannerBtnText: {
     color: WHITE,
@@ -422,10 +435,10 @@ export const styles = StyleSheet.create({
   historyRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: WHITE,
-    borderRadius: 14,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 12,
     gap: 10,
   },
@@ -450,11 +463,11 @@ export const styles = StyleSheet.create({
   historyKwh: {
     color: TEXT_DARK,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   historyCost: {
     color: TEXT_MID,
     fontSize: 10,
     marginTop: 2,
   },
-})
+});

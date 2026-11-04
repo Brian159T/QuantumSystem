@@ -5,24 +5,26 @@ export const CARD_GAP = 12
 export const CARD_SIDE_PADDING = 20
 
 export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const BG = '#0A0F1E'
+export const BLUE = '#000000'
+export const BG = '#000000'
 export const WHITE = '#ffffff'
 export const SUBTLE = '#e8edf8'
 export const TEXT_DARK = '#0d1b3e'
 export const TEXT_MID = '#4a5578'
 
-export const PLACEHOLDER_HERO = 'https://placehold.co/700x320/0f3460/FFFFFF?text=+'
+export const PLACEHOLDER_HERO = 'https://placehold.co/700x320/000000/FFFFFF?text=+'
 export const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
   },
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-end',
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 20,
     paddingBottom: 15,
     paddingTop: 30,
@@ -119,7 +121,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     borderRadius: 10,
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 14,
     paddingVertical: 8,
   },
@@ -185,7 +187,7 @@ export const styles = StyleSheet.create({
     gap: 6,
     alignSelf: 'flex-start',
     borderRadius: 10,
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     paddingHorizontal: 14,
     paddingVertical: 7,
   },
@@ -290,7 +292,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#bfdbfe',
+    borderColor: '#000000',
     backgroundColor: '#fff',
     padding: 16,
   },
@@ -298,7 +300,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: '#a7f3d0',
+    borderColor: '#000000',
     backgroundColor: '#fff',
     padding: 16,
   },
@@ -309,7 +311,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-    backgroundColor: '#dbeafe',
+    backgroundColor: '#000000',
   },
   planIconGreen: {
     marginBottom: 12,
@@ -318,7 +320,12 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-    backgroundColor: '#d1fae5',
+    backgroundColor: '#000000',
+  },
+  leasingFeatureIcon: {
+    backgroundColor: '#000000',
+    borderRadius: 999,
+    padding: 2,
   },
   planLabel: {
     marginBottom: 4,
@@ -356,7 +363,7 @@ export const styles = StyleSheet.create({
   creditButton: {
     alignItems: 'center',
     borderRadius: 12,
-    backgroundColor: '#4D9FFF',
+    backgroundColor: '#000000',
     paddingVertical: 10,
   },
   creditButtonText: {
@@ -368,12 +375,14 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 12,
     borderWidth: 1,
+    backgroundColor: '#000000',
+    borderColor: '#000000',
     paddingVertical: 10,
   },
   leasingButtonText: {
     fontSize: 11,
     fontWeight: 'bold',
-    color: '#2fb676',
+    color: '#ffffff',
   },
 
   // Test drive
@@ -384,7 +393,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     borderRadius: 20,
-    backgroundColor: '#0A0F1E',
+    backgroundColor: '#000000',
     padding: 20,
   },
   testDriveLeft: {

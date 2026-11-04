@@ -1,5 +1,6 @@
+import BotonAnimado from './BotonAnimado'
 import React from "react";
-import { TouchableOpacity, Text } from "react-native";
+import { Text } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAuth } from "../../ViewModel/AuthViewModel";
 import { styles } from "../../styles/LogoutButton.styles";
@@ -12,7 +13,7 @@ const LogoutButton = () => {
   };
 
   return (
-    <TouchableOpacity
+    <BotonAnimado
       style={styles.logoutButton}
       onPress={handleLogout}
       activeOpacity={0.8}
@@ -26,7 +27,7 @@ const LogoutButton = () => {
       <Text style={styles.logoutText}>
         Cerrar sesión
       </Text>
-    </TouchableOpacity>
+    </BotonAnimado>
   );
 };
 

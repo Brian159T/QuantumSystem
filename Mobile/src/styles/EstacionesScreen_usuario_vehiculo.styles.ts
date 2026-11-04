@@ -1,14 +1,14 @@
-import { StyleSheet } from 'react-native'
-export const GREEN = '#2fb676'
-export const BLUE = '#4D9FFF'
-export const ORANGE = '#f39c12'
-export const RED = '#e74c3c'
-export const BG = '#0A0F1E'
-export const WHITE = '#ffffff'
-export const OFF_WHITE = '#527887'
-export const SUBTLE = '#e8edf8'
-export const TEXT_DARK = '#0d1b3e'
-export const TEXT_MID = '#4a5578'
+import { StyleSheet } from 'react-native';
+export const GREEN = '#2fb676';
+export const BLUE = '#4D9FFF';
+export const ORANGE = '#f39c12';
+export const RED = '#e74c3c';
+export const BG = '#000000';
+export const WHITE = '#ffffff';
+export const OFF_WHITE = '#000000';
+export const SUBTLE = '#e8edf8';
+export const TEXT_DARK = '#ffffff';
+export const TEXT_MID = '#e5e7eb';
 
 export const styles = StyleSheet.create({
   root: {
@@ -24,6 +24,8 @@ export const styles = StyleSheet.create({
   },
 
   header: {
+    borderBottomWidth: 1,
+    borderBottomColor: '#ffffff',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -41,8 +43,9 @@ export const styles = StyleSheet.create({
   },
   headerTitle: {
     color: WHITE,
-    fontSize: 22,
-    fontWeight: 'bold',
+    fontSize: 30,
+    fontWeight: '300',
+    letterSpacing: -0.8,
     marginTop: 2,
   },
 
@@ -54,15 +57,15 @@ export const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderRadius: 16,
     paddingHorizontal: 14,
     paddingVertical: 4,
     gap: 8,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
   },
   searchInput: {
     flex: 1,
@@ -73,10 +76,12 @@ export const styles = StyleSheet.create({
   locationBtn: {
     width: 32,
     height: 32,
-    borderRadius: 10,
+    borderRadius: 999,
     backgroundColor: GREEN,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
 
   // MAP PLACEHOLDER
@@ -96,7 +101,7 @@ export const styles = StyleSheet.create({
   mapPlaceholderTitle: {
     color: TEXT_DARK,
     fontSize: 13,
-    fontWeight: 'bold',
+    fontWeight: '400',
     marginTop: 4,
   },
   mapPlaceholderSub: {
@@ -115,15 +120,17 @@ export const styles = StyleSheet.create({
   },
   statCard: {
     flex: 1,
-    backgroundColor: WHITE,
-    borderRadius: 16,
+    backgroundColor: BG,
+    borderRadius: 12,
     padding: 14,
     alignItems: 'center',
     gap: 6,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 8,
-    elevation: 2,
+    elevation: 0,
+    borderWidth: 1,
+    borderColor: WHITE,
   },
   statIconBox: {
     width: 36,
@@ -135,7 +142,7 @@ export const styles = StyleSheet.create({
   statValue: {
     color: TEXT_DARK,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   statLabel: {
     color: TEXT_MID,
@@ -151,8 +158,8 @@ export const styles = StyleSheet.create({
   },
   sectionTitle: {
     color: TEXT_DARK,
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: 22,
+    fontWeight: '300',
     marginBottom: 12,
   },
   filterRow: {
@@ -164,7 +171,7 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 6,
-    backgroundColor: WHITE,
+    backgroundColor: BG,
     borderWidth: 1,
     borderColor: SUBTLE,
     borderRadius: 999,
@@ -197,7 +204,7 @@ export const styles = StyleSheet.create({
     borderColor: SUBTLE,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: WHITE,
+    backgroundColor: BG,
   },
   checkboxActive: {
     backgroundColor: GREEN,
@@ -239,16 +246,16 @@ export const styles = StyleSheet.create({
 
   // STATION CARD
   stationCard: {
-    backgroundColor: WHITE,
-    borderRadius: 18,
+    backgroundColor: BG,
+    borderRadius: 12,
     borderWidth: 1,
-    borderColor: SUBTLE,
+    borderColor: WHITE,
     padding: 14,
     marginTop: 12,
     shadowColor: '#0d1b3e',
-    shadowOpacity: 0.06,
+    shadowOpacity: 0,
     shadowRadius: 10,
-    elevation: 2,
+    elevation: 0,
   },
   stationTopRow: {
     flexDirection: 'row',
@@ -266,7 +273,7 @@ export const styles = StyleSheet.create({
   stationName: {
     color: TEXT_DARK,
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   stationAddressRow: {
     flexDirection: 'row',
@@ -285,7 +292,7 @@ export const styles = StyleSheet.create({
   stationDistanceValue: {
     color: TEXT_DARK,
     fontSize: 15,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   stationDistanceUnit: {
     color: TEXT_MID,
@@ -323,7 +330,7 @@ export const styles = StyleSheet.create({
   },
   availabilityText: {
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   speedPill: {
     flexDirection: 'row',
@@ -347,7 +354,7 @@ export const styles = StyleSheet.create({
   openPillText: {
     color: BLUE,
     fontSize: 10,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
 
   connectorsRow: {
@@ -360,7 +367,7 @@ export const styles = StyleSheet.create({
     backgroundColor: OFF_WHITE,
     borderWidth: 1,
     borderColor: SUBTLE,
-    borderRadius: 8,
+    borderRadius: 999,
     paddingHorizontal: 8,
     paddingVertical: 4,
   },
@@ -387,7 +394,7 @@ export const styles = StyleSheet.create({
   stationRating: {
     color: TEXT_DARK,
     fontSize: 12,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   stationDivider: {
     color: TEXT_MID,
@@ -402,44 +409,46 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: BG,
-    borderRadius: 10,
+    borderRadius: 999,
     paddingHorizontal: 14,
     paddingVertical: 8,
     gap: 5,
+    borderWidth: 1,
+    borderColor: SUBTLE,
   },
   routeBtnText: {
     color: WHITE,
     fontSize: 11,
-    fontWeight: 'bold',
+    fontWeight: '400',
   },
   mapContainer: {
-  height: 300,
-  borderRadius: 20,
-  overflow: 'hidden',
-  marginBottom: 20,
-},
-
-map: {
-  width: '100%',
-  height: '100%',
-},
-
-marker: {
-  width: 42,
-  height: 42,
-  borderRadius: 21,
-  backgroundColor: GREEN,
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderWidth: 3,
-  borderColor: WHITE,
-  elevation: 5,
-  shadowColor: '#000',
-  shadowOffset: {
-    width: 0,
-    height: 2,
+    height: 300,
+    borderRadius: 20,
+    overflow: 'hidden',
+    marginBottom: 20,
   },
-  shadowOpacity: 0.3,
-  shadowRadius: 4,
-},
-})
+
+  map: {
+    width: '100%',
+    height: '100%',
+  },
+
+  marker: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: GREEN,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 3,
+    borderColor: WHITE,
+    elevation: 0,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0,
+    shadowRadius: 4,
+  },
+});

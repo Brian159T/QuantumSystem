@@ -1,7 +1,7 @@
+import BotonAnimado from './BotonAnimado'
 import React, { useState } from 'react'
 import { styles } from '../../styles/LoginButton.styles'
 import {
-  TouchableOpacity,
   Text,
   View,
   Modal,
@@ -62,10 +62,10 @@ const LoginButton = ({ onPress }: Props) => {
 
   return (
     <>
-      <TouchableOpacity onPress={open} activeOpacity={0.8} style={styles.loginButton}>
+      <BotonAnimado onPress={open} activeOpacity={0.8} style={styles.loginButton}>
         <MaterialCommunityIcons name="account-outline" size={16} color="rgba(255,255,255,0.7)" />
         <Text style={styles.loginButtonText}>Iniciar sesión</Text>
-      </TouchableOpacity>
+      </BotonAnimado>
 
       <Modal visible={visible} transparent animationType="fade" statusBarTranslucent onRequestClose={close}>
         <TouchableWithoutFeedback onPress={close}>
@@ -215,7 +215,7 @@ const LoginForm = ({ focused, setFocused, onRegister, email, password, setEmail,
 
     {error && <Text style={styles.errorText}>{error}</Text>}
 
-    <TouchableOpacity
+    <BotonAnimado
       activeOpacity={0.85}
       disabled={loading}
       onPress={onLogin}
@@ -226,7 +226,7 @@ const LoginForm = ({ focused, setFocused, onRegister, email, password, setEmail,
     >
       <Text style={styles.submitButtonText}>{loading ? 'Ingresando...' : 'Iniciar sesión'}</Text>
       <MaterialCommunityIcons name="arrow-right" size={16} color={WHITE} />
-    </TouchableOpacity>
+    </BotonAnimado>
 
     <View style={styles.dividerRow}>
       <View style={styles.dividerLine} />
@@ -234,10 +234,10 @@ const LoginForm = ({ focused, setFocused, onRegister, email, password, setEmail,
       <View style={styles.dividerLine} />
     </View>
 
-    <TouchableOpacity onPress={onRegister} activeOpacity={0.8} style={styles.secondaryButton}>
+    <BotonAnimado onPress={onRegister} activeOpacity={0.8} style={styles.secondaryButton}>
       <MaterialCommunityIcons name="account-plus-outline" size={16} color={ACCENT} />
       <Text style={styles.secondaryButtonText}>Crear una cuenta</Text>
-    </TouchableOpacity>
+    </BotonAnimado>
   </View>
 )
 
@@ -287,7 +287,7 @@ const RegisterForm = ({ focused, setFocused, onBack, email, password, confirm, s
 
     {error && <Text style={styles.errorText}>{error}</Text>}
 
-    <TouchableOpacity
+    <BotonAnimado
       activeOpacity={0.85}
       disabled={loading}
       style={[
@@ -298,12 +298,12 @@ const RegisterForm = ({ focused, setFocused, onBack, email, password, confirm, s
     >
       <Text style={styles.submitButtonText}>{loading ? 'Creando...' : 'Crear cuenta'}</Text>
       <MaterialCommunityIcons name="check" size={16} color={WHITE} />
-    </TouchableOpacity>
+    </BotonAnimado>
 
-    <TouchableOpacity onPress={onBack} activeOpacity={0.7} style={styles.backButton}>
+    <BotonAnimado onPress={onBack} activeOpacity={0.7} style={styles.backButton}>
       <MaterialCommunityIcons name="arrow-left" size={14} color={MUTED_TXT} />
       <Text style={styles.backButtonText}>Volver a iniciar sesión</Text>
-    </TouchableOpacity>
+    </BotonAnimado>
   </View>
 )
 

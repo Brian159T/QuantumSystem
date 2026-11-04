@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   Image,
   StatusBar,
   StyleSheet,
@@ -126,10 +127,10 @@ const InicioScreen_usuario_vehiculo = () => {
           <Text style={styles.stationPrice}>{item.pricePerKwh}{'/kWh'}</Text>
         </View>
 
-        <TouchableOpacity style={styles.routeBtn} activeOpacity={0.85}>
+        <BotonAnimado style={styles.routeBtn} activeOpacity={0.85}>
           <MaterialCommunityIcons name="map-marker-path" size={13} color={WHITE} />
           <Text style={styles.routeBtnText}>{'Ver ruta'}</Text>
-        </TouchableOpacity>
+        </BotonAnimado>
       </View>
     )
   }
@@ -151,6 +152,7 @@ const InicioScreen_usuario_vehiculo = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <EncabezadoPrivado titulo="Tu mundo, en movimiento." descripcion="Tu vehículo, tus estaciones y tu próximo recorrido. Todo en un mismo lugar." />
         {/* ── TARJETA DE VEHÍCULO / BATERÍA ── */}
         <View style={styles.vehicleCard}>
           <View style={styles.vehicleTopRow}>
@@ -212,12 +214,12 @@ const InicioScreen_usuario_vehiculo = () => {
             { icon: 'routes', label: 'Planificar\nviaje', color: ORANGE },
             { icon: 'history', label: 'Historial', color: '#a78bfa' },
           ].map((a, i) => (
-            <TouchableOpacity key={i} style={styles.quickActionItem} activeOpacity={0.85}>
+            <BotonAnimado key={i} style={styles.quickActionItem} activeOpacity={0.85}>
               <View style={[styles.quickActionIconBox, { backgroundColor: `${a.color}18` }]}>
                 <MaterialCommunityIcons name={a.icon as any} size={20} color={a.color} />
               </View>
               <Text style={styles.quickActionLabel}>{a.label}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           ))}
         </View>
 
@@ -225,10 +227,10 @@ const InicioScreen_usuario_vehiculo = () => {
         <View style={styles.carouselSection}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{'Estaciones cercanas'}</Text>
-            <TouchableOpacity style={styles.sectionLinkRow}>
+            <BotonAnimado style={styles.sectionLinkRow}>
               <Text style={styles.sectionLink}>{'Ver todas'}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color={GREEN} />
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
 
           <FlatList
@@ -263,10 +265,10 @@ const InicioScreen_usuario_vehiculo = () => {
             <Text style={styles.tripBannerEyebrow}>{'Ruta inteligente'}</Text>
             <Text style={styles.tripBannerTitle}>{'Planifica tu\npróximo viaje'}</Text>
             <Text style={styles.tripBannerSub}>{'Calculamos paradas de carga en el camino'}</Text>
-            <TouchableOpacity style={styles.tripBannerBtn}>
+            <BotonAnimado style={styles.tripBannerBtn}>
               <MaterialCommunityIcons name="map-marker-distance" size={13} color={WHITE} />
               <Text style={styles.tripBannerBtnText}>{' Crear ruta'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
           <View style={styles.tripBannerIconBox}>
             <MaterialCommunityIcons name="car-electric" size={42} color={GREEN} />

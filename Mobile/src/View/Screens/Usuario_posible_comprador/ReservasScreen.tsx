@@ -1,9 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
 import React, { Component } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   TextInput,
   Modal,
   SafeAreaView,
@@ -129,9 +129,9 @@ function ReservaModal({ visible, form, guardando, onClose, onConfirm }: ReservaM
           <View style={styles.modalHeader}>
             <View style={styles.modalHeaderBar} />
             <Text style={styles.modalTitle}>Confirmar Reserva</Text>
-            <TouchableOpacity onPress={onClose} style={styles.modalCloseButton}>
+            <BotonAnimado onPress={onClose} style={styles.modalCloseButton}>
               <MaterialCommunityIcons name="close" size={14} color={COLORS.grayText} />
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
 
           <ScrollView
@@ -198,16 +198,16 @@ function ReservaModal({ visible, form, guardando, onClose, onConfirm }: ReservaM
             </View>
 
             {/* Botones */}
-            <TouchableOpacity style={styles.primaryButton} onPress={onConfirm} disabled={guardando}>
+            <BotonAnimado style={styles.primaryButton} onPress={onConfirm} disabled={guardando}>
               {guardando ? (
                 <ActivityIndicator color={COLORS.white} />
               ) : (
                 <Text style={styles.primaryButtonText}>{'EFECTUAR PAGO Y CONFIRMAR'}</Text>
               )}
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.cancelButton} onPress={onClose} disabled={guardando}>
+            </BotonAnimado>
+            <BotonAnimado style={styles.cancelButton} onPress={onClose} disabled={guardando}>
               <Text style={styles.cancelButtonText}>{'Cancelar'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </ScrollView>
         </View>
       </View>
@@ -383,7 +383,7 @@ export class ReservasScreen extends Component<object, State> {
               <Text style={styles.bannerSubtitle}>{'Garantiza tu lugar con\nsolo $1,000 USD'}</Text>
             </View>
             <View style={styles.bannerIconWrap}>
-              <MaterialCommunityIcons name="car-sports" size={70} color={COLORS.primary} />
+              <MaterialCommunityIcons name="car-sports" size={70} color={COLORS.white} />
             </View>
           </View>
 
@@ -433,7 +433,7 @@ export class ReservasScreen extends Component<object, State> {
               modelos.map((m) => {
                 const selected = form.modelo?.id === m.id;
                 return (
-                  <TouchableOpacity
+                  <BotonAnimado
                     key={m.id}
                     style={[
                       styles.modelOption,
@@ -462,7 +462,7 @@ export class ReservasScreen extends Component<object, State> {
                       ]}>
                       {selected && <View style={styles.radioDot} />}
                     </View>
-                  </TouchableOpacity>
+                  </BotonAnimado>
                 );
               })
             )}
@@ -480,7 +480,7 @@ export class ReservasScreen extends Component<object, State> {
                 {colores.map((c) => {
                   const selected = form.color?.id_color === c.id_color;
                   return (
-                    <TouchableOpacity
+                    <BotonAnimado
                       key={c.id_color}
                       style={[styles.colorOption, { width: COLOR_ITEM_WIDTH }]}
                       onPress={() => this.handleSeleccionarColor(c)}>
@@ -501,7 +501,7 @@ export class ReservasScreen extends Component<object, State> {
                         ]}>
                         {c.Color}
                       </Text>
-                    </TouchableOpacity>
+                    </BotonAnimado>
                   );
                 })}
               </View>
@@ -514,14 +514,14 @@ export class ReservasScreen extends Component<object, State> {
                 <MaterialCommunityIcons
                   name="credit-card-outline"
                   size={20}
-                  color={COLORS.primary}
+                  color="#000000"
                 />
                 <Text style={styles.reservePriceLabel}>{'Precio de Reserva'}</Text>
               </View>
               <Text style={styles.reservePriceValue}>{'$1,000 USD'}</Text>
             </View>
 
-            <TouchableOpacity
+            <BotonAnimado
               style={[
                 styles.submitButton,
                 isFormValid ? styles.submitButtonActive : styles.submitButtonDisabled,
@@ -529,7 +529,7 @@ export class ReservasScreen extends Component<object, State> {
               onPress={this.handleReservar}
               disabled={!isFormValid}>
               <Text style={styles.primaryButtonText}>{'CONFIRMAR Y PAGAR RESERVA'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
 
             {!isFormValid && !hayErrorres && (
               <Text style={styles.helperText}>{'Completa todos los campos para continuar'}</Text>
@@ -589,7 +589,7 @@ export class ReservasScreen extends Component<object, State> {
                 </Text>
               </View>
 
-              <TouchableOpacity
+              <BotonAnimado
                 style={styles.primaryButton}
                 onPress={() =>
                   this.setState({
@@ -600,7 +600,7 @@ export class ReservasScreen extends Component<object, State> {
                   })
                 }>
                 <Text style={styles.primaryButtonText}>{'IR A INICIO'}</Text>
-              </TouchableOpacity>
+              </BotonAnimado>
             </View>
           </View>
         </Modal>

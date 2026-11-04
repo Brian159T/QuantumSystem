@@ -32,7 +32,7 @@ export default function PaginaEmergencias() {
       </section>
 
       <section className="seccion">
-        <div className="tarjeta" style={{ background: 'var(--azul-suave)', border: 'none' }}>
+        <div className="tarjeta tarjeta-salud">
           <div className="tarjeta__encabezado">
             <div>
               <div className="tarjeta__titulo" style={{ color: 'var(--azul)' }}>

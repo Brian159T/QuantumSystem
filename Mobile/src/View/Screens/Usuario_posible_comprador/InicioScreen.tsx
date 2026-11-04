@@ -1,8 +1,8 @@
+import BotonAnimado from '../../components/BotonAnimado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   Image,
   StatusBar,
   FlatList,
@@ -218,12 +218,12 @@ const InicioScreen = () => {
         style={[
           styles.badge,
           {
-            backgroundColor: item.badgeGreen ? `${GREEN}26` : `${BLUE}26`,
+            backgroundColor: item.badgeGreen ? `${GREEN}26` : BLUE,
             borderColor: item.badgeGreen ? `${GREEN}66` : `${BLUE}66`,
           },
         ]}
       >
-        <Text style={[styles.badgeText, { color: item.badgeGreen ? GREEN : BLUE }]}>
+        <Text style={[styles.badgeText, { color: item.badgeGreen ? GREEN : WHITE }]}>
           {item.badge}
         </Text>
       </View>
@@ -248,10 +248,10 @@ const InicioScreen = () => {
             {item.price}
             <Text style={styles.priceUsd}>{' USD'}</Text>
           </Text>
-          <TouchableOpacity style={styles.verButton}>
+          <BotonAnimado style={styles.verButton}>
             <Text style={styles.verButtonText}>{'Ver'}</Text>
             <MaterialCommunityIcons name="arrow-right" size={12} color={WHITE} />
-          </TouchableOpacity>
+          </BotonAnimado>
         </View>
       </View>
     </View>
@@ -290,10 +290,10 @@ const InicioScreen = () => {
                 {'Hasta 20% OFF\n'}
                 <Text style={styles.heroTitleAccent}>{'Neo 2024'}</Text>
               </Text>
-              <TouchableOpacity style={styles.heroButton}>
+              <BotonAnimado style={styles.heroButton}>
                 <Text style={styles.heroButtonText}>{'Ver Modelos'}</Text>
                 <MaterialCommunityIcons name="arrow-right" size={12} color={WHITE} />
-              </TouchableOpacity>
+              </BotonAnimado>
             </View>
           </View>
         </View>
@@ -319,10 +319,10 @@ const InicioScreen = () => {
         <View style={styles.modelsSection}>
           <View style={[styles.modelsHeader, { paddingHorizontal: CARD_SIDE_PADDING }]}>
             <Text style={styles.sectionTitle}>{'Modelos Destacados'}</Text>
-            <TouchableOpacity style={styles.verTodosButton}>
+            <BotonAnimado style={styles.verTodosButton}>
               <Text style={styles.verTodosText}>{'Ver todos'}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color={GREEN} />
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
 
           <FlatList
@@ -351,7 +351,7 @@ const InicioScreen = () => {
           {/* Dots */}
           <View style={styles.dotsRow}>
             {CAR_MODELS.map((_, i) => (
-              <TouchableOpacity
+              <BotonAnimado
                 key={i}
                 onPress={() => {
                   flatListRef.current?.scrollToIndex({ index: i, animated: true })
@@ -364,7 +364,7 @@ const InicioScreen = () => {
                     i === activeIndex ? styles.dotActive : styles.dotInactive,
                   ]}
                 />
-              </TouchableOpacity>
+              </BotonAnimado>
             ))}
           </View>
         </View>
@@ -377,7 +377,7 @@ const InicioScreen = () => {
             {/* Crédito */}
             <View style={[styles.planCardBlue, shadowSm]}>
               <View style={styles.planIconBlue}>
-                <MaterialCommunityIcons name="bank-outline" size={22} color={BLUE} />
+                <MaterialCommunityIcons name="bank-outline" size={22} color={WHITE} />
               </View>
               <Text style={styles.planLabel}>
                 {'Crédito Automotriz'}
@@ -397,39 +397,39 @@ const InicioScreen = () => {
                   <Text style={styles.featureText}>{'Tasa preferencial'}</Text>
                 </View>
               </View>
-              <TouchableOpacity style={styles.creditButton}>
+              <BotonAnimado style={styles.creditButton}>
                 <Text style={styles.creditButtonText}>{'Cotizar Ahora'}</Text>
-              </TouchableOpacity>
+              </BotonAnimado>
             </View>
 
             {/* Leasing */}
             <View style={[styles.planCardGreen, shadowSm]}>
               <View style={styles.planIconGreen}>
-                <MaterialCommunityIcons name="car-key" size={22} color={GREEN} />
+                <MaterialCommunityIcons name="car-key" size={22} color={WHITE} />
               </View>
               <Text style={styles.planLabel}>
                 {'Arrendamiento'}
               </Text>
               <Text style={styles.planPrice}>
                 {'Desde\n'}
-                <Text style={{ color: GREEN }}>{'$399'}</Text>
+                <Text style={{ color: '#000000' }}>{'$399'}</Text>
                 <Text style={styles.planPriceUnit}>{' USD/mes*'}</Text>
               </Text>
               <View style={styles.planFeatures}>
                 <View style={styles.featureRow}>
-                  <MaterialCommunityIcons name="check-circle" size={12} color={GREEN} />
+                  <MaterialCommunityIcons name="check" size={12} color={WHITE} style={styles.leasingFeatureIcon} />
                   <Text style={styles.featureText}>{'Actualiza cada 3 años'}</Text>
                 </View>
                 <View style={styles.featureRow}>
-                  <MaterialCommunityIcons name="check-circle" size={12} color={GREEN} />
+                  <MaterialCommunityIcons name="check" size={12} color={WHITE} style={styles.leasingFeatureIcon} />
                   <Text style={styles.featureText}>{'Mantenimiento incluido'}</Text>
                 </View>
               </View>
-              <TouchableOpacity
-                style={[styles.leasingButton, { backgroundColor: `${GREEN}15`, borderColor: `${GREEN}55` }]}
+              <BotonAnimado
+                style={styles.leasingButton}
               >
                 <Text style={styles.leasingButtonText}>{'Más Información'}</Text>
-              </TouchableOpacity>
+              </BotonAnimado>
             </View>
           </View>
         </View>
@@ -442,10 +442,10 @@ const InicioScreen = () => {
             </Text>
             <Text style={styles.testDriveTitle}>{'Agenda tu\nTest Drive'}</Text>
             <Text style={styles.testDriveSubtitle}>{'Gratis · Sin compromiso'}</Text>
-            <TouchableOpacity style={styles.testDriveButton}>
+            <BotonAnimado style={styles.testDriveButton}>
               <MaterialCommunityIcons name="calendar-check-outline" size={13} color={WHITE} />
               <Text style={styles.testDriveButtonText}>{' Reservar'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
           <View
             style={[styles.testDriveIconWrap, { backgroundColor: `${GREEN}20`, borderColor: `${GREEN}44` }]}

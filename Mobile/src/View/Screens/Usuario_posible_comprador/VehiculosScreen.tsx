@@ -1,9 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
   ScrollView,
-  TouchableOpacity,
   Image,
   StatusBar,
   FlatList,
@@ -147,7 +147,7 @@ const VehiculosScreen = () => {
     const activeColor = model.colors[colorIdx] ?? model.colors[0];
 
     const specs = [
-      { icon: 'lightning-bolt', label: 'Autonomía', value: model.range, color: GREEN },
+      { icon: 'lightning-bolt', label: 'Autonomía', value: model.range, color: '#000000' },
       { icon: 'battery-charging', label: 'Batería', value: model.battery, color: BLUE },
       { icon: 'gauge', label: 'Vel. máx.', value: model.topSpeed, color: '#f39c12' },
       { icon: 'ev-plug-type2', label: 'Carga', value: model.charge, color: GREEN },
@@ -163,10 +163,10 @@ const VehiculosScreen = () => {
           contentContainerStyle={{ paddingBottom: 120 }}>
           {/* Header — oscuro */}
           <View style={styles.detailHeader}>
-            <TouchableOpacity style={styles.backButton} onPress={() => setSelectedModel(null)}>
+            <BotonAnimado style={styles.backButton} onPress={() => setSelectedModel(null)}>
               <MaterialCommunityIcons name="arrow-left" size={20} color={WHITE} />
               <Text style={styles.backButtonText}>Atrás</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
             <View style={styles.headerTitleWrap}>
               <Text style={styles.headerTitle}>{model.name}</Text>
               <Text style={styles.headerSubtitle}>{model.subtitle}</Text>
@@ -199,7 +199,7 @@ const VehiculosScreen = () => {
             </View>
             <View style={styles.swatchRow}>
               {model.colors.map((c, i) => (
-                <TouchableOpacity
+                <BotonAnimado
                   key={i}
                   style={[
                     styles.swatch,
@@ -215,7 +215,7 @@ const VehiculosScreen = () => {
                       color={LIGHT_HEX.includes(c.hex) ? '#333' : WHITE}
                     />
                   )}
-                </TouchableOpacity>
+                </BotonAnimado>
               ))}
             </View>
             <View style={styles.colorNamesRow}>
@@ -296,10 +296,10 @@ const VehiculosScreen = () => {
           </View>
 
           {/* CTA */}
-          <TouchableOpacity style={styles.ctaButton} activeOpacity={0.85}>
+          <BotonAnimado style={styles.ctaButton} activeOpacity={0.85}>
             <MaterialCommunityIcons name="calendar-check" size={18} color={WHITE} />
             <Text style={styles.ctaButtonText}>RESERVAR ESTE MODELO</Text>
-          </TouchableOpacity>
+          </BotonAnimado>
           <Text style={styles.ctaNote}>El precio de reserva es reembolsable</Text>
         </ScrollView>
       </View>
@@ -332,7 +332,7 @@ const VehiculosScreen = () => {
             const colorIdx = selectedColors[model.id] ?? 0;
             const activeColor = model.colors[colorIdx] ?? model.colors[0];
             return (
-              <TouchableOpacity
+              <BotonAnimado
                 key={model.id}
                 style={[styles.modelCard, shadowListCard]}
                 onPress={() => setSelectedModel(model)}
@@ -346,7 +346,7 @@ const VehiculosScreen = () => {
                   <Text style={styles.modelSubtitle}>{model.subtitle}</Text>
 
                   <View style={styles.modelSpecRow}>
-                    <MaterialCommunityIcons name="lightning-bolt" size={11} color={GREEN} />
+                    <MaterialCommunityIcons name="lightning-bolt" size={11} color="#000000" />
                     <Text style={styles.modelSpecText}>{model.range}</Text>
                   </View>
                   <View style={styles.modelSpecRow}>
@@ -356,7 +356,7 @@ const VehiculosScreen = () => {
 
                   <View style={styles.modelColorsRow}>
                     {model.colors.map((c, i) => (
-                      <TouchableOpacity
+                      <BotonAnimado
                         key={i}
                         style={[
                           styles.miniSwatch,
@@ -400,7 +400,7 @@ const VehiculosScreen = () => {
                     style={{ alignSelf: 'flex-end', marginTop: 4 }}
                   />
                 </View>
-              </TouchableOpacity>
+              </BotonAnimado>
             );
           })}
         </ScrollView>

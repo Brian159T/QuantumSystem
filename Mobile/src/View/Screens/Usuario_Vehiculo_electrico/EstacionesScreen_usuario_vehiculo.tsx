@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   StatusBar,
   FlatList,
   TextInput,
@@ -756,7 +757,7 @@ const EstacionesScreen_usuario_vehiculo = () => {
           </View>
 
 
-          <TouchableOpacity
+          <BotonAnimado
             style={
               styles.routeBtn
             }
@@ -780,7 +781,7 @@ const EstacionesScreen_usuario_vehiculo = () => {
               Ver ruta
             </Text>
 
-          </TouchableOpacity>
+          </BotonAnimado>
 
         </View>
 
@@ -845,6 +846,7 @@ const EstacionesScreen_usuario_vehiculo = () => {
           styles.scrollContent
         }
       >
+        <EncabezadoPrivado titulo="Conecta con tu camino." descripcion="Explora las estaciones de carga y encuentra la ruta para seguir avanzando." />
 
 
         {/* =========================================

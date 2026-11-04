@@ -312,7 +312,7 @@ export default function PaginaEstaciones() {
                 ubicacion && puntoEstacion ? calcularDistanciaKm(ubicacion, puntoEstacion) : null
               const distanciaMostrada = distanciaUbicacion ?? estacion.distanciaKm
               return (
-                <div key={estacion.id_estacion ?? estacion.direccion} className="tarjeta-servicio">
+                <div key={estacion.id_estacion ?? estacion.direccion} className="tarjeta-servicio tarjeta-estacion">
                   <div className="tarjeta-servicio__superior">
                     <span
                       className="tarjeta-servicio__icono"

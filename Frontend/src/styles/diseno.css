@@ -77,8 +77,13 @@
 .panel-lateral__interior { padding:20px; min-height:100%; }
 .panel-lateral__cerrar { display:block; margin-left:auto; }
 .aplicacion:not(.aplicacion--invitado) .contenido__cuerpo { padding:24px 16px 48px; }
-.aplicacion--invitado .cabecera-sitio__interior { gap:12px; padding:0 12px; height:auto; min-height:64px; flex-wrap:wrap; }
-.aplicacion--invitado .cabecera-sitio__nav { order:3; width:100%; justify-content:center; }
+.aplicacion--invitado .cabecera-sitio__interior { display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:64px 48px; gap:0 12px; padding:0 16px; height:112px; min-height:112px; }
+.aplicacion--invitado .cabecera-sitio__marca { min-height:44px; justify-self:start; }
+.aplicacion--invitado .cabecera-sitio__acciones { grid-column:2; grid-row:1; justify-self:end; margin:0; }
+.aplicacion--invitado .cabecera-sitio__acciones .boton-cuenta { min-height:44px; padding:10px 16px; font-size:14px; white-space:nowrap; }
+.aplicacion--invitado .cabecera-sitio__nav { grid-column:1 / -1; grid-row:2; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); width:100%; min-width:0; gap:4px; overflow:visible; align-self:stretch; border-top:1px solid #e5e5e7; }
+.aplicacion--invitado .cabecera-sitio__enlace { justify-content:center; min-width:0; min-height:44px; padding:10px 4px; margin:0; gap:6px; font-size:12px; letter-spacing:0; white-space:nowrap; }
+.aplicacion--invitado .cabecera-sitio__enlace svg { width:16px; height:16px; }
 .aplicacion--invitado .contenido__cuerpo { padding-top:112px; }
 .editorial__hero { padding-top:48px; }
 .editorial__seccion { padding:56px 20px; }
@@ -93,4 +98,14 @@
 .aplicacion--invitado .pie-sitio :is(.pie-sitio__logo,.pie-sitio__titulo) { color:#1d1d1f; }
 .aplicacion--invitado .pie-sitio :is(.pie-sitio__frase,.pie-sitio__copy,.pie-sitio__enlace) { color:#707070; }
 .barra-lateral__cuenta .saludo { color:#474747; }
+.aplicacion--invitado .tarjeta-vehiculo--equte { position:relative; background:transparent; justify-content:center; border:0; grid-column:1 / -1; }
+.aplicacion--invitado .tarjeta-vehiculo--equte::before,.aplicacion--invitado .tarjeta-vehiculo--equte::after { content:none; display:none; }
+.aplicacion--invitado .tarjeta-vehiculo--equte:hover { background:transparent; border:0; box-shadow:none; }
+.equte-imagen { display:block; width:100%; height:auto; aspect-ratio:3 / 2; object-fit:cover; }
+.equte-nombre { position:absolute; bottom:20px; left:0; right:0; color:#000; font-size:24px; font-weight:500; opacity:0; transition:opacity 180ms ease; pointer-events:none; }
+.tarjeta-vehiculo--equte:is(:hover,:focus-visible) .equte-nombre { opacity:1; }
+.equte-nombre--e4 { color:#fff; }
+.aplicacion--invitado .tarjeta-vehiculo--street { --m-1:#59636e; --m-2:#aeb8c2; --m-glow:rgba(174,184,194,.3); }
+.aplicacion--invitado .tarjeta-vehiculo--street .medio-visual { background:transparent; z-index:0; }
+@media(hover:none) { .equte-nombre { position:static; opacity:1; padding:12px; } }
 @media(max-width:767px) { .aplicacion--invitado .cabecera-sitio__acciones { margin-left:auto; } .aplicacion--invitado .formulario-reserva { grid-template-columns:1fr; } }

@@ -1,8 +1,9 @@
+import BotonAnimado from '../../components/BotonAnimado'
+import EncabezadoPrivado from '../../components/EncabezadoPrivado'
 import {
   ScrollView,
   Text,
   View,
-  TouchableOpacity,
   Image,
   StatusBar,
   StyleSheet,
@@ -111,6 +112,7 @@ const Interfaz_Administrador_Inicio = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <EncabezadoPrivado titulo="Una visión. Todo Quantum." descripcion="Consulta los indicadores y accede a la gestión de la plataforma." administrador />
         {/* ── ALERTA DE PENDIENTES ── */}
         {OVERVIEW.pendingReview > 0 && (
           <View style={styles.alertBanner}>
@@ -158,7 +160,7 @@ const Interfaz_Administrador_Inicio = () => {
 
           <View style={styles.managementGrid}>
             {MANAGEMENT_SECTIONS.map(s => (
-              <TouchableOpacity key={s.id} style={styles.managementCard} activeOpacity={0.85}>
+              <BotonAnimado key={s.id} style={styles.managementCard} activeOpacity={0.85}>
                 <View style={[styles.managementIconBox, { backgroundColor: `${s.color}18` }]}>
                   <MaterialCommunityIcons name={s.icon as any} size={24} color={s.color} />
                 </View>
@@ -169,7 +171,7 @@ const Interfaz_Administrador_Inicio = () => {
                   <Text style={[styles.managementLink, { color: s.color }]}>{'Gestionar'}</Text>
                   <MaterialCommunityIcons name="arrow-right" size={13} color={s.color} />
                 </View>
-              </TouchableOpacity>
+              </BotonAnimado>
             ))}
           </View>
         </View>
@@ -179,24 +181,24 @@ const Interfaz_Administrador_Inicio = () => {
           <Text style={styles.sectionTitle}>{'Acciones rápidas'}</Text>
 
           <View style={styles.quickActionsRow}>
-            <TouchableOpacity style={styles.quickActionBtn} activeOpacity={0.85}>
+            <BotonAnimado style={styles.quickActionBtn} activeOpacity={0.85}>
               <MaterialCommunityIcons name="image-plus" size={16} color={WHITE} />
               <Text style={styles.quickActionBtnText}>{'Subir foto'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
+            </BotonAnimado>
+            <BotonAnimado style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
               <MaterialCommunityIcons name="tag-plus-outline" size={16} color={TEXT_DARK} />
               <Text style={[styles.quickActionBtnText, { color: TEXT_DARK }]}>{'Nueva promo'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
           <View style={[styles.quickActionsRow, { marginTop: 10 }]}>
-            <TouchableOpacity style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
+            <BotonAnimado style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
               <MaterialCommunityIcons name="map-marker-plus-outline" size={16} color={TEXT_DARK} />
               <Text style={[styles.quickActionBtnText, { color: TEXT_DARK }]}>{'Agregar taller'}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
+            </BotonAnimado>
+            <BotonAnimado style={[styles.quickActionBtn, styles.quickActionBtnOutline]} activeOpacity={0.85}>
               <MaterialCommunityIcons name="map-marker-plus-outline" size={16} color={TEXT_DARK} />
               <Text style={[styles.quickActionBtnText, { color: TEXT_DARK }]}>{'Agregar estación'}</Text>
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
         </View>
 
@@ -204,10 +206,10 @@ const Interfaz_Administrador_Inicio = () => {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{'Actividad reciente'}</Text>
-            <TouchableOpacity style={styles.sectionLinkRow}>
+            <BotonAnimado style={styles.sectionLinkRow}>
               <Text style={styles.sectionLink}>{'Ver todo'}</Text>
               <MaterialCommunityIcons name="chevron-right" size={16} color={GREEN} />
-            </TouchableOpacity>
+            </BotonAnimado>
           </View>
 
           <View style={{ marginTop: 12, gap: 10 }}>

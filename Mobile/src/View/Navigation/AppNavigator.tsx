@@ -31,14 +31,14 @@ function Tabs() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: '#38bdf8',
-          tabBarInactiveTintColor: '#e2e8f0',
+          tabBarActiveTintColor: esInvitado ? '#ffffff' : '#000000',
+          tabBarInactiveTintColor: esInvitado ? '#ffffff' : '#4d4d4d',
           tabBarStyle: {
             position: 'absolute',
             bottom: insets.bottom + 10,
             left: 15,
             right: 15,
-            backgroundColor: '#0f172a',
+            backgroundColor: esInvitado ? '#000000' : '#F2F2F2',
             borderRadius: 20,
             height: 75,
             borderTopWidth: 0,

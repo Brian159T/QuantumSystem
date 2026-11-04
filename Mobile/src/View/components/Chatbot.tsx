@@ -1,10 +1,10 @@
+import BotonAnimado from './BotonAnimado'
 import React, { useState } from 'react';
 import {
   Modal,
   View,
   Text,
   TextInput,
-  TouchableOpacity,
   Pressable,
   FlatList,
   KeyboardAvoidingView,
@@ -67,13 +67,13 @@ const Chatbot = ({ bottomOffset = 28 }: ChatbotProps) => {
 
   return (
     <>
-      <TouchableOpacity
+      <BotonAnimado
         activeOpacity={0.85}
         onPress={abrir}
         style={[styles.fab, { bottom: bottomOffset }]}>
         <MaterialCommunityIcons name="chat" size={26} color="#ffffff" />
         <View style={styles.fabPunto} />
-      </TouchableOpacity>
+      </BotonAnimado>
 
       <Modal
         visible={visible}
@@ -126,13 +126,13 @@ const Chatbot = ({ bottomOffset = 28 }: ChatbotProps) => {
                   returnKeyType="send"
                 />
               </View>
-              <TouchableOpacity
+              <BotonAnimado
                 activeOpacity={0.8}
                 onPress={enviar}
                 disabled={!texto.trim()}
                 style={[styles.botonEnviar, !texto.trim() && styles.botonEnviarInactivo]}>
                 <MaterialCommunityIcons name="send" size={18} color="#ffffff" />
-              </TouchableOpacity>
+              </BotonAnimado>
             </View>
           </View>
         </KeyboardAvoidingView>
