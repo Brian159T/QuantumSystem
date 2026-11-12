@@ -333,7 +333,7 @@ Frontend/src/
 ├── pages/                # Paginas completas del sistema (según rol)
 │   ├── invitado/          # PaginaInicio, PaginaVehiculos, PaginaReservas
 │   ├── cliente/           # PaginaInicioCliente, PaginaEstaciones, PaginaTalleres, PaginaEmergencias
-│   └── administrador/     # PaginaPanel, PaginaUsuarios
+│   └── administrador/     # PaginaPanel, PaginaUsuarios, PaginaGraficos
 ├── routes/               # Configuracion de las rutas de la app
 │   ├── config.ts              # NAVEGACION (tabs por rol) + INICIO_POR_ROL
 │   └── AppNavigator.tsx       # Shell + router por estado
@@ -367,8 +367,8 @@ Flujo de datos: `main.tsx` -> `App` (AuthProvider) -> `routes/AppNavigator` -> `
 | `src/routes/` | **Navegacion y layout.** `AppNavigator.tsx` es el "router": cabecera con nav, `<main>` con la pagina activa y `<footer>`; decide que pagina se muestra con `useState('pantalla')` + condicionales por rol. `config.ts` define el tipo `Rol` y el menu `NAVEGACION` por rol + pantalla de inicio. No usa React Router: el estado reemplaza a las rutas. |
 | `src/pages/` | **Pantallas, agrupadas por rol** (`invitado/`, `cliente/`, `administrador/`). Cada `Pagina*.tsx` es una pantalla completa; consume datos via hooks y recibe callbacks (`alVerVehiculos`, `alReservar`) para navegar. |
 | `src/components/` | **Piezas de UI reutilizables y sin datos**: `LoginModal`, `LoginButton`, `LogoutButton`, `Saludo`, `EncabezadoSeccion` (titulo de seccion), `Chatbot` (widget flotante) y `MapaLugar` (mapa **Leaflet** con marcadores, punto del usuario y ruta; lo usan Estaciones y Talleres). |
-| `src/hooks/` | **Capa de estado de React.** `useDatos.ts` contiene un hook generico `useColeccion` (carga, estado `cargando`, `actualizar`, `recargar`) y lo especial en `useVehiculos`, `useEstaciones`, `useTalleres`, `useUsuarios`. `useUbicacion` obtiene la **geolocalizacion** del navegador (`navigator.geolocation`, re-pedible con `solicitar`) y `useRuta` calcula la ruta hacia un destino. `AuthProvider.tsx` + `useAuth.ts` dan el contexto de sesion y los flags `esInvitado/esCliente/esAdministrador`. |
-| `src/services/` | **Logica de datos pura (sin React).** Un archivo por recurso (`vehiculosService`, `reservasService`, `coloresService`, `usuariosService`, `estacionesService`, `talleresService`, `chatbotService`, `authService`). Traducen la API al modelo de la UI y devuelven `[]` si la API falla (sin mocks). `rutasService` es el unico que NO habla con el backend: consume el proxy publico **OSRM** o cae a la distancia **Haversine** en linea recta. |
+| `src/hooks/` | **Capa de estado de React.** `useDatos.ts` contiene un hook generico `useColeccion` (carga, estado `cargando`, `actualizar`, `recargar`) y lo especial en `useVehiculos`, `useEstaciones`, `useTalleres`, `useUsuarios`. `useUbicacion` obtiene la **geolocalizacion** del navegador (`navigator.geolocation`, re-pedible con `solicitar`) y `useRutaCercana` selecciona el destino accesible con menor tiempo de viaje y calcula la ruta en auto. `AuthProvider.tsx` + `useAuth.ts` dan el contexto de sesion y los flags `esInvitado/esCliente/esAdministrador`. |
+| `src/services/` | **Logica de datos pura (sin React).** Un archivo por recurso (`vehiculosService`, `reservasService`, `coloresService`, `usuariosService`, `estacionesService`, `talleresService`, `chatbotService`, `authService`). Traducen la API al modelo de la UI y devuelven `[]` si la API falla (sin mocks). `rutasService` es el unico que NO habla con el backend: consume OSRM Table y Route, con errores explicitos sin linea recta de respaldo. |
 | `src/services/apiClient.ts` | **Unica capa que habla con el backend.** `fetch` a `URL_BASE` (`VITE_API_URL` o `/api`), inyecta `Authorization: Bearer` desde la sesion, valida el sobre `{error, status, body}`, desenvuelve `body` y lanza errores con mensajes legibles. |
 | `src/types/` | Interfaces TS del dominio de la UI: `Usuario.ts`, `Vehiculo.ts`, `EstacionesYTalleres.ts` (dos en un archivo). Evitan `any` en paginas y hooks. |
 | `src/utils/` | Funciones auxiliares sin estado: `sesion.ts` (lee/escribe `localStorage`: `quantum_token`, `quantum_usuario`, con guardas por si `localStorage` no existe), `roles.ts` (`esAdministrador`/`esCliente` con fallback por `id_rol`), `iniciales.ts` (avatar con iniciales), `geo.ts` (calculo **Haversine** de distancias y formateadores km/minutos para las rutas). |
@@ -380,6 +380,32 @@ Flujo de datos: `main.tsx` -> `App` (AuthProvider) -> `routes/AppNavigator` -> `
 **Regla de dependencias**: las flechas van en un solo sentido -- `pages -> hooks -> services -> apiClient`. Las paginas nunca llaman a `fetch` ni a `apiClient` directamente, y los services nunca importan React.
 
 ### 4.2 Flujo de datos (componentes + hooks + servicios)
+
+#### Gráficos del administrador (implementado el 11 de noviembre de 2026)
+
+`routes/config.ts` incorpora `graficos` exclusivamente al menú administrador. `AppNavigator.tsx` monta `PaginaGraficos` condicionado al rol, con el icono `ChartNoAxesCombined` de Lucide. `EncabezadoPrivado.tsx` define el título y descripción de esta pantalla.
+
+Hay dos flujos independientes:
+
+```text
+PaginaGraficos → GraficosReservas / GraficoEstaciones → iframe → Grafana local → fuente PostgreSQL configurada en Grafana
+PaginaGraficos → InterpretacionReservas / InterpretacionEstaciones → hooks de análisis → services de análisis → apiClient → API REST → PostgreSQL
+```
+
+| Archivo bajo `Frontend/src/` | Responsabilidad |
+|---|---|
+| `pages/administrador/PaginaGraficos.tsx` | Ordena los dos paneles y las tarjetas de resultados e interpretación |
+| `components/GraficosReservas.tsx` | Iframe del dashboard `ad5j5kw`, panel `panel-1` |
+| `components/GraficoEstaciones.tsx` | Iframe del dashboard `add5j8r`, panel `1` |
+| `components/InterpretacionReservas.tsx` | Cifras, preferencias de modelos, máximos diarios y seguimiento pendiente |
+| `components/InterpretacionEstaciones.tsx` | Total, distribución de estados e interpretación del catálogo de estaciones |
+| `hooks/useAnalisisReservas.ts`, `hooks/useAnalisisEstaciones.ts` | Consulta inicial, reintentos cada 10 segundos tras finalizar cada petición y limpieza al desmontar |
+| `services/analisisReservasService.ts`, `services/analisisEstacionesService.ts` | Consultan los endpoints existentes y calculan resúmenes, propagando errores |
+| `styles/graficos.css` | Tarjetas, estados vacíos, cifras e iframes adaptables, según los tokens visuales existentes |
+
+Las URLs de Grafana están actualmente en los componentes y apuntan a `http://localhost:3000`. Solicitan tema oscuro, rango `now-30d` a `now` y `refresh=10s`. Los resúmenes no extraen datos del iframe ni leen el SQL del dashboard; su equivalencia requiere contrastar consultas, períodos y filtros. No se añadieron rutas de backend, migraciones ni dependencias npm.
+
+La restricción por rol pertenece a la navegación web y no sustituye la autorización en Grafana. No hay proxy autenticado ni inicio de sesión único. Detalles de configuración y límites en [Plan-Grafana.md](Plan-Grafana.md).
 
 ```
 pages (React) → hooks (useDatos/useAuth) → services (fetch) → Backend

@@ -13,7 +13,7 @@ const MODELOS = [
   { imagen: hunter, nombre: 'TS STREET HUNTER PRO' },
 ]
 
-export default function CarruselInicio({ alVerVehiculos }: { alVerVehiculos: () => void }) {
+export default function CarruselInicio() {
   const [actual, setActual] = useState(0)
   useEffect(() => {
     const intervalo = window.setInterval(() => setActual(indice => (indice + 1) % MODELOS.length), 6000)
@@ -31,15 +31,6 @@ export default function CarruselInicio({ alVerVehiculos }: { alVerVehiculos: () 
         aria-hidden={indice !== actual}>
         <img src={modelo.imagen} alt={modelo.nombre} fetchPriority={indice === 0 ? 'high' : 'auto'} />
       </div>)}
-    </div>
-    <div className="carrusel-inicio__contenido">
-      <p className="editorial__ceja">QUANTUM · MOVILIDAD ELÉCTRICA</p>
-      <h1>El futuro se mueve contigo.</h1>
-      <p className="editorial__subtitulo">Descubre una nueva forma de recorrer tu mundo.</p>
-      <div className="editorial__acciones">
-        <button className="boton boton--primario" onClick={alVerVehiculos}>Explorar vehículos</button>
-        <a className="boton boton--claro" href="#modelos">Conocer más</a>
-      </div>
     </div>
     <div className="carrusel-inicio__pie">
       <span className="carrusel-inicio__modelo" aria-live="off">{MODELOS[actual].nombre}</span>

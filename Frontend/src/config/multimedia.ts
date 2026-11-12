@@ -1,10 +1,14 @@
-import videoVehiculos from '../../assets/E-QUTE.mp4'
+import videoInicio from '../../assets/E-QUTE.mp4'
+import videoVehiculos from '../../assets/video dentro del auto.mp4'
+import videoCarga from '../../assets/carga electrica.mp4'
 
 // Rutas relativas a Frontend/public, assets importados o URLs completas. Vacío = espacio reservado.
 export const MULTIMEDIA = {
   inicio: '',
   experiencia: '',
+  videoInicio,
   videoVehiculos,
+  videoCarga,
   portadaVideo: '',
 }
 

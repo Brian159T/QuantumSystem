@@ -2,7 +2,56 @@
 
 Fecha: 16 de octubre de 2026.
 
-Estado: plan acordado, pendiente de implementación. Este documento no implica que Grafana, Prometheus ni la recolección de eventos estén instalados.
+Estado al 11 de noviembre de 2026: implementación parcial. Grafana local responde y el frontend web incorpora paneles de reservas y estaciones con resúmenes desde la API. La conexión PostgreSQL y la creación de los dashboards fueron informadas por el usuario. Prometheus, eventos de uso, predicción, despliegue e inicio de sesión único siguen pendientes; el contenido de los paneles no se ha verificado con una sesión autenticada.
+
+## Integración en el administrador web (11 de noviembre de 2026)
+
+### Pantalla y componentes
+
+Se añadió `Gráficos` junto a `Panel` y `Usuarios`, exclusivamente en la navegación del administrador web. Usa `ChartNoAxesCombined` de la librería existente `lucide-react`. El encabezado, las tarjetas oscuras, los colores y el comportamiento adaptable siguen el diseño de la aplicación. La pantalla contiene reservas → resultados e interpretación de reservas → estaciones → resultados e interpretación de estaciones.
+
+| Componente en `Frontend/src/components/` | Dashboard | Panel |
+|---|---|---|
+| `GraficosReservas.tsx` | `ad5j5kw/grafico-de-reservas` | `panel-1` |
+| `GraficoEstaciones.tsx` | `add5j8r/grafico-de-tabla-de-estaciones-de-carga` | `1` |
+
+Ambos utilizan `http://localhost:3000/d-solo/`, `orgId=1`, `timezone=browser`, `theme=dark`, `from=now-30d`, `to=now` y `refresh=10s`. Se sustituyeron los intervalos absolutos del HTML compartido por un período móvil. Los iframes ocupan todo el ancho de la tarjeta, con 420 px de alto y 340 px en pantallas pequeñas. Las peticiones periódicas dependen de Grafana y de que la página esté activa; no son notificaciones instantáneas de PostgreSQL.
+
+### Resultados e interpretaciones
+
+Los componentes `InterpretacionReservas.tsx` e `InterpretacionEstaciones.tsx` consumen sus hooks y servicios de análisis, que usan `apiClient`. No se añadieron endpoints ni tablas. Cada hook consulta al montar y programa la siguiente consulta 10 segundos después de terminar la anterior; cancela el temporizador al desmontar. Hay estados de carga, error y ausencia real de registros. Si falla una actualización se conservan las últimas cifras con aviso de antigüedad y no se presenta una interpretación vigente.
+
+| Fuente existente | Cálculos y alcance |
+|---|---|
+| `GET /api/reservas` | Filtra `Fecha_Reserva` desde la fecha local de hace 30 días hasta hoy, inclusive; cuenta total, `Pendiente` y `Confirmada`/`Entregada`; calcula modelos con mayor cantidad, máximos diarios y porcentaje pendiente, incluyendo empates |
+| `GET /api/estaciones-carga` | Catálogo actual completo: total, estado `Disponible`, estados vacíos y distribución de los valores de `Estado` |
+
+Los resúmenes son cálculos independientes de la API, no lectura del contenido del iframe. Para confirmar su coincidencia con los gráficos se debe revisar el SQL de Grafana, los filtros y la zona horaria. El rango de fechas de reservas incluye días completos, mientras el iframe solicita un rango relativo con horas. Estaciones no tiene un filtro temporal equivalente en el resumen. No se infieren ingresos monetarios, ocupación en tiempo real, conectores libres, uso de estaciones ni causalidad. Las interpretaciones son deterministas y no utilizan Gemini.
+
+### Configuración local y diagnóstico realizado
+
+Servicio Windows identificado: `Grafana`, instalación `C:\Program Files\GrafanaLabs\grafana`. Configuración propia: `C:\Program Files\GrafanaLabs\grafana\conf\custom.ini`.
+
+```ini
+[security]
+allow_embedding = true
+```
+
+La opción debe quedar bajo `[security]`, sin duplicar una sección existente ni eliminar otras opciones del archivo. Guardar con permisos de administrador y reiniciar Grafana desde Servicios de Windows. Al principio la opción estaba fuera de sección: `/api/health` respondía 200 pero incluía `X-Frame-Options: deny`. Se intentó corregir desde la herramienta, pero Windows denegó escribir la copia en Program Files; la modificación y el reinicio fueron realizados por el usuario. Después se comprobó que los enlaces ya no devolvían esa cabecera de bloqueo.
+
+`allow_embedding` no elimina la autenticación: las pruebas HTTP de los enlaces redirigieron a `/login`. Para desarrollo local se necesita una sesión autorizada de Grafana en el navegador. No hay SSO, proxy autenticado ni acceso anónimo implementados. Ocultar el menú según rol no protege por sí solo el servidor Grafana.
+
+### Verificación y pendientes
+
+- Verificado: `/api/health` de Grafana responde 200; servicio local activo; ausencia posterior de `X-Frame-Options: deny` en los enlaces comprobados.
+- Verificado: endpoints existentes de reservas y estaciones responden con el sobre esperado y campos necesarios. No se incorporaron valores observados como datos fijos de la interfaz.
+- Verificado: `npm run build`, `npm run lint` y `git diff --check` tras los cambios. Build conserva una advertencia por tamaño del bundle superior a 500 kB.
+- Pendiente: inspección visual autenticada de ambos paneles y prueba de un cambio de BD reflejado simultáneamente en gráfico y resumen.
+- Pendiente: contrastar SQL/filtros, confirmar usuario PostgreSQL de solo lectura y exportar las definiciones de dashboards al repositorio sin secretos.
+- Pendiente: configurar URLs HTTPS por entorno e integrar autorización para evitar un segundo login. `localhost` funciona solo desde el mismo equipo donde corre Grafana.
+- Pendiente: integración móvil, salud del backend con Prometheus, eventos reales de uso de estaciones/talleres y pronóstico. La tabla de estaciones actual no completa la fase de eventos de uso.
+
+Este estado actualiza las notas iniciales del plan; las fases siguientes continúan siendo objetivos y no evidencias de implementación.
 
 ## Introducción
 
@@ -38,7 +87,7 @@ Histórico de ventas (reservas confirmadas/entregadas) → proceso de predicció
 - Instrumentar Express para recoger métricas técnicas y exponerlas en un endpoint de métricas accesible al recolector.
 - Usar Prometheus para almacenar series temporales de salud del backend.
 - Conectar Grafana a PostgreSQL mediante un usuario de solo lectura, limitado a vistas o consultas agregadas para reservas y eventos.
-- Registrar eventos mediante el backend: las aplicaciones no se conectan directamente a PostgreSQL ni a Grafana.
+- Registrar eventos mediante el backend: las aplicaciones no se conectan directamente a PostgreSQL. El frontend web sí accede a Grafana para cargar los iframes, mientras los resúmenes y futuros eventos pasan por la API.
 - Comenzar en desarrollo local. Antes del despliegue previsto en Supabase, Render y Vercel, definir el alojamiento de Grafana y Prometheus, conectividad, retención y credenciales por entorno.
 
 ### Decisiones para el primer avance
@@ -48,7 +97,7 @@ Histórico de ventas (reservas confirmadas/entregadas) → proceso de predicció
 - El usuario del backend confirmado en `Backend/.env` es `postgres`. Para Grafana se creará un usuario específico de solo lectura, limitado a vistas agregadas. No guardar contraseñas en la documentación.
 - Parámetros locales de referencia del proyecto: servidor `localhost:5432`, base `QuantumSystemDB`. Verificar los valores del entorno al configurar la fuente de datos.
 - Consultar Grafana localmente en `http://localhost:3000` cuando el servicio esté iniciado y conserve el puerto predeterminado.
-- La instalación, la creación del usuario de lectura y la conexión aún no están verificadas; no se consideran tareas completadas.
+- Instalación local verificada en noviembre de 2026. La conexión PostgreSQL fue informada por el usuario; la creación del usuario de lectura y el SQL de los dashboards siguen sin verificar. Ver el estado de integración al inicio de este documento.
 
 ### Despliegue posterior
 

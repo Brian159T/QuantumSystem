@@ -1,9 +1,11 @@
 import { useRef } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import type { ReactNode } from 'react'
 import logo from '../assets/logo_quantum.png'
 
 interface Props {
+  visible: boolean
+  alAlternar: () => void
   elementos: { id: string; etiqueta: string; icono: string }[]
   actual: string
   alNavegar: (id: string) => void
@@ -11,7 +13,7 @@ interface Props {
   icono: (nombre: string) => ReactNode
   cuenta: ReactNode
 }
-export default function BarraLateral({ elementos, actual, alNavegar, inicio, icono, cuenta }: Props) {
+export default function BarraLateral({ visible, alAlternar, elementos, actual, alNavegar, inicio, icono, cuenta }: Props) {
   const panel = useRef<HTMLDialogElement>(null)
   const abrir = useRef<HTMLButtonElement>(null)
   const cerrar = () => { panel.current?.close(); abrir.current?.focus() }
@@ -29,7 +31,18 @@ export default function BarraLateral({ elementos, actual, alNavegar, inicio, ico
     <div className="barra-lateral__cuenta">{cuenta}</div>
   </>
   return <>
-    <aside className="barra-lateral">{contenido}</aside>
+    <button
+      type="button"
+      className="control-barra-lateral"
+      onClick={alAlternar}
+      aria-controls="navegacion-escritorio"
+      aria-expanded={visible}
+      aria-label={visible ? 'Ocultar menú lateral' : 'Mostrar menú lateral'}
+      title={visible ? 'Ocultar menú lateral' : 'Mostrar menú lateral'}
+    >
+      {visible ? <PanelLeftClose size={20} aria-hidden="true" /> : <PanelLeftOpen size={20} aria-hidden="true" />}
+    </button>
+    <aside id="navegacion-escritorio" className="barra-lateral" hidden={!visible}>{contenido}</aside>
     <div className="barra-movil"><button ref={abrir} onClick={() => panel.current?.showModal()} aria-label="Abrir navegación"><Menu size={22} /></button><span>QUANTUM</span></div>
     <dialog ref={panel} className="panel-lateral" aria-label="Navegación" onCancel={evento => { evento.preventDefault(); cerrar() }} onClick={evento => { if (evento.target === panel.current) cerrar() }}>
       <div className="panel-lateral__interior"><button className="panel-lateral__cerrar" onClick={cerrar} aria-label="Cerrar navegación"><X size={22} /></button>{contenido}</div>

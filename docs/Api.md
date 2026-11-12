@@ -280,7 +280,7 @@ Respuesta:
 - **Envia `Authorization: Bearer <token>`** si hay sesion guardada (token persistido en `localStorage` por `utils/sesion.ts`).
 - Llamadas (via `services/*Service.ts`): `/auth/login`, `/auth/registro` (registro publico, rol Cliente), `/usuarios` (GET, POST para crear usuarios admin, DELETE para eliminar), `/clientes` (roles para el combobox del admin), `/vehiculos`, `/estaciones-carga`, `/servicios-tecnicos`, `/colores` y `POST /reservas` (crear reserva). En caso de fallo o array vacio devuelven **listas vacias** (no caen a mocks).
 - **Registro**: el backend devuelve `{token, usuario}`, pero el web **no lo guarda** (`AuthProvider.registrar()` descarta la sesion): tras crear la cuenta muestra un mensaje de "Registro exitoso" y el usuario inicia sesion manualmente (decision en `docs/Decisiones-tecnicas.md`, item 11).
-- **Ruta por calles (mapas)**: **NO pasa por este backend**. `services/rutasService.ts` llama al proxy publico **OSRM** (`https://router.project-osrm.org/route/v1/driving/...`) con `overview=full&geometries=geojson`; si falla, cae a la linea recta con distancia Haversine (`utils/geo.ts`). Es una integracion externa de terceros, no una ruta REST de la API.
+- **Rutas en auto (web)**: no pasan por el backend. `services/rutasService.ts` consulta OSRM Table (`/table/v1/driving`, `sources=0`, `annotations=duration`) para elegir el destino accesible con menor tiempo de viaje entre los lugares filtrados, y Route (`/route/v1/driving`, GeoJSON) para dibujar el recorrido. `VITE_OSRM_URL` permite cambiar de servidor. Si falla, muestra error sin linea recta de respaldo.
 
 ---
 

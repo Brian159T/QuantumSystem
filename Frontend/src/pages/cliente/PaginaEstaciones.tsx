@@ -17,9 +17,10 @@ import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 import MapaLugar, { type LugarEnMapa } from '../../components/MapaLugar'
 import { useEstaciones } from '../../hooks/useDatos'
 import { useUbicacion } from '../../hooks/useUbicacion'
-import { useRuta } from '../../hooks/useRuta'
+import { useRutaCercana } from '../../hooks/useRutaCercana'
 import {
   calcularDistanciaKm,
+  coordenadaValida,
   formatearDistancia,
   formatearMinutos,
   type Coordenada,
@@ -46,10 +47,9 @@ function colorVelocidad(velocidad: VelocidadCarga | undefined): string {
 
 function coordenadasValidas(item: { latitud?: number; longitud?: number }): boolean {
   return (
-    typeof item.latitud !== 'undefined' &&
-    typeof item.longitud !== 'undefined' &&
-    !isNaN(Number(item.latitud)) &&
-    !isNaN(Number(item.longitud))
+    item.latitud != null &&
+    item.longitud != null &&
+    coordenadaValida({ latitud: Number(item.latitud), longitud: Number(item.longitud) })
   )
 }
 
@@ -74,7 +74,12 @@ function aEstacionLugar(estacion: EstacionCarga): LugarEnMapa | null {
 
 export default function PaginaEstaciones() {
   const { datos: estaciones } = useEstaciones()
-  const { ubicacion, cargando: cargandoUbicacion, error: errorUbicacion, solicitar } = useUbicacion()
+  const {
+    ubicacion,
+    cargando: cargandoUbicacion,
+    error: errorUbicacion,
+    solicitar,
+  } = useUbicacion()
   const [busqueda, setBusqueda] = useState('')
   const [filtro, setFiltro] = useState<FiltroConector>('Todos')
   const [soloDisponibles, setSoloDisponibles] = useState(false)
@@ -88,49 +93,39 @@ export default function PaginaEstaciones() {
           busqueda.trim().length === 0 ||
           (estacion.nombre ?? '').toLowerCase().includes(busqueda.toLowerCase()) ||
           estacion.direccion.toLowerCase().includes(busqueda.toLowerCase())
-        const coincideFiltro =
-          filtro === 'Todos' || (estacion.conectores ?? []).includes(filtro)
+        const coincideFiltro = filtro === 'Todos' || (estacion.conectores ?? []).includes(filtro)
         const coincideDisponibilidad = !soloDisponibles || (estacion.disponibles ?? 0) > 0
         return coincideBusqueda && coincideFiltro && coincideDisponibilidad
       })
       .sort((a, b) => {
-        const dA = ubicacion && punto(a) ? calcularDistanciaKm(ubicacion, punto(a)!) : (a.distanciaKm ?? Infinity)
-        const dB = ubicacion && punto(b) ? calcularDistanciaKm(ubicacion, punto(b)!) : (b.distanciaKm ?? Infinity)
+        const dA =
+          ubicacion && punto(a)
+            ? calcularDistanciaKm(ubicacion, punto(a)!)
+            : (a.distanciaKm ?? Infinity)
+        const dB =
+          ubicacion && punto(b)
+            ? calcularDistanciaKm(ubicacion, punto(b)!)
+            : (b.distanciaKm ?? Infinity)
         return dA - dB
       })
   }, [estaciones, busqueda, filtro, soloDisponibles, ubicacion])
 
   const lugares = useMemo(
-    () =>
-      filtradas
-        .map(aEstacionLugar)
-        .filter((lugar): lugar is LugarEnMapa => lugar !== null),
-    [filtradas]
+    () => filtradas.map(aEstacionLugar).filter((lugar): lugar is LugarEnMapa => lugar !== null),
+    [filtradas],
   )
-
-  const masCercana = useMemo<LugarEnMapa | null>(() => {
-    if (!ubicacion || lugares.length === 0) return null
-    let menor: LugarEnMapa | null = null
-    let distanciaMenor = Infinity
-    lugares.forEach((lugar) => {
-      const distancia = calcularDistanciaKm(ubicacion, lugar)
-      if (distancia < distanciaMenor) {
-        distanciaMenor = distancia
-        menor = lugar
-      }
-    })
-    return menor
-  }, [ubicacion, lugares])
 
   const alSeleccionar = useCallback((lugar: LugarEnMapa) => {
     setSeleccionada(lugar)
   }, [])
 
-  const destino = seleccionada ?? masCercana
-  const destinoCoordenada = destino
-    ? { latitud: destino.latitud, longitud: destino.longitud }
-    : null
-  const { ruta, cargando: cargandoRuta } = useRuta(ubicacion, destinoCoordenada)
+  const {
+    destino,
+    ruta,
+    cargando: cargandoRuta,
+    error: errorRuta,
+    recalcular,
+  } = useRutaCercana(ubicacion, lugares, seleccionada)
 
   const verRuta = (estacion: EstacionCarga) => {
     const lugar = aEstacionLugar(estacion)
@@ -139,8 +134,14 @@ export default function PaginaEstaciones() {
     seccionMapaRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const totalDisponibles = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.disponibles ?? 0), 0)
-  const totalPuertos = estaciones.reduce((acumulador, estacion) => acumulador + (estacion.totales ?? 0), 0)
+  const totalDisponibles = estaciones.reduce(
+    (acumulador, estacion) => acumulador + (estacion.disponibles ?? 0),
+    0,
+  )
+  const totalPuertos = estaciones.reduce(
+    (acumulador, estacion) => acumulador + (estacion.totales ?? 0),
+    0,
+  )
   const operativas = estaciones.filter((estacion) => estacion.Estado === 'disponible').length
 
   return (
@@ -165,7 +166,11 @@ export default function PaginaEstaciones() {
       <section className="seccion seccion-mapa" ref={seccionMapaRef}>
         <EncabezadoSeccion
           titulo="Mapa interactivo"
-          contador={ubicacion ? 'Ruta más corta por calles' : 'Habilita tu ubicación para ver rutas'}
+          contador={
+            ubicacion
+              ? 'Ruta en auto · menor tiempo de viaje'
+              : 'Habilita tu ubicación para ver rutas'
+          }
         />
 
         <MapaLugar
@@ -173,10 +178,32 @@ export default function PaginaEstaciones() {
           ubicacion={ubicacion}
           coordenadasRuta={ruta?.coordenadas ?? null}
           rutaPorCalles={ruta?.porCalles}
-          colorRuta={COLOR_ESTACION}
+          colorRuta="#60a5fa"
           destinoId={destino?.id ?? null}
           alSeleccionar={alSeleccionar}
         />
+
+        <div className="tarjeta-ruta__nota" role="status" aria-live="polite">
+          {cargandoRuta
+            ? 'Buscando el destino accesible con menor tiempo de viaje en auto...'
+            : (errorRuta ??
+              errorUbicacion ??
+              (!ubicacion
+                ? 'Habilita tu ubicación para calcular la ruta en auto.'
+                : lugares.length === 0
+                  ? 'No hay destinos con coordenadas válidas para estos filtros.'
+                  : 'Ruta en auto desde tu ubicación. La selección automática compara tiempos de viaje.'))}
+        </div>
+        <button
+          className="boton boton--claro"
+          onClick={() => {
+            setSeleccionada(null)
+            recalcular()
+          }}
+          disabled={!ubicacion || lugares.length === 0 || cargandoRuta}
+        >
+          <Navigation size={14} /> Ir al más cercano en auto
+        </button>
 
         {destino && (
           <div className="tarjeta-ruta">
@@ -193,7 +220,7 @@ export default function PaginaEstaciones() {
             </div>
 
             {cargandoRuta ? (
-              <div className="tarjeta-ruta__nota">Calculando la ruta más corta por las calles...</div>
+              <div className="tarjeta-ruta__nota">Calculando la ruta en auto...</div>
             ) : !ubicacion ? (
               <div className="tarjeta-ruta__nota">
                 <MapPin size={13} />
@@ -210,15 +237,9 @@ export default function PaginaEstaciones() {
                     <Timer size={14} /> {formatearMinutos(ruta.duracionMin)}
                   </span>
                   <span className="tarjeta-ruta__dato">
-                    <Navigation size={14} /> {ruta.porCalles ? 'Por calles' : 'Línea recta'}
+                    <Navigation size={14} /> En auto
                   </span>
                 </div>
-                {!ruta.porCalles && (
-                  <div className="tarjeta-ruta__nota">
-                    No se pudo calcular una ruta por calles para este destino; se muestra la distancia en línea
-                    recta desde tu ubicación actual.
-                  </div>
-                )}
               </>
             ) : null}
           </div>
@@ -278,7 +299,9 @@ export default function PaginaEstaciones() {
           ))}
         </div>
         <label className="interruptor">
-          <span className={`interruptor__caja${soloDisponibles ? ' interruptor__caja--activa' : ''}`}>
+          <span
+            className={`interruptor__caja${soloDisponibles ? ' interruptor__caja--activa' : ''}`}
+          >
             {soloDisponibles && <Check size={13} />}
           </span>
           <input
@@ -312,7 +335,10 @@ export default function PaginaEstaciones() {
                 ubicacion && puntoEstacion ? calcularDistanciaKm(ubicacion, puntoEstacion) : null
               const distanciaMostrada = distanciaUbicacion ?? estacion.distanciaKm
               return (
-                <div key={estacion.id_estacion ?? estacion.direccion} className="tarjeta-servicio tarjeta-estacion">
+                <div
+                  key={estacion.id_estacion ?? estacion.direccion}
+                  className="tarjeta-servicio tarjeta-estacion"
+                >
                   <div className="tarjeta-servicio__superior">
                     <span
                       className="tarjeta-servicio__icono"
@@ -358,7 +384,11 @@ export default function PaginaEstaciones() {
 
                   <div className="tarjeta-servicio__fila">
                     {(estacion.conectores ?? []).map((conector) => (
-                      <span key={conector} className="chip" style={{ padding: '5px 12px', fontSize: 12 }}>
+                      <span
+                        key={conector}
+                        className="chip"
+                        style={{ padding: '5px 12px', fontSize: 12 }}
+                      >
                         {conector}
                       </span>
                     ))}

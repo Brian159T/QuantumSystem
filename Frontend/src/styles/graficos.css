@@ -1,0 +1,50 @@
+.pagina-graficos { display: grid; gap: 26px; padding-bottom: 24px; }
+.analisis-reservas__contenido { padding: 0 24px 24px; color: var(--texto-medio); font-size: 13px; line-height: 1.8; overflow-wrap: anywhere; }
+.analisis-reservas__contenido strong { color: var(--texto-principal); }
+.analisis-reservas__cifras { display: grid; gap: 12px; margin: 0 0 20px; }
+.analisis-reservas__cifras > div { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px; border-radius: var(--radio-suave); background: var(--azul-suave); }
+.analisis-reservas__cifras dd { margin: 0; color: var(--azul); font-size: 26px; font-weight: 600; }
+.graficos-resumen { display: flex; align-items: center; gap: 20px; padding: 28px; border: 1px solid var(--borde-claro); border-radius: var(--radio); background: var(--gradiente-encabezado); }
+.graficos-resumen__icono, .grafico-tarjeta__icono { display: grid; place-items: center; flex-shrink: 0; color: var(--azul); background: var(--azul-suave); border: 1px solid var(--azul-transparente); border-radius: var(--radio-suave); }
+.graficos-resumen__icono { width: 56px; height: 56px; }
+.graficos-resumen__texto { flex: 1; min-width: 0; }
+.pagina-graficos .graficos-ceja { margin: 0 0 7px; color: var(--azul); font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+.graficos-resumen h2 { margin: 0 0 8px; color: var(--texto-principal); font-size: 21px; letter-spacing: -.5px; }
+.graficos-resumen__texto > p:last-child { margin: 0; color: var(--texto-medio); font-size: 13px; line-height: 1.7; }
+.graficos-etiqueta, .grafico-tarjeta__pendiente { display: inline-flex; align-items: center; padding: 7px 12px; border: 1px solid var(--borde-claro); border-radius: var(--radio-pastilla); color: var(--texto-medio); font-size: 11px; background: var(--superficie); }
+.graficos-etiqueta { flex-shrink: 0; }
+.graficos-separador { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.graficos-separador h2 { margin: 0; font-size: 17px; color: var(--texto-principal); }
+.graficos-separador > span { color: var(--texto-suave); font-size: 12px; }
+.graficos-rejilla { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
+.grafico-tarjeta { min-width: 0; overflow: hidden; border: 1px solid var(--borde-claro); border-radius: var(--radio); background: var(--superficie); }
+.grafico-tarjeta--amplia { grid-column: 1 / -1; }
+.grafico-tarjeta__cabecera { display: flex; align-items: flex-start; gap: 14px; padding: 24px; }
+.grafico-tarjeta__icono { width: 42px; height: 42px; }
+.grafico-tarjeta h3 { margin: 0; color: var(--texto-principal); font-size: 16px; font-weight: 600; }
+.grafico-tarjeta__descripcion { margin: 8px 0 0; color: var(--texto-suave); font-size: 12px; line-height: 1.7; }
+.grafico-tarjeta__espacio { display: grid; place-items: center; min-height: 265px; margin: 0 24px 20px; padding: 28px 18px; border: 1px dashed var(--azul-transparente); border-radius: var(--radio-suave); background: radial-gradient(ellipse at center, var(--azul-suave), transparent 75%); }
+.grafico-tarjeta--amplia .grafico-tarjeta__espacio { min-height: 320px; }
+.grafico-tarjeta__espacio--panel { display: block; padding: 0; overflow: hidden; border-style: solid; background: var(--superficie); }
+.grafico-reservas { display: block; width: 100%; height: 420px; border: 0; color-scheme: dark; }
+.grafico-tarjeta__vacio { max-width: 300px; text-align: center; }
+.grafico-tarjeta__simbolo { display: inline-grid; place-items: center; width: 66px; height: 66px; margin-bottom: 16px; color: var(--azul); border-radius: 50%; background: var(--azul-suave); }
+.grafico-tarjeta h4 { margin: 0 0 10px; color: var(--texto-principal); font-size: 14px; font-weight: 500; }
+.grafico-tarjeta__vacio p { margin: 0 0 18px; font-size: 12px; line-height: 1.8; color: var(--texto-suave); }
+.grafico-tarjeta__pie { padding: 14px 24px; border-top: 1px solid var(--borde-claro); font-size: 11px; color: var(--texto-suave); }
+.graficos-nota { margin: 0; color: var(--texto-suave); font-size: 12px; line-height: 1.8; }
+@media (max-width: 900px) {
+  .graficos-resumen { flex-wrap: wrap; }
+  .graficos-etiqueta { margin-left: 76px; }
+  .graficos-rejilla { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 520px) {
+  .grafico-reservas { height: 340px; }
+  .graficos-resumen { padding: 20px; gap: 14px; }
+  .graficos-resumen__icono { width: 42px; height: 42px; }
+  .graficos-resumen h2 { font-size: 18px; }
+  .graficos-etiqueta { margin-left: 0; }
+  .grafico-tarjeta__cabecera { padding: 18px; }
+  .grafico-tarjeta__espacio { margin: 0 16px 16px; }
+  .grafico-tarjeta--amplia .grafico-tarjeta__espacio { min-height: 265px; }
+}

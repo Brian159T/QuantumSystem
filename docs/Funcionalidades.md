@@ -2,6 +2,12 @@
 
 Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil** (`Mobile/`) y el **frontend web** (`Frontend/`).
 
+> **Estaciones en Gráficos (noviembre 2026):** `components/GraficoEstaciones.tsx` incorpora el dashboard `add5j8r`, panel `1`, debajo del análisis de reservas, con tema oscuro y actualización cada 10 segundos. Las tarjetas inferiores consultan `GET /api/estaciones-carga` y muestran total, estado «Disponible», registros sin estado y distribución de estados. Reflejan el catálogo actual, sin inferir ocupación, uso ni conectores libres; incluyen estados de carga, error y catálogo vacío. La autenticación de Grafana continúa siendo independiente y el SQL interno del panel no se ha verificado.
+
+> **Actualización de Gráficos (noviembre 2026):** el iframe de reservas utiliza `panelId=panel-1`. Las tarjetas inferiores muestran resultados e interpretaciones desde `GET /api/reservas`: total, pendientes, confirmadas/entregadas, modelos con mayor cantidad y fechas de mayor actividad (incluye empates). La consulta se repite cada 10 segundos y distingue errores de períodos sin reservas. El resumen abarca fechas desde hace 30 días hasta hoy, inclusive; es independiente del SQL interno de Grafana, cuya equivalencia aún requiere validación. Reemplaza los espacios pendientes de modelos, backend y lugares. El login de Grafana sigue siendo necesario y el contenido del panel no se ha verificado en una sesión autenticada.
+
+> **Gráficos del administrador (web, estado consolidado al 11 de noviembre de 2026):** menú administrativo `Panel`, `Usuarios` y `Gráficos`; icono `ChartNoAxesCombined` de `lucide-react`. `PaginaGraficos.tsx` presenta, en orden, el panel de reservas, sus tarjetas de resultados e interpretación, el panel de estaciones y sus tarjetas de resultados e interpretación. Conserva encabezado privado, paleta oscura, tarjetas y distribución adaptable de dos columnas que pasa a una en pantallas pequeñas. Los anteriores espacios pendientes se reemplazaron por estos contenidos. No se muestran métricas simuladas ni se ha integrado esta pantalla en Mobile. Los iframes requieren acceso autorizado a Grafana; el login de Quantum no inicia sesión en Grafana. Ver operación y verificaciones en [Plan-Grafana.md](Plan-Grafana.md#integración-en-el-administrador-web-11-de-noviembre-de-2026).
+
 Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
 
 > **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
@@ -91,7 +97,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 - **Integrado con la API real** (`EstacionesService.obtenerEstaciones`).
 - **Ubicacion del usuario** (expo-location).
 - **Mapa** con las estaciones (react-native-maps en movil; **Leaflet en web**, ver `components/MapaLugar.tsx`).
-- **Ruta mas corta por las calles** (web): usa el servicio publico **OSRM** (`services/rutasService.ts`); si OSRM falla cae a la linea recta con la distancia **Haversine** real (`utils/geo.ts`) y lo marca como aproximado. El destino es el lugar seleccionado en el mapa o la **estacion mas cercana**; el marcador del usuario es el punto azul pulsante via `navigator.geolocation` (`hooks/useUbicacion.ts`, re-pedible con el boton de mira).
+- **Ruta en auto (web)**: `useRutaCercana` compara tiempos de viaje con OSRM Table entre las estaciones filtradas y dibuja con Route el recorrido al destino accesible mas rapido. Ubicacion mediante `useUbicacion`; permite elegir otro marcador o volver al mas cercano. Muestra distancia y tiempo; si falla, informa el error sin dibujar una recta.
 - **Buscador** y **filtros por tipo de conector** (CCS, CHAdeMO, Tipo 2, Tesla).
 - Toggle de **solo disponibles/abiertas** y **estadisticas** (total, activas).
 - Tarjetas de servicio con disponibilidad, precio, rating, conectores, 24 horas.
@@ -100,7 +106,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 - **Integrado con la API real** (`TalleresService.obtenerTalleres` + `useTalleresViewModel`).
 - **Ubicacion del usuario** (permiso + coordenadas).
 - **Mapa** con talleres; se resalta el **taller mas cercano** (calculo Haversine) y el **taller seleccionado para ruta**.
-- **Ruta mas corta por las calles** (web): igual que en Estaciones de Carga, OSRM con fallback a linea recta; tarjeta de ruta con distancia y duracion estimada.
+- **Ruta en auto (web)**: mismo flujo que Estaciones, aplicado a talleres filtrados. Destinos sin acceso vial se omiten; muestra distancia y tiempo estimados.
 - **Buscador** por direccion y toggle **"solo abiertos/disponibles"** (`Estado === 'disponible'`).
 - **Estadisticas**: total, disponibles, con telefono.
 - Tarjetas con estado abierto/cerrado, tiempo de espera, especialidades, rating.
@@ -206,7 +212,7 @@ Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pag
 | W1 | `PaginaInicioCliente.tsx` | Panel de bateria (`VEHICULO.bateria`) e historial de cargas (`HISTORIAL`) hardcodeados; solo estaciones cercanas son API | Mock → API |
 | W2 | `PaginaEmergencias.tsx` | Contactos de emergencia hardcodeados (`CONTACTOS`), SOS solo local | Sin backend |
 | W3 | Chatbot `components/Chatbot.tsx` | Solo visual en todas las paginas/roles, sin API (RAG pendiente) | Sin backend |
-| W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Mapa Leaflet real con ubicacion del usuario, marcadores por lugar, ruta por calles con **OSRM** (fallback linea recta) | **Hecho** |
+| W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Leaflet, ubicacion real, seleccion automatica por menor tiempo en auto (OSRM Table), recorrido por calles (Route), seleccion manual y manejo de errores | **Hecho** |
 | W5 | `PaginaReservas.tsx` | Codigo de confirmacion generado en el cliente (falta campo en BD / QR) | Parcial |
 | W6 | `PaginaUsuarios.tsx` | Sin "suspender/reactivar" (la tabla `Usuarios` no tiene campo de estado) | Bloqueado por BD |
 | W7 | Vehiculos / catalogo | Sin fotos reales (placeholder) | Mejora |

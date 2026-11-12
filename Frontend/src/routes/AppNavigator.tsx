@@ -1,7 +1,7 @@
 import BarraLateral from '../components/BarraLateral'
 import EncabezadoPrivado from '../components/EncabezadoPrivado'
 import { useState } from 'react'
-import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users } from 'lucide-react';
+import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users, ChartNoAxesCombined } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth'
 import Saludo from '../components/Saludo'
 import LoginButton from '../components/LoginButton'
@@ -16,6 +16,7 @@ import PaginaTalleres from '../pages/cliente/PaginaTalleres'
 import PaginaEmergencias from '../pages/cliente/PaginaEmergencias'
 import PaginaPanel from '../pages/administrador/PaginaPanel'
 import PaginaUsuarios from '../pages/administrador/PaginaUsuarios'
+import PaginaGraficos from '../pages/administrador/PaginaGraficos'
 import type { Vehiculo } from '../types/Vehiculo'
 import { INICIO_POR_ROL, NAVEGACION, type Rol } from './config'
 
@@ -34,6 +35,7 @@ const ICONOS: Record<string, React.ReactNode> = {
   emergencias: <Siren size={16} />,
   panel: <LayoutDashboard size={16} />,
   usuarios: <Users size={16} />,
+  graficos: <ChartNoAxesCombined size={16} />,
 }
 
 function IconoNav({ nombre }: { nombre: string }) {
@@ -45,6 +47,7 @@ function Aplicacion() {
 
   const rol: Rol = esAdministrador ? 'administrador' : esCliente ? 'cliente' : 'invitado'
   const [pantalla, setPantalla] = useState<string>('inicio')
+  const [barraVisible, setBarraVisible] = useState(true)
   const [vehiculoParaReservar, setVehiculoParaReservar] = useState<Vehiculo | null>(null)
 
   const navegacion: NavegacionIcono[] = NAVEGACION[rol]
@@ -54,8 +57,8 @@ function Aplicacion() {
   const irA = (id: string) => { setPantalla(id); window.scrollTo({ top: 0, behavior: 'instant' }) }
 
   return (
-    <div className={`aplicacion aplicacion--${rol}${esInvitado ? '' : ' espacio-privado'}`}>
-      {!esInvitado && <BarraLateral elementos={navegacion} actual={pantallaActual} alNavegar={irA} inicio={INICIO_POR_ROL[rol]} icono={nombre => <IconoNav nombre={nombre} />} cuenta={<><Saludo /><LogoutButton /></>} />}
+    <div className={`aplicacion aplicacion--${rol}${esInvitado ? '' : ` espacio-privado${barraVisible ? '' : ' espacio-privado--barra-oculta'}`}`}>
+      {!esInvitado && <BarraLateral visible={barraVisible} alAlternar={() => setBarraVisible(visible => !visible)} elementos={navegacion} actual={pantallaActual} alNavegar={irA} inicio={INICIO_POR_ROL[rol]} icono={nombre => <IconoNav nombre={nombre} />} cuenta={<><Saludo /><LogoutButton /></>} />}
       {esInvitado && <header className="cabecera-sitio">
         <div className="cabecera-sitio__interior">
           <button className="cabecera-sitio__marca" onClick={() => irA(INICIO_POR_ROL[rol])}>
@@ -119,6 +122,7 @@ function Aplicacion() {
 
           {rol === 'administrador' && pantallaActual === 'panel' && <PaginaPanel />}
           {rol === 'administrador' && pantallaActual === 'usuarios' && <PaginaUsuarios />}
+          {rol === 'administrador' && pantallaActual === 'graficos' && <PaginaGraficos />}
         </div>
       </main>
 

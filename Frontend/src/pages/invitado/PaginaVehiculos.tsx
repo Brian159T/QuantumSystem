@@ -135,7 +135,7 @@ export default function PaginaVehiculos({ alReservar }: PaginaVehiculosProps) {
 
   return (
     <div className="pagina-vehiculos editorial">
-      <MedioVisual video={MULTIMEDIA.videoVehiculos} imagen={MULTIMEDIA.portadaVideo} descripcion="Quantum E-QUTE en movimiento" mostrarControl={false} />
+      <MedioVisual video={MULTIMEDIA.videoVehiculos} imagen={MULTIMEDIA.portadaVideo} descripcion="Interior de un vehículo Quantum" mostrarControl={false} />
       <section className="editorial__hero">
         <p className="editorial__ceja">LA FAMILIA QUANTUM</p>
         <h1>Eléctrico. Extraordinario.</h1>

@@ -82,7 +82,7 @@ export default function MapaLugar({
     })
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> · Rutas: <a href="https://project-osrm.org/">OSRM</a> · <a href="https://www.openstreetmap.org/fixthemap">Corregir el mapa</a>',
     }).addTo(mapa)
 
     capaMarcadoresRef.current = L.layerGroup().addTo(mapa)

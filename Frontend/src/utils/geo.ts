@@ -3,6 +3,15 @@ export interface Coordenada {
   longitud: number
 }
 
+export function coordenadaValida(punto: Coordenada): boolean {
+  return (
+    Number.isFinite(punto.latitud) &&
+    Math.abs(punto.latitud) <= 90 &&
+    Number.isFinite(punto.longitud) &&
+    Math.abs(punto.longitud) <= 180
+  )
+}
+
 export function calcularDistanciaKm(origen: Coordenada, destino: Coordenada): number {
   const radioTierra = 6371
   const aLat = ((destino.latitud - origen.latitud) * Math.PI) / 180

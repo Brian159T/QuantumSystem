@@ -7,10 +7,28 @@ interface PaginaInicioProps { alVerVehiculos: () => void }
 export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
   const { datos: modelos, cargando } = useVehiculos()
   return <div className="pagina-inicio editorial">
-    <CarruselInicio alVerVehiculos={alVerVehiculos} />
-    <section className="editorial__seccion" id="modelos">
-      <p className="editorial__ceja">ENCUENTRA TU QUANTUM</p><h2>Diseñado para tu día a día.</h2>
+    <MedioVisual
+      video={MULTIMEDIA.videoInicio}
+      imagen={MULTIMEDIA.portadaVideo}
+      descripcion="Quantum E-QUTE en movimiento"
+      mostrarControl={false}
+    />
+    <section className="editorial__seccion" aria-labelledby="titulo-familia-quantum">
+      <p className="editorial__ceja">ENCUENTRA TU QUANTUM</p><h2 id="titulo-familia-quantum">Diseñado para tu día a día.</h2>
       <p className="editorial__subtitulo">Conoce nuestra familia de vehículos eléctricos.</p>
+    </section>
+    <CarruselInicio />
+    <section aria-labelledby="titulo-carga-electrica">
+      <div className="editorial__seccion">
+        <h2 id="titulo-carga-electrica">Carga eléctrica ahorra hoy</h2>
+      </div>
+      <MedioVisual
+        video={MULTIMEDIA.videoCarga}
+        descripcion="Carga eléctrica de un vehículo Quantum"
+        mostrarControl={false}
+      />
+    </section>
+    <section className="editorial__seccion" id="modelos">
       <div className="editorial__modelos">
         {modelos.slice(0, 3).map(modelo => <article key={modelo.id_vehiculo ?? modelo.Nombre_Modelo}>
           <MedioVisual imagen={modelo.imagen} descripcion={modelo.Nombre_Modelo} />

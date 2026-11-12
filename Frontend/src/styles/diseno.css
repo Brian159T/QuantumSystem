@@ -11,6 +11,7 @@
 .aplicacion--invitado .boton { border-radius:980px; box-shadow:none; font-weight:400; text-transform:none; letter-spacing:-.01em; padding:11px 22px; }
 .aplicacion--invitado .boton--primario { background:#0071e3; color:white; border:1px solid #0071e3; }
 .aplicacion--invitado :is(.boton--claro,.boton-cuenta) { background:transparent; color:#0066cc; border:1px solid #0066cc; }
+.aplicacion--invitado .boton-cuenta:hover:not(:disabled) { background:transparent; color:#000; border-color:#000; box-shadow:none; }
 .aplicacion--invitado .boton:disabled { background:#e2e2e5; border-color:#e2e2e5; color:#707070; opacity:1; }
 .editorial :is(h1,h2) { font-weight:600; letter-spacing:-.035em; line-height:1.07; }
 .editorial h1 { font-size:clamp(40px,6vw,72px); max-width:960px; margin:12px auto 20px; }
@@ -50,6 +51,46 @@
 .aplicacion--invitado .pagina-reservas .tarjeta { background:transparent; border:0; border-top:1px solid #d2d2d7; border-radius:0; padding:24px 0; }
 .aplicacion--invitado .campo__entrada { background:#f5f5f7; color:#1d1d1f; border:1px solid #d2d2d7; border-radius:8px; }
 .aplicacion--invitado :is(.opcion-modelo,.opcion-color) { border-radius:8px; box-shadow:none; }
+.aplicacion--invitado .formulario-reserva .tarjeta {
+  background: linear-gradient(135deg, rgba(28, 28, 28, 0.92), rgba(0, 0, 0, 0.78));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+  padding: 28px;
+  backdrop-filter: blur(10px);
+}
+.aplicacion--invitado .formulario-reserva .tarjeta__titulo,
+.aplicacion--invitado .formulario-reserva .campo__etiqueta {
+  color: #fff;
+}
+.aplicacion--invitado .formulario-reserva .campo__entrada {
+  background: #000;
+  color: #fff;
+  border-color: #555;
+}
+.aplicacion--invitado .formulario-reserva .campo__entrada::placeholder {
+  color: #999;
+}
+.aplicacion--invitado .formulario-reserva .campo__entrada:focus {
+  border-color: #fff;
+  outline-color: #fff;
+}
+.aplicacion--invitado .formulario-reserva .opcion-modelo {
+  background: linear-gradient(120deg, rgba(42, 42, 42, 0.8), rgba(10, 10, 10, 0.72));
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  backdrop-filter: blur(8px);
+}
+.aplicacion--invitado .formulario-reserva .opcion-modelo:hover,
+.aplicacion--invitado .formulario-reserva .opcion-modelo--seleccionado {
+  background: #000;
+  border-color: #fff;
+}
+.aplicacion--invitado .formulario-reserva .opcion-modelo__nombre,
+.aplicacion--invitado .formulario-reserva .opcion-modelo__precio,
+.aplicacion--invitado .formulario-reserva .opcion-color__nombre {
+  color: #fff;
+}
 .aplicacion .pie-sitio { background:#f5f5f7; border-top:1px solid #d2d2d7; color:#707070; }
 .aplicacion .pie-sitio :is(.pie-sitio__logo,.pie-sitio__titulo) { color:#1d1d1f; }
 .aplicacion .pie-sitio :is(.pie-sitio__frase,.pie-sitio__copy,.pie-sitio__enlace) { color:#707070; }
@@ -94,7 +135,7 @@
 @media(prefers-reduced-motion:reduce) { .aplicacion * { animation:none !important; transition:none !important; scroll-behavior:auto !important; } }
 .aplicacion { --navy:#f4f8fb; --navy-medio:#f4f8fb; --navy-claro:#eaf0f5; --gradiente-tarjeta:linear-gradient(#fff,#fff); --gradiente-encabezado:linear-gradient(#f4f8fb,#f4f8fb); }
 .aplicacion--invitado .pie-sitio { background:#f5f5f7; border-top:1px solid #d2d2d7; }
-.aplicacion--invitado .cabecera-sitio__enlace:hover { color:#0066cc; }
+.aplicacion--invitado .cabecera-sitio__enlace:hover { color:#000; border-bottom-color:#000; }
 .aplicacion--invitado .pie-sitio :is(.pie-sitio__logo,.pie-sitio__titulo) { color:#1d1d1f; }
 .aplicacion--invitado .pie-sitio :is(.pie-sitio__frase,.pie-sitio__copy,.pie-sitio__enlace) { color:#707070; }
 .barra-lateral__cuenta .saludo { color:#474747; }
