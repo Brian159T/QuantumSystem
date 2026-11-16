@@ -41,6 +41,7 @@ const COLUMNAS_POR_TABLA: Record<string, string[]> = {
         'Traccion',
         'Nro_Asientos',
         'Precio_USD',
+        'Colores_Disponibles',
     ],
     Servicios_Tecnicos: ['direccion', 'horarios', 'Estado', 'latitud', 'longitud'],
     Estaciones_Carga: ['direccion', 'horarios', 'Estado', 'latitud', 'longitud'],

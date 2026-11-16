@@ -9,7 +9,7 @@ const Saludo = () => {
     <View>
       <Text
         style={{
-          color: 'rgba(255,255,255,0.6)',
+          color: 'rgba(237,230,216,0.6)',
           fontSize: 12,
           fontWeight: '600',
         }}
@@ -19,7 +19,7 @@ const Saludo = () => {
 
       <Text
         style={{
-          color: '#FFFFFF',
+          color: '#EDE6D8',
           fontSize: 22,
           fontWeight: '700',
         }}

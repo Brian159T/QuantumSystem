@@ -55,11 +55,11 @@ REST JSON. Respuestas siempre con el sobre:
 
 **El backend usa hoy PostgreSQL `QuantumSystemDB`** (configurable via `.env` de Backend, base local en el puerto 5432, con `pgvector` y embeddings de Gemini ya poblados). **El esquema completo esta documentado en `docs/base-datos.md`.** Resumen de tablas:
 
-- **Roles**, **Usuarios** (PK `id_usuario`, FK `id_rol`), **Colores**, **Vehiculos** (FK `id_color`, columna `Precio_USD`; sin columna de imagen), **Reservas**
+- **Roles**, **Usuarios** (PK `id_usuario`, FK `id_rol`), **Colores**, **Vehiculos** (FK `id_color`, columna `Precio_USD`, columna **derivada** `Colores_Disponibles`; sin columna de imagen), **Reservas**
 - **Vehiculos_Colores** (N:M Vehiculos↔Colores, **con endpoints** `/api/vehiculos-colores`), **Usuarios_Reservas** (N:M Usuarios↔Reservas), **Usuarios_Vehiculos** (N:M Usuarios↔Vehiculos)
 - **Estaciones_Carga**, **Servicios_Tecnicos**
 
-El backend tiene CRUD para Usuarios, Vehiculos, Estaciones_Carga, Servicios_Tecnicos, **Colores**, **Reservas** y **Vehiculos_Colores** (N:M, con rutas propias `/api/vehiculos-colores`), mas `Clientes` que apunta a la tabla `Roles`. **No hay modulos para Usuarios_Reservas ni Usuarios_Vehiculos** (tablas sin endpoints). El POST de Reservas usa defaults `Fecha_Reserva`=hoy y `Estado`='Pendiente'. El GET de Vehiculos **enriquece** cada fila con un array `colores` (N:M `Vehiculos_Colores` JOIN `Colores`, vacio si no hay relaciones) y los POST/PUT persisten `Precio_USD`.
+El backend tiene CRUD para Usuarios, Vehiculos, Estaciones_Carga, Servicios_Tecnicos, **Colores**, **Reservas** y **Vehiculos_Colores** (N:M, con rutas propias `/api/vehiculos-colores`), mas `Clientes` que apunta a la tabla `Roles`. **No hay modulos para Usuarios_Reservas ni Usuarios_Vehiculos** (tablas sin endpoints). El POST de Reservas usa defaults `Fecha_Reserva`=hoy y `Estado`='Pendiente'. El GET de Vehiculos **enriquece** cada fila con un array `colores` (N:M `Vehiculos_Colores` JOIN `Colores`, vacio si no hay relaciones) y los POST/PUT persisten `Precio_USD`. La columna derivada `Vehiculos.Colores_Disponibles` (todos los colores del modelo, mantenida por trigger desde la N:M) entra al `embedding` via la allowlist, para que el **chatbot** responda los colores de cada modelo (ver `docs/base-datos.md`).
 
 ## Endpoints (lista resumida)
 
@@ -126,6 +126,7 @@ Detalle completo en `docs/Decisiones-tecnicas.md`, **incluido el plan de desplie
 - `tsconfigPaths` (alias `@/*`) esta habilitado en Expo pero las pantallas importan por ruta relativa.
 - En el movil, el rol se compara como string (`rol === 'cliente'` / `'administrador'` en minuscula); depende del valor en la BD.
 - `src/embeddings/index.ts` **solo vectoriza las tablas de `COLUMNAS_POR_TABLA`** (`Vehiculos`, `Servicios_Tecnicos`, `Estaciones_Carga`) y solo con las columnas listadas; cualquier otra tabla devuelve `null` sin llamar a Gemini. Antes de anadir una tabla ahi, revisar que ninguna columna tenga datos personales.
+- `Vehiculos.Colores_Disponibles` es **derivada** (trigger `fn_vehiculos_colores_disponibles`): el trigger actualiza el texto pero **no re-vectoriza**. Tras cambiar colores por `/api/vehiculos-colores` hay que poner `"embedding" = NULL` en ese vehiculo y correr `Backend/scripts/vectorizar_datos.ts`.
 - Si falta la clave de Gemini, `src/embeddings/index.ts:74-97` escribe vectores de **feature hashing (SHA-1)**: 768 dims aparentemente validos pero semanticamente inservibles, y la API responde 200 sin avisar. Fallback silencioso a quitar o hacer explicito.
 - `dotenv` esta en `devDependencies` de `Backend/package.json` pero `config.ts:1` hace `require('dotenv')`: con `npm ci --omit=dev` (Render) el backend no arranca.
 - No existe `.env.example` aunque `.gitignore:7` lo whitelistea.

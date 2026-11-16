@@ -9,11 +9,11 @@ export const GREEN = '#2fb676';
 export const BLUE = '#4D9FFF';
 export const ORANGE = '#f39c12';
 export const RED = '#e74c3c';
-export const BG = '#000000';
-export const WHITE = '#ffffff';
-export const OFF_WHITE = '#000000';
+export const BG = '#1c1c1c';
+export const WHITE = '#EDE6D8';
+export const OFF_WHITE = '#1c1c1c';
 export const SUBTLE = '#e8edf8';
-export const TEXT_DARK = '#ffffff';
+export const TEXT_DARK = '#EDE6D8';
 export const TEXT_MID = '#e5e7eb';
 
 export const styles = StyleSheet.create({
@@ -36,7 +36,7 @@ export const styles = StyleSheet.create({
 
   header: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ffffff',
+    borderBottomColor: '#EDE6D8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -46,7 +46,7 @@ export const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   headerSub: {
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(237,230,216,0.5)',
     fontSize: 11,
     fontWeight: '500',
     letterSpacing: 2,
@@ -85,7 +85,7 @@ export const styles = StyleSheet.create({
     fontWeight: '400',
   },
   vehiclePlate: {
-    color: 'rgba(255,255,255,0.45)',
+    color: 'rgba(237,230,216,0.45)',
     fontSize: 11,
     marginTop: 2,
     letterSpacing: 1,
@@ -94,12 +94,12 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 5,
-    backgroundColor: 'rgba(255,255,255,0.08)',
+    backgroundColor: 'rgba(237,230,216,0.08)',
     borderRadius: 999,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.12)',
+    borderColor: 'rgba(237,230,216,0.12)',
   },
   vehicleStatusText: {
     fontSize: 10,
@@ -131,7 +131,7 @@ export const styles = StyleSheet.create({
     fontWeight: '400',
   },
   batteryPctLabel: {
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(237,230,216,0.5)',
     fontSize: 8,
   },
   batteryDetails: {
@@ -141,7 +141,7 @@ export const styles = StyleSheet.create({
     width: '100%',
     height: 8,
     borderRadius: 4,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(237,230,216,0.1)',
     overflow: 'hidden',
   },
   batteryBarFill: {
@@ -164,7 +164,7 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
   },
   lastCharged: {
-    color: 'rgba(255,255,255,0.4)',
+    color: 'rgba(237,230,216,0.4)',
     fontSize: 10,
     marginTop: 8,
   },
@@ -395,7 +395,7 @@ export const styles = StyleSheet.create({
     lineHeight: 24,
   },
   tripBannerSub: {
-    color: 'rgba(255,255,255,0.45)',
+    color: 'rgba(237,230,216,0.45)',
     fontSize: 11,
     marginTop: 4,
   },

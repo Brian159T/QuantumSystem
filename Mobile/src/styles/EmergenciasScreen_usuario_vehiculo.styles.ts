@@ -3,11 +3,11 @@ export const GREEN = '#2fb676';
 export const BLUE = '#4D9FFF';
 export const ORANGE = '#f39c12';
 export const RED = '#e74c3c';
-export const BG = '#000000';
-export const WHITE = '#ffffff';
-export const OFF_WHITE = '#000000';
+export const BG = '#1c1c1c';
+export const WHITE = '#EDE6D8';
+export const OFF_WHITE = '#1c1c1c';
 export const SUBTLE = '#e8edf8';
-export const TEXT_DARK = '#ffffff';
+export const TEXT_DARK = '#EDE6D8';
 export const TEXT_MID = '#e5e7eb';
 export const styles = StyleSheet.create({
   root: {
@@ -24,7 +24,7 @@ export const styles = StyleSheet.create({
 
   header: {
     borderBottomWidth: 1,
-    borderBottomColor: '#ffffff',
+    borderBottomColor: '#EDE6D8',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -34,7 +34,7 @@ export const styles = StyleSheet.create({
     backgroundColor: BG,
   },
   headerSub: {
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(237,230,216,0.5)',
     fontSize: 11,
     fontWeight: '500',
     letterSpacing: 2,
@@ -373,7 +373,7 @@ export const styles = StyleSheet.create({
     lineHeight: 23,
   },
   locationBannerSub: {
-    color: 'rgba(255,255,255,0.45)',
+    color: 'rgba(237,230,216,0.45)',
     fontSize: 11,
     marginTop: 4,
   },

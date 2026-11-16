@@ -21,7 +21,7 @@ const LogoutButton = () => {
       <MaterialCommunityIcons
         name="logout"
         size={16}
-        color="#ffffff"
+        color="#EDE6D8"
       />
 
       <Text style={styles.logoutText}>

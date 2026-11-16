@@ -6,10 +6,10 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
 
-    backgroundColor: "rgba(255,255,255,0.12)",
+    backgroundColor: "rgba(237,230,216,0.12)",
 
     borderWidth: 0.5,
-    borderColor: "rgba(255,255,255,0.28)",
+    borderColor: "rgba(237,230,216,0.28)",
 
     borderRadius: 10,
 
@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   },
 
   logoutText: {
-    color: "#ffffff",
+    color: "#EDE6D8",
     fontSize: 13,
     fontWeight: "500",
     letterSpacing: 0.3,

@@ -31,7 +31,7 @@ function Tabs() {
       <Tab.Navigator
         screenOptions={{
           headerShown: false,
-          tabBarActiveTintColor: esInvitado ? '#ffffff' : '#000000',
+          tabBarActiveTintColor: esInvitado ? '#ffffff' : '#1c1c1c',
           tabBarInactiveTintColor: esInvitado ? '#ffffff' : '#4d4d4d',
           tabBarStyle: {
             position: 'absolute',

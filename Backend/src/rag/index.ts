@@ -41,6 +41,7 @@ const ETIQUETAS: Record<string, Record<string, string>> = {
         Traccion: 'Traccion',
         Nro_Asientos: 'Asientos',
         Precio_USD: 'Precio',
+        Colores_Disponibles: 'Colores disponibles',
     },
     Servicios_Tecnicos: {
         direccion: 'Direccion',

@@ -186,9 +186,9 @@ body:has(#root .aplicacion--invitado) {
 }
 
 body:has(#root .aplicacion--cliente) {
-  background: #0f172a;
+  background: #1c1c1c;
 }
 
 body:has(#root .aplicacion--administrador) {
-  background: #060b18;
+  background: #1c1c1c;
 }

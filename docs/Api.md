@@ -188,7 +188,7 @@ Campos: `id_color`, `Color` (string). Tabla `Colores`.
 
 ### `/api/reservas`
 
-Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `apellidos`, `cedula_identidad`, `modelo` (string), `color` (number, FK → `Colores.id_color`).
+Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `apellidos`, `cedula_identidad`, `modelo` (string), `color` (number, FK → `Colores.id_color`), `Codigo_Reserva` (VARCHAR(6), único, autogenerado en BD) y `Fecha_expiracion` (date, autocalculada).
 
 - GET `/api/reservas` / GET `:id` / POST (201) / PUT `:id` (200) / DELETE `:id` (200)
 - **POST** body:
@@ -201,7 +201,7 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
     "color": 3
   }
   ```
-  Si no se envian `Fecha_Reserva` ni `Estado`, se usan por defecto la **fecha de hoy** y **"Pendiente"**.
+  Si no se envian `Fecha_Reserva` ni `Estado`, se usan por defecto la **fecha de hoy** y **"Pendiente"**. La BD completa automáticamente `Codigo_Reserva` (6 chars A-Z/0-9, único) y `Fecha_expiracion` (`Fecha_Reserva` + 7 días) vía trigger/defaults. Para obtener el código generado al crear, usar `INSERT ... RETURNING "Codigo_Reserva","Fecha_Reserva","Fecha_expiracion"` a nivel SQL; el endpoint CRUD actual responde con el mensaje genérico del sobre (no devuelve la fila insertada). Las reservas expiradas pasan a `Vencido` por trigger en INSERT/UPDATE y por verificación al iniciar el backend.
 
 ### `/api/clientes`
 
@@ -212,7 +212,7 @@ Campos de la tabla `Reservas`: `Fecha_Reserva` (date), `Estado`, `nombres`, `ape
 
 ## Chatbot (IA con RAG)
 
-El asistente responde usando **busqueda vectorial** sobre `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`. Las preguntas fuera de dominio reciben una respuesta que dice que no hay informacion registrada.
+El asistente responde usando **busqueda vectorial** sobre `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`. Las preguntas fuera de dominio reciben una respuesta que dice que no hay informacion registrada. Para los vehiculos, el contexto incluye los **colores disponibles** (`Vehiculos.Colores_Disponibles`, columna derivada de la N:M `Vehiculos_Colores` que entra al `embedding`), asi que responde que colores tiene cada modelo.
 
 | Metodo | Ruta | Cuerpo | Respuesta |
 |---|---|---|---|
@@ -242,7 +242,7 @@ Respuesta:
   "body": {
     "texto": "Tenemos el auto E4 MONTAÑERO a 7300, NEXUS PLUS a 14500, KAIYI EQUTE a 19700 y la motocicleta TS STREET HUNTER PRO a 4000.",
     "fuentes": [
-      {"tabla":"Vehiculos","id":5,"titulo":"vehiculo electrico","texto":"vehiculo electrico \"E4 MONTAÑERO\": Modelo: E4 MONTAÑERO. Tipo: Auto. Autonomia: 100 km. Bateria: 100 Ah/72 V. Velocidad maxima: 55 km/h. Carga rapida: Sí. Tiempo de carga normal: 8-10 horas. Traccion: Posterior (4x2). Asientos: 3. Precio: 7300.","similitud":0.7059}
+      {"tabla":"Vehiculos","id":5,"titulo":"vehiculo electrico","texto":"vehiculo electrico \"E4 MONTAÑERO\": Modelo: E4 MONTAÑERO. Tipo: Auto. Autonomia: 100 km. Bateria: 100 Ah/72 V. Velocidad maxima: 55 km/h. Carga rapida: Sí. Tiempo de carga normal: 8-10 horas. Traccion: Posterior (4x2). Asientos: 3. Precio: 7300. Colores disponibles: Gris.","similitud":0.7059}
     ],
     "proveedor":"gemini",
     "modelo":"gemini-3.5-flash-lite"

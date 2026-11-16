@@ -30,6 +30,7 @@ Roles (1) ──── (N) Usuarios
 - Se instalo la extension **`vector` (pgvector)** a nivel de sistema (binarios compilados para PostgreSQL 17 en Windows: `vector.dll`, `vector.control`, scripts SQL; se reinicio el servicio `postgresql-x64-17`).
 - Activacion por base: `CREATE EXTENSION IF NOT EXISTS vector;`.
 - Las tablas **Vehiculos, Servicios_Tecnicos y Estaciones_Carga** son las **unicas 3 con columna `"embedding" vector(768)`**, poblada con **embeddings semánticos de Google Gemini** (`gemini-embedding-001`, 768 dimensiones) calculados **solo con las columnas de la allowlist** (`COLUMNAS_POR_TABLA` en `Backend/src/embeddings/index.ts`). **`Usuarios` y `Reservas` ya no tienen columna de vector** (decisión de privacidad, sept/oct 2026): son las unicas tablas con datos personales y el chatbot del catalogo no las necesita. Se vaciaron (`SET "embedding" = NULL`) y despues se **eliminaron** con `DROP COLUMN`; las otras 3 se re-vectorizaron (22 vectores) porque el texto paso de "todas las columnas" a la allowlist. Ver la seccion "Plan de seguridad" de `docs/Decisiones-tecnicas.md`.
+- **`Vehiculos` vectoriza sus colores**: la allowlist incluye `Colores_Disponibles` (columna derivada de la N:M, ver "Colores disponibles en `Vehiculos`"), asi que el `embedding` de cada vehiculo lleva sus colores y el chatbot los responde sin consultar `Vehiculos_Colores`.
 - Para buscar por similitud: `ORDER BY "embedding" <=> '<vector>'::vector` (coseno). Para vectores rapidos se puede crear `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)`. **Nota:** ese indice HNSW esta documentado pero **aun no se ha creado** en `QuantumSystemDB`; con ~25 filas el seq scan es aceptable, pero hay que crearlo antes de que las tablas crezcan.
 - **Que guarda y para que sirve la columna**: hay **un vector por fila** (1 peticion a Gemini por fila; cada vector se guarda en la fila que le corresponde, con `UPDATE ... WHERE pk = <fila>`). Cada vector es la representacion **semantica del contenido de las demas columnas de esa fila** (el texto `"columna:valor ..."` es lo que Gemini convierte en vector). Su unico objetivo es servir de **clave de busqueda semantica**: cuando llega una pregunta, se la vectoriza con el mismo modelo y `<=>` compara ese vector contra los guardados para hallar que filas "hablan del mismo tema"; el **vector de la pregunta es solo la llave de busqueda y nunca se le pasa a la IA** (a la IA se le entrega el texto de la fila encontrada, no el vector).
 - **Modelo de IA del chatbot**: `gemini-2.5-flash-lite` en free tier, con paso previsto a `deepseek-flash` de pago. No afecta a los embeddings (siguen en `gemini-embedding-001`). Ver `docs/Decisiones-tecnicas.md`.
@@ -97,7 +98,8 @@ Problemas conocidos: credenciales **hardcodeadas** (`user: b`, `password: a`), `
 | `Nro_Asientos` | VARCHAR(20) | NOT NULL |
 | `id_color` | INT | FK → Colores(id_color), NOT NULL — **color principal** del modelo |
 | `Precio_USD` | DECIMAL(10,2) | NOT NULL |
-| `embedding` | vector(768) | embeddings Gemini de la fila (texto de la allowlist de columnas) |
+| `Colores_Disponibles` | TEXT | **derivada** (trigger): todos los colores del modelo (`'Azul, Rojo'`) desde la N:M, o el principal si no hay N:M |
+| `embedding` | vector(768) | embeddings Gemini de la fila (texto de la allowlist de columnas, **incluye `Colores_Disponibles`**) |
 
 ### Vehiculos_Colores (N:M)
 
@@ -110,18 +112,38 @@ Relacion muchos-a-muchos entre Vehiculos y Colores: **un modelo se ofrece en var
 
 > Con endpoints: modulo `Vehiculos_Colores` en el backend (`/api/vehiculos-colores`, ver `docs/Api.md`). El `GET /api/vehiculos` devuelve un array `colores` por vehiculo (JOIN con `Colores`).
 
+### Colores disponibles en `Vehiculos` (columna derivada)
+
+`Vehiculos."Colores_Disponibles"` (TEXT) es una **columna derivada** que guarda el texto con todos los colores del modelo (`'Azul, Rojo'`), tomado de la N:M `Vehiculos_Colores` y, si el modelo no tiene filas ahi, de su color principal (`id_color`). Existe para que el **chatbot** responda "que colores tiene cada modelo": es una de las columnas de la allowlist (`COLUMNAS_POR_TABLA.Vehiculos` en `Backend/src/embeddings/index.ts`), asi que entra al `embedding` y al contexto del RAG (`Backend/src/rag/index.ts`).
+
+Se mantiene sincronizada con un trigger:
+
+- `fn_vehiculos_colores_disponibles()` recalcula el texto del vehiculo afectado.
+- `trg_vc_colores` (en `Vehiculos_Colores`, `AFTER INSERT/UPDATE/DELETE`) y `trg_vehiculo_color_principal` (en `Vehiculos`, `AFTER UPDATE OF "id_color"`) disparan la funcion.
+
+> **Importante:** el trigger actualiza el **texto**, pero **no re-vectoriza**. Si cambian los colores por `/api/vehiculos-colores`, el `embedding` de ese vehiculo queda desactualizado hasta re-vectorizarlo (`UPDATE "Vehiculos" SET "embedding" = NULL WHERE "id_vehiculo" = <id>;` y correr `Backend/scripts/vectorizar_datos.ts`).
+
 ### Reservas
 
 | Columna | Tipo | Restricciones |
 |---------|------|---------------|
 | `id_reserva` | INT | PK, IDENTITY, NOT NULL |
-| `Fecha_Reserva` | DATE | NOT NULL |
+| `Fecha_Reserva` | DATE | NOT NULL, DEFAULT `CURRENT_DATE` |
 | `Estado` | VARCHAR(50) | NOT NULL |
 | `nombres` | VARCHAR(50) | NOT NULL |
 | `apellidos` | VARCHAR(50) | NOT NULL |
 | `cedula_identidad` | VARCHAR(20) | NOT NULL |
 | `modelo` | VARCHAR(50) | NOT NULL |
 | `color` | INT | FK → Colores(id_color) |
+| `Codigo_Reserva` | VARCHAR(6) | NOT NULL, UNIQUE — generado automáticamente (A-Z/0-9, sin repetirse) |
+| `Fecha_expiracion` | DATE | NOT NULL, DEFAULT `(CURRENT_DATE + INTERVAL '7 days')::date` |
+
+**Automatización (nov 2026):**
+- `generar_codigo_reserva()`: genera un código alfanumérico de 6 caracteres único en `Reservas` (reintenta si colisiona).
+- `fn_reservas_autocompletar()` + trigger `trg_reservas_autocompletar` (`BEFORE INSERT`): si faltan, asigna `Fecha_Reserva` = hoy, `Fecha_expiracion` = `Fecha_Reserva` + 7 días y `Codigo_Reserva` único.
+- `fn_reservas_estado_vencido()` + trigger `trg_reservas_estado_vencido` (`BEFORE INSERT OR UPDATE`): si `Fecha_expiracion < CURRENT_DATE` y el estado no es `Cancelada`/`Completada`, fuerza `Estado = 'Vencido'`.
+- `vencer_reservas()`: `UPDATE` que marca como `Vencido` las reservas expiradas (excluye `Vencido`, `Cancelada`, `Completada`). **Se ejecuta al iniciar el backend** (`Backend/src/index.ts`) para cubrir el paso del tiempo entre arranques.
+- `pg_cron` **no está disponible** en PostgreSQL 17 de Windows (no existe `pg_cron.control` en la instalación local), por eso no se programa en BD; en local la verificación queda en el arranque del backend (alternativas: Programador de tareas/cron del sistema llamando `SELECT vencer_reservas();` o un cron en Node). Al migrar a Supabase se puede habilitar `pg_cron` desde el dashboard.
 
 ### Usuarios_Reservas (N:M)
 

@@ -1,9 +1,10 @@
-import { ChartNoAxesCombined, PanelsTopLeft, PlugZap } from 'lucide-react'
+import { BarChart3, ChartNoAxesCombined, PanelsTopLeft, PlugZap } from 'lucide-react'
 import '../../styles/graficos.css'
 import GraficosReservas from '../../components/GraficosReservas'
 import InterpretacionReservas from '../../components/InterpretacionReservas'
 import GraficoEstaciones from '../../components/GraficoEstaciones'
 import InterpretacionEstaciones from '../../components/InterpretacionEstaciones'
+import GraficoModeloMasReservado from '../../components/GraficoModeloMasReservado'
 
 // Los espacios restantes se mantienen pendientes hasta disponer de sus paneles.
 const PANELES = [
@@ -68,6 +69,18 @@ export default function PaginaGraficos() {
           <footer className="grafico-tarjeta__pie">Actualización cada 10 s · Fuente: Grafana</footer>
         </section>
         <InterpretacionEstaciones />
+        <section className="grafico-tarjeta grafico-tarjeta--amplia" aria-labelledby="grafico-modelo-mas-reservado">
+          <header className="grafico-tarjeta__cabecera">
+            <div className="grafico-tarjeta__icono"><BarChart3 size={21} aria-hidden="true" /></div>
+            <div>
+              <p className="graficos-ceja">RESERVAS Y VENTAS</p>
+              <h3 id="grafico-modelo-mas-reservado">Modelo más reservado</h3>
+              <p className="grafico-tarjeta__descripcion">Ranking de los modelos con mayor cantidad de reservas registradas.</p>
+            </div>
+          </header>
+          <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoModeloMasReservado /></div>
+          <footer className="grafico-tarjeta__pie">Fuente: Grafana</footer>
+        </section>
       </div>
       <p className="graficos-nota">Los paneles requieren acceso a Grafana y una sesión autorizada. Los resúmenes se calculan desde la API; su coincidencia con cada gráfico depende de la consulta y los filtros configurados en Grafana.</p>
     </div>
