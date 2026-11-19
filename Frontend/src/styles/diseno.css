@@ -3,6 +3,7 @@
 .aplicacion .tarjeta { box-shadow:none; }
 .aplicacion--invitado { --verde:#0066cc; --verde-suave:#edf4fb; --azul:#0066cc; --accent:#0071e3; --accent-contraste:#fff; --gradiente-verde:#0071e3; --radio-boton:980px; font-size:17px; letter-spacing:-.016em; }
 .aplicacion--invitado .contenido__cuerpo { max-width:none; padding:64px 0 0; }
+.aplicacion--invitado .formulario-reserva .tarjeta { border:1px solid #000; }
 .aplicacion--invitado .cabecera-sitio { background:#ffffffed; border-bottom:1px solid #d2d2d7; backdrop-filter:blur(18px); }
 .aplicacion--invitado .cabecera-sitio__interior { height:64px; max-width:1200px; }
 .aplicacion--invitado .cabecera-sitio__nombre { font-size:19px; color:#1d1d1f; letter-spacing:-.02em; }

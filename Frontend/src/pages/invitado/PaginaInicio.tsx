@@ -18,16 +18,11 @@ export default function PaginaInicio({ alVerVehiculos }: PaginaInicioProps) {
       <p className="editorial__subtitulo">Conoce nuestra familia de vehículos eléctricos.</p>
     </section>
     <CarruselInicio />
-    <section aria-labelledby="titulo-carga-electrica">
-      <div className="editorial__seccion">
-        <h2 id="titulo-carga-electrica">Carga eléctrica ahorra hoy</h2>
-      </div>
-      <MedioVisual
-        video={MULTIMEDIA.videoCarga}
-        descripcion="Carga eléctrica de un vehículo Quantum"
-        mostrarControl={false}
-      />
-    </section>
+    <MedioVisual
+      video={MULTIMEDIA.videoCarga}
+      descripcion="Carga eléctrica de un vehículo Quantum"
+      mostrarControl={false}
+    />
     <section className="editorial__seccion" id="modelos">
       <div className="editorial__modelos">
         {modelos.slice(0, 3).map(modelo => <article key={modelo.id_vehiculo ?? modelo.Nombre_Modelo}>

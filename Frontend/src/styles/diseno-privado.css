@@ -95,15 +95,16 @@ body:has(.espacio-privado) { background: #1c1c1c; }
 .espacio-privado .leaflet-popup-content { color: #1d1d1f; }
 .espacio-privado .tarjeta-ruta__icono { background: #141414; color: #24dad9; border-radius: 9999px; }
 .espacio-privado .interruptor__caja { border-width: 1px; color: #1c1c1c; }
-.espacio-privado .barra-lateral, .espacio-privado .panel-lateral { background: #F2F2F2; color: #1d1d1f; border-right: 1px solid #d2d2d7; }
+.espacio-privado .barra-lateral, .espacio-privado .panel-lateral { background: #2fb676; color: #1d1d1f; border-right: 1px solid #27a169; }
 .espacio-privado .barra-lateral { display: flex; flex-direction: column; }
 .espacio-privado .barra-lateral__marca { font-weight: 400; }
-.espacio-privado .barra-lateral__etiqueta { color: #626262; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
+.espacio-privado .barra-lateral__etiqueta { color: #0f4a2c; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; }
 .espacio-privado .barra-lateral__nav a { color: #1d1d1f; border: 1px solid transparent; transition: background 180ms,border-color 180ms; }
-.espacio-privado .barra-lateral__nav a:hover { background: #e2e2e2; }
+.espacio-privado .barra-lateral__nav a:hover { background: #fff; color: #1d1d1f; }
 .espacio-privado .barra-lateral__nav a[aria-current=page] { background: #141414; color: #EDE6D8; border-color: #707070; font-weight: 400; }
-.espacio-privado .barra-lateral__cuenta { margin-top: auto; padding-top: 28px; border-color: #d2d2d7; }
-.espacio-privado .barra-lateral__cuenta .saludo { color: #474747; }
+.espacio-privado .barra-lateral__cuenta { margin-top: auto; padding-top: 28px; border-color: #27a169; }
+.espacio-privado .barra-lateral__cuenta .saludo { color: #0f4a2c; }
+.espacio-privado :is(.barra-lateral,.panel-lateral) .barra-lateral__cuenta .boton { border-color: #fff; }
 .espacio-privado .barra-movil { background: #1c1c1c; color: #EDE6D8; border-color: #353535; }
 .espacio-privado :is(button,a):focus-visible { outline-color: #24dad9; }
 .espacio-privado .pie-sitio { background: linear-gradient(90deg,#1e233c,#0a4099 55%,#1951a2); border: 0; padding-block: 56px; }
@@ -159,60 +160,66 @@ body:has(.espacio-privado) { background: #1c1c1c; }
 .espacio-privado .estaciones-inicio .tarjeta-estacion { width: 100%; min-width: 0; box-sizing: border-box; display: flex; flex-direction: column; }
 .espacio-privado .estaciones-inicio .tarjeta-estacion > :last-child { margin-top: auto !important; padding-top: 12px; }
 
-/* Cliente: acento rojo Quantum sobre el lienzo negro. Se usa como señal de
+/* Cliente: lienzo verde profundo y acento salvia. El acento se usa como señal de
    interacción y orientación, sin convertirlo en el color dominante. */
 .aplicacion--cliente {
-  --acento-cliente: #B3261E;
-  --acento-cliente-suave: rgba(179, 38, 30, 0.16);
-  --acento-cliente-borde: rgba(179, 38, 30, 0.62);
+  --fondo: #273531; --fondo-claro: #273531;
+  --superficie: #273531; --superficie-elevada: #273531; --superficie-hover: #31423d;
+  --navy: #273531; --navy-medio: #273531; --navy-claro: #31423d;
+  --borde-claro: #3c4f48;
+  --gradiente-fondo: #273531; --gradiente-tarjeta: #273531; --gradiente-encabezado: #273531;
+  --acento-cliente: #9DB69D;
+  --acento-cliente-suave: rgba(157, 182, 157, 0.16);
+  --acento-cliente-borde: rgba(157, 182, 157, 0.62);
 }
 
-/* El administrador comparte el mismo lienzo editorial negro del cliente. */
+/* El administrador comparte el mismo diseño verde del cliente. */
 .aplicacion--administrador {
-  --fondo: #1c1c1c;
-  --navy: #1c1c1c;
-  --navy-medio: #1c1c1c;
-  --navy-claro: #1c1c1c;
-  --superficie: #1c1c1c;
-  --superficie-elevada: #1c1c1c;
-  --superficie-hover: #262626;
+  --fondo: #273531;
+  --navy: #273531;
+  --navy-medio: #273531;
+  --navy-claro: #31423d;
+  --superficie: #273531;
+  --superficie-elevada: #273531;
+  --superficie-hover: #31423d;
+  --borde-claro: #3c4f48;
   --texto-principal: #EDE6D8;
   --texto-medio: rgba(237, 230, 216, 0.78);
   --texto-suave: rgba(237, 230, 216, 0.55);
   --texto-pagina: #EDE6D8;
   --texto-pagina-suave: rgba(237, 230, 216, 0.72);
-  --acento-cliente: #B3261E;
-  --acento-cliente-suave: rgba(179, 38, 30, 0.16);
-  --acento-cliente-borde: rgba(179, 38, 30, 0.62);
-  background: #1c1c1c;
+  --acento-cliente: #9DB69D;
+  --acento-cliente-suave: rgba(157, 182, 157, 0.16);
+  --acento-cliente-borde: rgba(157, 182, 157, 0.62);
+  background: #273531;
 }
 
 body:has(#root .aplicacion--administrador) {
-  background: #1c1c1c;
+  background: #273531;
 }
 
 .aplicacion--administrador .encabezado-privado,
 .aplicacion--administrador .mapa-contenedor {
-  border-color: #EDE6D8;
+  border-color: #fff;
 }
 
 .aplicacion--administrador .boton--primario,
 .aplicacion--administrador .boton--azul {
   background: var(--acento-cliente);
   border-color: var(--acento-cliente);
-  color: #EDE6D8;
+  color: #1c1c1c;
 }
 
 .aplicacion--administrador .boton--primario:hover,
 .aplicacion--administrador .boton--azul:hover {
-  background: #8f1e19;
-  border-color: #8f1e19;
+  background: #85a085;
+  border-color: #85a085;
 }
 
 .aplicacion--administrador .chip--activo {
   background: var(--acento-cliente);
   border-color: var(--acento-cliente);
-  color: #EDE6D8;
+  color: #1c1c1c;
 }
 
 .aplicacion--cliente .encabezado-privado {
@@ -223,13 +230,13 @@ body:has(#root .aplicacion--administrador) {
 .aplicacion--cliente .boton--azul {
   background: var(--acento-cliente);
   border-color: var(--acento-cliente);
-  color: #EDE6D8;
+  color: #1c1c1c;
 }
 
 .aplicacion--cliente .boton--primario:hover,
 .aplicacion--cliente .boton--azul:hover {
-  background: #8f1e19;
-  border-color: #8f1e19;
+  background: #85a085;
+  border-color: #85a085;
 }
 
 .aplicacion--cliente .boton:focus-visible,
@@ -241,14 +248,114 @@ body:has(#root .aplicacion--administrador) {
 .aplicacion--cliente .chip--activo {
   background: var(--acento-cliente);
   border-color: var(--acento-cliente);
-  color: #EDE6D8;
+  color: #1c1c1c;
 }
 
 .aplicacion--cliente .tarjeta-ruta__icono {
   background: var(--acento-cliente-suave);
-  color: #e35b53;
+  color: #9DB69D;
 }
 
 .aplicacion--cliente .mapa-contenedor {
   border-color: #EDE6D8;
 }
+
+/* Cliente: todo el lienzo y las superficies comparten el verde #273531. */
+.aplicacion--cliente.espacio-privado { background: #273531; }
+body:has(#root .aplicacion--cliente) { background: #273531; }
+.aplicacion--cliente .control-barra-lateral { background: #273531; }
+.aplicacion--cliente .control-barra-lateral:hover { background: #31423d; border-color: #9DB69D; }
+.aplicacion--cliente :is(.tarjeta,.tarjeta--oscura,.tarjeta-servicio,.tarjeta-gestion,.tarjeta-contacto,.fila-actividad,.consejo,.tarjeta-ruta,.tabla-usuarios,.banner) { background: #273531; }
+.aplicacion--cliente .anillo-bateria__centro { background: #273531; }
+.aplicacion--cliente :is(.campo__entrada,.buscador__entrada) { background: #273531; }
+.aplicacion--cliente .campo__entrada option { background: #273531; }
+.aplicacion--cliente .tabla-usuarios__fila { background: #273531; }
+.aplicacion--cliente .avatar { background: #31423d; }
+.aplicacion--cliente .modal { background: #273531; }
+.aplicacion--cliente .barra-movil { background: #273531; border-color: #3c4f48; }
+.aplicacion--cliente .boton-sos { background: #273531; }
+.aplicacion--cliente .saludo__avatar { background: #31423d; }
+.aplicacion--cliente .boton:hover { background: #31423d; }
+.aplicacion--cliente .tarjeta-ruta__icono { background: #31423d; color: #9DB69D; }
+.aplicacion--cliente .fila-actividad { padding: 18px 20px; border: 1px solid #9DB69D; border-radius: 12px; }
+
+/* Cliente: tarjetas de estación rellenas con el color del margen y texto negro. */
+.aplicacion--cliente .tarjeta-estacion { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion :is(.tarjeta-servicio__nombre,.tarjeta-servicio__direccion,.tarjeta-servicio__distancia-valor,.tarjeta-servicio__distancia-unidad,.tarjeta-servicio__calificacion) { color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__calificacion svg { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__pie { border-top-color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-estacion .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-estacion .chip { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion .boton--primario { background: #fff; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion .boton--primario:hover { background: #e8efe8; border-color: #e8efe8; }
+
+/* Cliente: mismo diseño para las tarjetas de taller. */
+.aplicacion--cliente .tarjeta-taller { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller :is(.tarjeta-servicio__nombre,.tarjeta-servicio__direccion,.tarjeta-servicio__distancia-valor,.tarjeta-servicio__distancia-unidad,.tarjeta-servicio__calificacion) { color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller .tarjeta-servicio__calificacion svg { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-taller .tarjeta-servicio__pie { border-top-color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-taller .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-taller .chip { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller .boton--azul { background: #fff; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller .boton--azul:hover { background: #e8efe8; border-color: #e8efe8; }
+
+/* Cliente: Inicio — mismas tarjetas rellenas y texto negro. */
+.aplicacion--cliente .tarjeta--oscura { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta--oscura .tarjeta__titulo { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta--oscura [style*="color"] { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta--oscura .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta--oscura .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta--oscura .anillo-bateria__centro { background: #9DB69D; }
+.aplicacion--cliente .tarjeta--oscura :is(.anillo-bateria__porcentaje,.anillo-bateria__etiqueta) { color: #1c1c1c; }
+.aplicacion--cliente .tarjeta--oscura .barra-bateria { background: rgba(28,28,28,.25); }
+.aplicacion--cliente .tarjeta-estacion .tarjeta__titulo { color: #1c1c1c !important; }
+.aplicacion--cliente .fila-actividad { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; padding: 12px 16px; color: #1c1c1c; }
+.aplicacion--cliente .fila-actividad :is(.fila-actividad__accion,.fila-actividad__detalle) { color: #1c1c1c; }
+.aplicacion--cliente .fila-actividad .fila-actividad__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
+
+/* Cliente: banner de emergencia con el mismo relleno y texto negro. */
+.aplicacion--cliente .banner-emergencia { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .banner-emergencia :is(.banner-emergencia__titulo,.banner-emergencia__subtitulo) { color: #1c1c1c; }
+.aplicacion--cliente .banner-emergencia .banner-emergencia__icono { background: rgba(255,255,255,.35); color: #1c1c1c; }
+.aplicacion--cliente .banner-emergencia .boton--claro { background: #fff; border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--cliente .banner-emergencia .boton--claro:hover { background: #e8efe8; border-color: #1c1c1c; }
+
+/* Cliente: contactos de emergencia con el mismo relleno y texto negro. */
+.aplicacion--cliente .tarjeta-contacto { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; padding: 14px 16px; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-contacto :is(.tarjeta-contacto__nombre,.tarjeta-contacto__numero,.tarjeta-contacto__accion) { color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-contacto .tarjeta-contacto__icono { background: rgba(255,255,255,.35); color: #1c1c1c; }
+
+/* Cliente: servicio de salud con el mismo relleno y texto negro. */
+.aplicacion--cliente .tarjeta-salud { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-salud :is(.tarjeta__titulo,.tarjeta__subtitulo) { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-salud svg { color: #1c1c1c !important; }
+.aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro) { background: #fff; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro):hover { background: #e8efe8; border-color: #e8efe8; }
+
+/* Administrador: mismo diseño y colores que el cliente. */
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) {
+  background: #9DB69D; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c;
+}
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica { border: 1px solid #fff; }
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) :is(p,span,div,h2,h3,h4,dt,dd,strong,label,footer) { color: #1c1c1c; }
+.aplicacion--administrador .tabla-usuarios__fila { background: #9DB69D; border-bottom: 1px solid #1c1c1c; }
+.aplicacion--administrador .tabla-usuarios__fila--encabezado { background: #8aa78a; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.modal) :is(.campo__entrada,.buscador__entrada) { background: #fff; border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-gestion,.modal) :is(.boton--primario,.boton--azul,.boton--claro) { background: #fff; border-color: #fff; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-gestion,.modal) :is(.boton--primario,.boton--azul,.boton--claro):hover { background: #e8efe8; border-color: #e8efe8; }
+.aplicacion--administrador :is(.tarjeta,.modal) .chip { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.modal) .chip--activo { background: #1c1c1c; border-color: #1c1c1c; color: #fff; }
+.aplicacion--administrador .avatar { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.modal) .boton { border-color: #1c1c1c; color: #1c1c1c; }
+.aplicacion--administrador :is(.tarjeta,.modal) .boton:hover { background: rgba(255,255,255,.35); border-color: #1c1c1c; }
+
+/* Administrador · Gráficos: cifras con relleno oscuro, texto y margen blancos. */
+.aplicacion--administrador .grafico-tarjeta .analisis-reservas__cifras > div {
+  background: #1c1c1c; border: 1px solid #fff; border-radius: 12px; color: #fff;
+}
+.aplicacion--administrador .grafico-tarjeta .analisis-reservas__cifras > div :is(dt,dd) { color: #fff; }
+.aplicacion--administrador :is(.grafico-tarjeta,.graficos-resumen) :is(.grafico-tarjeta__icono,.graficos-resumen__icono,.grafico-tarjeta__simbolo) { color: #fff; border-color: #fff; }
+.aplicacion--administrador :is(.grafico-tarjeta__icono,.graficos-resumen__icono) { border-radius: 12px; }
+.aplicacion--administrador .graficos-resumen .graficos-etiqueta { background: #1c1c1c; border: 1px solid #fff; border-radius: 12px; color: #fff; }

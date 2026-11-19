@@ -1,10 +1,11 @@
-import { BarChart3, ChartNoAxesCombined, PanelsTopLeft, PlugZap } from 'lucide-react'
+import { Activity, BarChart3, ChartNoAxesCombined, PanelsTopLeft, PlugZap } from 'lucide-react'
 import '../../styles/graficos.css'
 import GraficosReservas from '../../components/GraficosReservas'
 import InterpretacionReservas from '../../components/InterpretacionReservas'
 import GraficoEstaciones from '../../components/GraficoEstaciones'
 import InterpretacionEstaciones from '../../components/InterpretacionEstaciones'
 import GraficoModeloMasReservado from '../../components/GraficoModeloMasReservado'
+import GraficoEstacionesCarga from '../../components/GraficoEstacionesCarga'
 
 // Los espacios restantes se mantienen pendientes hasta disponer de sus paneles.
 const PANELES = [
@@ -80,6 +81,18 @@ export default function PaginaGraficos() {
           </header>
           <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoModeloMasReservado /></div>
           <footer className="grafico-tarjeta__pie">Fuente: Grafana</footer>
+        </section>
+        <section className="grafico-tarjeta grafico-tarjeta--amplia" aria-labelledby="grafico-estaciones-carga">
+          <header className="grafico-tarjeta__cabecera">
+            <div className="grafico-tarjeta__icono"><Activity size={21} aria-hidden="true" /></div>
+            <div>
+              <p className="graficos-ceja">RED DE CARGA</p>
+              <h3 id="grafico-estaciones-carga">Gráfico de estaciones de carga</h3>
+              <p className="grafico-tarjeta__descripcion">Visualización del comportamiento de las estaciones de carga registradas.</p>
+            </div>
+          </header>
+          <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoEstacionesCarga /></div>
+          <footer className="grafico-tarjeta__pie">Actualización cada 10 s · Fuente: Grafana</footer>
         </section>
       </div>
       <p className="graficos-nota">Los paneles requieren acceso a Grafana y una sesión autorizada. Los resúmenes se calculan desde la API; su coincidencia con cada gráfico depende de la consulta y los filtros configurados en Grafana.</p>
