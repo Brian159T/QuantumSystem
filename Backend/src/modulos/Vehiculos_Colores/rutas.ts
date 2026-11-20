@@ -1,14 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
+import auth from '../../auth';
 
 const router = Router();
 
 router.get('/', todos);
 router.get('/vehiculo/:idVehiculo', coloresDeVehiculo);
 router.get('/color/:idColor', vehiculosDeColor);
-router.post('/', agregar);
-router.delete('/:idVehiculo/color/:idColor', eliminar);
+router.post('/', auth.soloAdmin, agregar);
+router.delete('/:idVehiculo/color/:idColor', auth.soloAdmin, eliminar);
 
 async function todos(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
@@ -42,8 +43,6 @@ async function vehiculosDeColor(req: Request, res: Response, next: NextFunction)
 async function agregar(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const body = req.body;
-        console.log('========== POST /api/vehiculos-colores ==========');
-        console.log('Body:', body);
         await controlador.agregar(body);
         respuesta.success(req, res, 'Relación vehículo-color agregada satisfactoriamente', 201);
     } catch (error) {
@@ -55,8 +54,6 @@ async function eliminar(req: Request, res: Response, next: NextFunction): Promis
     try {
         const idVehiculo = Number(req.params.idVehiculo);
         const idColor = Number(req.params.idColor);
-        console.log('========== DELETE /api/vehiculos-colores ==========');
-        console.log('idVehiculo:', idVehiculo, 'idColor:', idColor);
         await controlador.eliminar(idVehiculo, idColor);
         respuesta.success(req, res, 'Relación vehículo-color eliminada satisfactoriamente', 200);
     } catch (error) {

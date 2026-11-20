@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react'
 import AuthService from '../Model/AuthService'
+import { limpiarToken } from '../Config/token'
 import { Usuario, Credenciales } from '../Model/Usuario'
 
 interface AuthContextType {
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true
     } catch (error: any) {
       const mensaje =
+        error?.response?.data?.body ||
         error?.response?.data?.mensaje ||
         error?.response?.data?.message ||
         'Correo o contraseña incorrectos'
@@ -59,6 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true
     } catch (error: any) {
       const mensaje =
+        error?.response?.data?.body ||
         error?.response?.data?.mensaje ||
         error?.response?.data?.message ||
         'No se pudo crear la cuenta'
@@ -70,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = () => {
+    limpiarToken()
     setUsuario(null)
     setToken(null)
   }

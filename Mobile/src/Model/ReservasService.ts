@@ -1,7 +1,6 @@
-import axios from 'axios';
-import { API_URL } from '../Config/api';
+import http from '../Config/http';
 
-const RESERVAS_URL = `${API_URL}/reservas`;
+const RESERVAS_URL = '/reservas';
 
 export interface NuevaReserva {
   nombres: string;
@@ -17,7 +16,7 @@ interface ApiResponse {
 }
 
 async function crearReserva(reserva: NuevaReserva): Promise<string> {
-  const response = await axios.post<ApiResponse>(RESERVAS_URL, reserva);
+  const response = await http.post<ApiResponse>(RESERVAS_URL, reserva);
 
   return response.data.body;
 }

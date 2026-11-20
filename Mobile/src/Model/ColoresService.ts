@@ -1,7 +1,6 @@
-import axios from 'axios';
-import { API_URL } from '../Config/api';
+import http from '../Config/http';
 
-const COLORES_URL = `${API_URL}/colores`;
+const COLORES_URL = '/colores';
 
 export interface Color {
   id_color: number;
@@ -14,7 +13,7 @@ interface ApiResponse {
 }
 
 async function obtenerColores(): Promise<Color[]> {
-  const response = await axios.get<ApiResponse>(COLORES_URL);
+  const response = await http.get<ApiResponse>(COLORES_URL);
 
   return response.data.body;
 }

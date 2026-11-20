@@ -25,8 +25,7 @@
 // (operador <=> de pgvector), pasar el contexto a la IA del
 // chatbot y devolver la respuesta al frontend.
 //
-// SI la API key no esta configurada, usa un fallback de
-// feature hashing local (deterministico, sin IA).
+// Sin API key el script falla: no genera vectores falsos.
 // La clave se lee del .env del Backend (carpeta superior):
 //   API_KEY_GOOGLE_AI_STUDIO=...   (o GEMINI_API_KEY=...)
 //
@@ -39,7 +38,6 @@
 // (default "gemini-embedding-001"). Dimension recomendada 768.
 // =====================================================
 
-import { createHash } from 'crypto';
 import path from 'path';
 import dotenv from 'dotenv';
 import { Client } from 'pg';
@@ -93,33 +91,11 @@ async function embeddingGemini(texto: string): Promise<string> {
     return `[${vector.map((v: number) => Number(v).toFixed(6)).join(',')}]`;
 }
 
-// ---------- Fallback local (sin IA, deterministico) ----------
-function vectorHashing(texto: string): string | null {
-    const tokens = texto
-        .toLowerCase()
-        .split(/[^a-z0-9áéíóúüñãõ]+/u)
-        .filter(Boolean);
-
-    if (tokens.length === 0) return null;
-
-    const vec = new Float64Array(DIM);
-    for (const token of tokens) {
-        const d = createHash('sha1').update(token, 'utf8').digest();
-        const indice = d.readUInt32BE(0) % DIM;
-        const signo = (d[4] & 1) === 0 ? 1 : -1;
-        vec[indice] += signo;
+async function main(): Promise<void> {
+    if (!API_KEY) {
+        throw new Error('Falta API_KEY_GOOGLE_AI_STUDIO: no se generan vectores falsos');
     }
 
-    let norma = 0;
-    for (let i = 0; i < DIM; i++) norma += vec[i] * vec[i];
-    norma = Math.sqrt(norma);
-    if (norma === 0) return null;
-
-    for (let i = 0; i < DIM; i++) vec[i] /= norma;
-    return `[${Array.from(vec, (v) => v.toFixed(6)).join(',')}]`;
-}
-
-async function main(): Promise<void> {
     const client = new Client({
         host: process.env.PGHOST || 'localhost',
         port: Number(process.env.PGPORT || 5432),
@@ -129,11 +105,7 @@ async function main(): Promise<void> {
     });
 
     await client.connect();
-    console.log(
-        API_KEY
-            ? `Metodo: Gemini (${MODELO})`
-            : 'Metodo: fallback local (GEMINI_API_KEY no configurada)'
-    );
+    console.log(`Metodo: Gemini (${MODELO})`);
 
     for (const { tabla, pk } of TABLAS) {
         const columnas = COLUMNAS_POR_TABLA[tabla];
@@ -172,9 +144,7 @@ async function main(): Promise<void> {
             }
 
             try {
-                const literal = API_KEY
-                    ? await embeddingGemini(texto)
-                    : vectorHashing(texto);
+                const literal = await embeddingGemini(texto);
                 if (!literal) {
                     sinTexto++;
                     continue;

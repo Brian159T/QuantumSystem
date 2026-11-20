@@ -1,22 +1,47 @@
-import { useState, type ReactNode } from 'react'
-import type { Credenciales, DatosRegistro, Usuario } from '../types/Usuario'
+import { useEffect, useState, type ReactNode } from 'react'
+import type { Credenciales, DatosRegistro } from '../types/Usuario'
 import * as authService from '../services/authService'
 import { esAdministrador, esCliente } from '../utils/roles'
 import {
+  EVENTO_SESION_EXPIRADA,
   guardarSesion,
   limpiarSesion,
-  obtenerTokenSesion,
   obtenerUsuarioSesion,
 } from '../utils/sesion'
 import { AuthContext } from './useAuth'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [usuario, setUsuario] = useState<Usuario | null>(() => obtenerUsuarioSesion())
-  const [token, setToken] = useState<string | null>(() => obtenerTokenSesion())
+  const [usuario, setUsuario] = useState(() => obtenerUsuarioSesion())
   const [cargandoLogin, setCargandoLogin] = useState(false)
   const [cargandoRegistro, setCargandoRegistro] = useState(false)
   const [errorLogin, setErrorLogin] = useState<string | null>(null)
   const [errorRegistro, setErrorRegistro] = useState<string | null>(null)
+
+  useEffect(() => {
+    const manejarExpiracion = () => setUsuario(null)
+    window.addEventListener(EVENTO_SESION_EXPIRADA, manejarExpiracion)
+    return () => window.removeEventListener(EVENTO_SESION_EXPIRADA, manejarExpiracion)
+  }, [])
+
+  useEffect(() => {
+    let vigente = true
+
+    authService
+      .obtenerSesion()
+      .then((datos) => {
+        if (!vigente) return
+        setUsuario(datos.usuario)
+        guardarSesion(datos.usuario)
+      })
+      .catch(() => {
+        // Un fallo de red no debe borrar una sesion que sigue siendo valida.
+        // El 401 ya fue notificado por apiClient.
+      })
+
+    return () => {
+      vigente = false
+    }
+  }, [])
 
   const iniciarSesion = async (credenciales: Credenciales): Promise<boolean> => {
     setErrorLogin(null)
@@ -24,8 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const datos = await authService.iniciarSesion(credenciales)
       setUsuario(datos.usuario)
-      setToken(datos.token)
-      guardarSesion(datos.token, datos.usuario)
+      guardarSesion(datos.usuario)
       return true
     } catch (error) {
       setErrorLogin(error instanceof Error ? error.message : 'Correo o contraseña incorrectos')
@@ -52,8 +76,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const cerrarSesion = () => {
+    void authService.cerrarSesion()
     setUsuario(null)
-    setToken(null)
     limpiarSesion()
   }
 
@@ -61,7 +85,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider
       value={{
         usuario,
-        token,
+        token: null,
         cargandoLogin,
         cargandoRegistro,
         errorLogin,

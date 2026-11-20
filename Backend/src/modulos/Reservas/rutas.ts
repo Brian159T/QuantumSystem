@@ -1,14 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
+import auth from '../../auth';
 
 const router = Router();
 
-router.get('/', todos);
-router.get('/:id', uno);
+router.get('/', auth.soloAdmin, todos);
+router.get('/:id', auth.soloAdmin, uno);
 router.post('/', agregar);
-router.put('/:id', actualizar);
-router.delete('/:id', eliminar);
+router.put('/:id', auth.soloAdmin, actualizar);
+router.delete('/:id', auth.soloAdmin, eliminar);
 
 async function todos(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {

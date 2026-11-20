@@ -2,6 +2,10 @@
 
 **Alcance:** SPA `Frontend/` (la app web, independiente de la app movil `Mobile/`). Este informe describe la arquitectura desde la perspectiva del flujo real: **que pasa desde que el usuario hace una accion en la interfaz hasta que la respuesta se pinta en pantalla.**
 
+> ⚠️ **Actualizado nov 2026:** `apiClient` envia el token en cookie httpOnly `quantum_token` con `credentials: 'include'` y revalida la sesion contra `GET /api/auth/sesion` al montar la app (se cierra solo en `401`). Los apartados que hablan de `Authorization: Bearer` o de "el token JWT nunca se envia" son **historicos**. Estado vigente: `docs/Api.md`, secciones "Autenticacion" y "Seguridad de la API".
+
+> 🎨 **Inicio invitado y estaciones del cliente (nov 2026):** las 3 cards del catálogo usan `Equte volante.png`, `Pantalla nexus plus.png` y `E4 Montanero botones.png` con textos de confort/pantalla; el bloque "Imagina el camino que viene" reproduce `video dentro del auto2.mp4` en loop y a ancho completo, y el video de carga pasó a `carga electrica2.mp4`. Las tarjetas "Estaciones cerca / Puntos libres / Operativas" del cliente usan el mismo relleno `#9DB69D`, borde blanco y radio 12px que las tarjetas de estación. Detalle en `docs/Funcionalidades.md` y `docs/Arquitectura.md`.
+
 ---
 
 ## 1. Resumen ejecutivo
@@ -10,9 +14,9 @@
 - **Sin React Router**: la navegacion es por **estado** (`routes/AppNavigator.tsx` guarda la pantalla actual en `useState`; la config de routeos vive en `routes/config.ts`).
 - **fetch nativo** (no axios) a traves de un unico cliente HTTP: `src/services/apiClient.ts`.
 - **Hooks de datos reutilizables**: las paginas **no llaman la API directo**; consumen `useDatos.ts` (`useVehiculos`, `useEstaciones`, `useTalleres`, `useUsuarios`) y `useAuth.ts`, que envuelven a los services.
-- **Fallback universal a mocks**: si la API falla o devuelve listas vacias, los services devuelven datos mock (`services/mocks/`); por eso las pantallas "nunca fallan".
-- Un unico contexto global: `AuthContext`/`AuthProvider` (todo en memoria, sin persistencia).
-- Token JWT guardado en contexto pero **aun no se envia** en las peticiones.
+- **Sin fallback a mocks**: si la API falla o devuelve listas vacias, los services devuelven `[]`.
+- Un unico contexto global: `AuthContext`/`AuthProvider`; el usuario se persiste en `localStorage` y el token vive en cookie httpOnly.
+- Token JWT enviado automaticamente por el navegador en todas las peticiones (`credentials: 'include'`).
 
 ---
 

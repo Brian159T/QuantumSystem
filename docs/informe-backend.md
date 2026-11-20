@@ -6,6 +6,8 @@
 
 > ⚠️ **Actualizado oct 2026 — la seccion 5 (vectorizacion) describe el estado anterior.** Cambio aplicado: `Usuarios` y `Reservas` **ya no se vectorizan**, las 3 tablas restantes usan la **allowlist `COLUMNAS_POR_TABLA`** + **denylist por regex**, `embeddingDeObjeto` paso a **`embeddingDeFila(tabla, fila)`**, y la clave va en el header `x-goog-api-key`. Los vectores de `Usuarios`/`Reservas` se vaciaron y las otras 3 tablas se re-vectorizaron. **Estado vigente: `docs/Decisiones-tecnicas.md`, seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".**
 
+> ⚠️ **Actualizado oct 2026 — autenticacion/seguridad:** JWT expira en 8h, `JWT_SECRET` obligatorio en produccion (legado `JET_SECRET`), bcrypt salt 10 con rehash, `helmet` + `express-rate-limit` + CORS con allowlist, rutas protegidas por rol admin, `GET /api/auth/sesion` y errores 500 genericos. Las secciones que dicen "JWT sin expiracion", "salt 5", "`seguridad.ts` sin usar" o "no existe `/registro`" quedan **historicas**. estado vigente: `docs/Api.md`, seccion "Seguridad de la API".
+
 ---
 
 ## 1. Mapa del proyecto y funcion de CADA archivo
@@ -279,4 +281,4 @@ QuantumSystemDB  columna "embedding" vector(768)
 
 ---
 
-**Resumen:** Express 5 con arquitectura de modulos por entidad (factory con inyeccion de DB), capa de datos generica con soporte `::vector`, respuesta uniforme `{error,status,body}`, JWT sin expiracion, y **vectorizacion automatica en POST/PUT** de las 5 tablas con columna `embedding` (Gemini o fallback local), con script de respaldo incremental para filas NULL.
+**Resumen (estado vigente):** Express 5 con arquitectura de modulos por entidad (factory con inyeccion de DB), capa de datos generica con soporte `::vector`, respuesta uniforme `{error,status,body}`, JWT con expiracion de 8h y cookie httpOnly en el web, y **vectorizacion automatica en POST/PUT** solo de las 3 tablas con columna `embedding` (`Vehiculos`, `Servicios_Tecnicos`, `Estaciones_Carga`, con Gemini; sin fallback local), con script incremental para filas NULL.

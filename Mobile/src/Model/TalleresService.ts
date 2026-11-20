@@ -1,7 +1,6 @@
-import axios from 'axios'
-import { API_URL } from '../Config/api'
+import http from '../Config/http'
 
-const TALLERES_URL = `${API_URL}/servicios-tecnicos`
+const TALLERES_URL = '/servicios-tecnicos'
 
 // Refleja exactamente las columnas de la tabla Servicios_Tecnicos.
 // No se agregan campos que no existen en la base de datos
@@ -22,7 +21,7 @@ interface ApiResponse {
 }
 
 async function obtenerTalleres(): Promise<Taller[]> {
-  const response = await axios.get<ApiResponse>(
+  const response = await http.get<ApiResponse>(
     TALLERES_URL
   )
 

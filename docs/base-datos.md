@@ -34,12 +34,13 @@ Roles (1) ──── (N) Usuarios
 - Para buscar por similitud: `ORDER BY "embedding" <=> '<vector>'::vector` (coseno). Para vectores rapidos se puede crear `CREATE INDEX ... USING hnsw ("embedding" vector_cosine_ops)`. **Nota:** ese indice HNSW esta documentado pero **aun no se ha creado** en `QuantumSystemDB`; con ~25 filas el seq scan es aceptable, pero hay que crearlo antes de que las tablas crezcan.
 - **Que guarda y para que sirve la columna**: hay **un vector por fila** (1 peticion a Gemini por fila; cada vector se guarda en la fila que le corresponde, con `UPDATE ... WHERE pk = <fila>`). Cada vector es la representacion **semantica del contenido de las demas columnas de esa fila** (el texto `"columna:valor ..."` es lo que Gemini convierte en vector). Su unico objetivo es servir de **clave de busqueda semantica**: cuando llega una pregunta, se la vectoriza con el mismo modelo y `<=>` compara ese vector contra los guardados para hallar que filas "hablan del mismo tema"; el **vector de la pregunta es solo la llave de busqueda y nunca se le pasa a la IA** (a la IA se le entrega el texto de la fila encontrada, no el vector).
 - **Modelo de IA del chatbot**: `gemini-2.5-flash-lite` en free tier, con paso previsto a `deepseek-flash` de pago. No afecta a los embeddings (siguen en `gemini-embedding-001`). Ver `docs/Decisiones-tecnicas.md`.
+- **Tabla de rate limit**: `Rate_Limits ("key" TEXT PK, "count" INTEGER, "reset_at" BIGINT)` se crea automaticamente al iniciar el backend. Guarda los contadores compartidos de `express-rate-limit` para que varias instancias no reinicien el limite.
 
 ## Como se reprodujo / vectorizacion
 
 > Los scripts `QuantumSystemDB_postgres.sql` y `install_pgvector_pg17.{ps1,bat}` se eliminaron (eran herramientas puntuales de la migracion, no necesarias para el funcionamiento del backend). El esquema completo esta documentado en este archivo (seccion "Tablas") y la extension `vector` ya esta instalada en el sistema.
 
-- **Vectorizador**: `Backend/scripts/vectorizar_datos.ts` — por cada fila arma el texto `"columna:valor ..."`, llama a la API de Gemini y guarda el vector en `"embedding"`. Lee la clave de `Backend/.env` (variable `API_KEY_GOOGLE_AI_STUDIO` o `GEMINI_API_KEY`). Si no hay clave usa un fallback local (feature hashing, sin IA). Conexion por `PGHOST/PGUSER/PGPASSWORD/PGDATABASE` (la contrasena se pasa por la variable `PGPASSWORD`).
+- **Vectorizador**: `Backend/scripts/vectorizar_datos.ts` — por cada fila arma el texto `"columna:valor ..."`, llama a la API de Gemini y guarda el vector en `"embedding"`. Lee la clave de `Backend/.env` (variable `API_KEY_GOOGLE_AI_STUDIO` o `GEMINI_API_KEY`). Si no hay clave el script falla con mensaje explicito (no genera vectores falsos). Conexion por `PGHOST/PGUSER/PGPASSWORD/PGDATABASE` (la contrasena se pasa por la variable `PGPASSWORD`).
   ```
   cd Backend/scripts && set PGPASSWORD=<clave_postgres> && npx ts-node vectorizar_datos.ts
   ```
@@ -72,7 +73,7 @@ Problemas conocidos: credenciales **hardcodeadas** (`user: b`, `password: a`), `
 | `id_usuario` | INT | PK, IDENTITY, NOT NULL |
 | `nombre_usuario` | VARCHAR(50) | NOT NULL |
 | `correo` | VARCHAR(70) | NOT NULL |
-| `contrasena` | VARCHAR(255) | NOT NULL — hash bcrypt (salt 5) |
+| `contrasena` | VARCHAR(255) | NOT NULL — hash bcrypt (salt 10) |
 | `id_rol` | INT | FK → Roles(id_rol), NOT NULL |
 
 ### Colores
@@ -219,7 +220,7 @@ Verificado al ejecutar el script (septiembre 2026): 34 registros en total.
 
 > Verificado en oct 2026 tras aplicar la allowlist y eliminar las columnas de las 2 tablas con PII: hay **22 vectores** (Vehiculos 6 + Servicios_Tecnicos 11 + Estaciones_Carga 5) y **0 columnas de vector** en `Usuarios`/`Reservas`.
 
-Desde que existe `Backend/src/embeddings/`, **el propio backend vectoriza en tiempo real**: cada POST/PUT de `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga` calcula el embedding de la fila (Gemini, o fallback local sin clave) y lo guarda en la columna `embedding` al mismo tiempo que inserta/actualiza. `Usuarios` y `Reservas` **quedaron fuera** (decisión de privacidad, implementada oct 2026): sus controladores ya no importan el servicio de embeddings. El script de abajo queda como **respaldo/reproceso** para filas que quedaron con `embedding` en NULL.
+Desde que existe `Backend/src/embeddings/`, **el propio backend vectoriza en tiempo real**: cada POST/PUT de `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga` calcula el embedding de la fila (Gemini; sin clave no genera vector) y lo guarda en la columna `embedding` al mismo tiempo que inserta/actualiza. `Usuarios` y `Reservas` **quedaron fuera** (decisión de privacidad, implementada oct 2026): sus controladores ya no importan el servicio de embeddings. El script de abajo queda como **respaldo/reproceso** para filas que quedaron con `embedding` en NULL.
 
 El script `Backend/scripts/vectorizar_datos.ts` es el **orquestador** entre la base y Gemini. El servicio de Gemini solo transforma texto en vector; **no lee ni guarda en la base de datos** — eso lo hace el script. Pasos:
 
@@ -232,7 +233,7 @@ El script `Backend/scripts/vectorizar_datos.ts` es el **orquestador** entre la b
 7. El script **recibe ese vector** y lo **guarda** en el campo `embedding` de la fila correspondiente (`UPDATE ... SET "embedding" = $1::vector WHERE "id" = $2`).
 8. Repite por cada fila de cada tabla (con un retardo de 120 ms para el free tier).
 
-> Omite las filas ya vectorizadas (`embedding IS NULL`), asi que es **incremental**: tras agregar un vehiculo, taller o estacion basta con reejecutar `npx ts-node scripts/vectorizar_datos.ts` (desde `Backend/`) y solo procesara la fila nueva. Para **recalcular** todos los vectores habria que borrar los `embedding` antes. Es determinista si se usa el mismo modelo. Sin clave (`API_KEY_GOOGLE_AI_STUDIO` en `Backend/.env`) el script cae a un fallback local (feature hashing, sin IA): vectores de 768 dims **validos en formato pero inservibles semanticamente**, ver la nota de `docs/Decisiones-tecnicas.md`.
+> Omite las filas ya vectorizadas (`embedding IS NULL`), asi que es **incremental**: tras agregar un vehiculo, taller o estacion basta con reejecutar `npx ts-node scripts/vectorizar_datos.ts` (desde `Backend/`) y solo procesara la fila nueva. Para **recalcular** todos los vectores habria que borrar los `embedding` antes. Es determinista si se usa el mismo modelo. Sin clave (`API_KEY_GOOGLE_AI_STUDIO` en `Backend/.env`) el script **falla con mensaje explicito**: no genera vectores falsos. Antes existia un fallback de feature hashing que se elimino, ver la nota de `docs/Decisiones-tecnicas.md`.
 
 ## Flujo del chatbot (RAG, pendiente de implementar)
 
@@ -273,7 +274,7 @@ El sobre de respuesta, los modulos, las rutas y el flujo de peticiones **no camb
 3. **Ojo con mezclar modelos:** si las imagenes van con `gemini-embedding-2` y el texto se queda en `gemini-embedding-001`, los vectores **no son comparables** entre modalidades. Habria que re-vectorizar todas las tablas con `gemini-embedding-2` a 768 dims (recomendado) o separar en columnas distintas y solo buscar imagen -> imagen.
 4. **Terminos de Google:** en el **free tier** Google si puede usar lo enviado para mejorar sus productos y hay revision humana; en el **paid tier** no. Ver los terminos vigentes en <https://ai.google.dev/gemini-api/terms>.
 5. **Indice HNSW pendiente de crear** en las columnas `embedding` de `QuantumSystemDB`. Con ~25 filas el seq scan es aceptable, pero hay que crearlo antes de que las tablas crezcan.
-6. **Fallback silencioso a corregir:** si falta la clave de Gemini, `Backend/src/embeddings/index.ts:74-97` escribe vectores de feature hashing (768 dims, semanticamente inservibles) sin avisar. Quitarlo o hacerlo explicito con banner de arranque.
+6. **Fallback silencioso corregido:** si falta la clave de Gemini, `Backend/src/embeddings/index.ts` devuelve `null` con warning y no escribe vectores; el script `vectorizar_datos.ts` falla con mensaje claro. No reintroducir feature hashing.
 
 ## Pendiente (nube)
 

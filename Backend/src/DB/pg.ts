@@ -59,10 +59,18 @@ function esVector(valor: any): valor is { vector: string } {
     );
 }
 
+function sinEmbedding(fila: any): any {
+    if (!fila || typeof fila !== 'object') return fila;
+    if (!Object.prototype.hasOwnProperty.call(fila, 'embedding')) return fila;
+    const copia = { ...fila };
+    delete copia.embedding;
+    return copia;
+}
+
 function todos(tabla: string): Promise<any> {
     return pool
         .query(`SELECT * FROM ${identificar(tabla)}`)
-        .then((resultado) => resultado.rows);
+        .then((resultado) => resultado.rows.map(sinEmbedding));
 }
 
 function uno(
@@ -75,7 +83,7 @@ function uno(
             `SELECT * FROM ${identificar(tabla)} WHERE ${identificar(campoId)} = $1`,
             [id]
         )
-        .then((resultado) => resultado.rows[0]);
+        .then((resultado) => sinEmbedding(resultado.rows[0]));
 }
 
 function agregar(tabla: string, data: Data): Promise<any> {
@@ -141,7 +149,7 @@ function query(tabla: string, consulta: Data): Promise<any> {
     if (claves.length === 0) {
         return pool
             .query(`SELECT * FROM ${identificar(tabla)}`)
-            .then((resultado) => resultado.rows[0]);
+            .then((resultado) => sinEmbedding(resultado.rows[0]));
     }
 
     const condiciones = claves
@@ -154,7 +162,7 @@ function query(tabla: string, consulta: Data): Promise<any> {
             `SELECT * FROM ${identificar(tabla)} WHERE ${condiciones}`,
             valores
         )
-        .then((resultado) => resultado.rows[0]);
+        .then((resultado) => sinEmbedding(resultado.rows[0]));
 }
 
 // Reemplaza ?? por identificador entre comillas y ? por parámetros $n,

@@ -1,6 +1,4 @@
-import { createHash } from 'crypto';
-
-// Servicio compartido de embeddings (Gemini + fallback local).
+// Servicio compartido de embeddings (Gemini).
 // Lo usan los modulos al guardar (POST/PUT) para poblar la columna
 // "embedding" de cada fila, y comparte logica con
 // Backend/scripts/vectorizar_datos.ts (mismo texto, mismo modelo,
@@ -13,8 +11,8 @@ import { createHash } from 'crypto';
 // construccion, no por configuracion. Ver docs/Decisiones-tecnicas.md,
 // seccion "Plan de seguridad: dejar de enviar datos personales a Gemini".
 //
-// SI la API key no esta configurada usa un fallback de feature
-// hashing local (deterministico, sin IA). La clave se lee del .env:
+// Sin API key no se vectoriza: se devuelve null y se avisa en logs.
+// La clave se lee del .env:
 //   API_KEY_GOOGLE_AI_STUDIO=...   (o GEMINI_API_KEY=...)
 // Modelo configurable con GEMINI_EMBEDDING_MODEL
 // (default "gemini-embedding-001"). Dimension recomendada 768.
@@ -57,10 +55,8 @@ const PATRONES_PROHIBIDOS: { patron: RegExp; motivo: string }[] = [
     { patron: /contrase|contrasena|password|clave_hash|secret/i, motivo: 'clave' },
 ];
 
-// Si no hay clave, vectorizar cae al feature hashing local: vectores de
-// 768 dims con el formato correcto pero SIN significado semantico. Quien
-// dependa de que el vector signifique algo (el RAG del chatbot) debe
-// comprobar esto antes y fallar en vez de devolver basura creible.
+// Sin clave no se generan vectores: devolver vectores falsos haria que
+// el RAG respondiera con datos inventados pero con apariencia valida.
 function hayClave(): boolean {
     return Boolean(API_KEY);
 }
@@ -157,39 +153,18 @@ async function embeddingGemini(texto: string): Promise<string> {
     return `[${vector.map((v: number) => Number(v).toFixed(6)).join(',')}]`;
 }
 
-// ---------- Fallback local (sin IA, deterministico) ----------
-function vectorHashing(texto: string): string | null {
-    const tokens = texto
-        .toLowerCase()
-        .split(/[^a-z0-9áéíóúüñãõ]+/u)
-        .filter(Boolean);
-
-    if (tokens.length === 0) return null;
-
-    const vec = new Float64Array(DIM);
-    for (const token of tokens) {
-        const d = createHash('sha1').update(token, 'utf8').digest();
-        const indice = d.readUInt32BE(0) % DIM;
-        const signo = (d[4] & 1) === 0 ? 1 : -1;
-        vec[indice] += signo;
-    }
-
-    let norma = 0;
-    for (let i = 0; i < DIM; i++) norma += vec[i] * vec[i];
-    norma = Math.sqrt(norma);
-    if (norma === 0) return null;
-
-    for (let i = 0; i < DIM; i++) vec[i] /= norma;
-    return `[${Array.from(vec, (v) => v.toFixed(6)).join(',')}]`;
-}
-
 // Vectoriza un texto y devuelve el literal listo para la columna
 // "embedding" ("[0.1,0.2,...]") o null si no hubo texto o fallo.
 async function vectorizar(texto: string): Promise<string | null> {
     if (!texto) return null;
+    if (!API_KEY) {
+        console.warn('[embeddings] sin API key: no se genero ningun vector');
+        return null;
+    }
+
     const recortado = texto.length > MAX_CHARS ? texto.slice(0, MAX_CHARS) : texto;
     try {
-        return API_KEY ? await embeddingGemini(recortado) : vectorHashing(recortado);
+        return await embeddingGemini(recortado);
     } catch (err) {
         const mensaje = err instanceof Error ? err.message : String(err);
         console.error('[embeddings] no se pudo vectorizar:', mensaje);

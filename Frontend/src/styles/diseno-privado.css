@@ -290,6 +290,20 @@ body:has(#root .aplicacion--cliente) { background: #273531; }
 .aplicacion--cliente .tarjeta-estacion .boton--primario { background: #fff; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-estacion .boton--primario:hover { background: #e8efe8; border-color: #e8efe8; }
 
+/* Cliente: resumen de estaciones con el mismo relleno y margen que las tarjetas de estación. */
+.aplicacion--cliente .fila-estadisticas { gap: 16px; padding-block: 32px; }
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica,
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica:first-child,
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica + .tarjeta-estadistica {
+  background: #9DB69D;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  padding: 24px;
+  color: #1c1c1c;
+}
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica :is(.tarjeta-estadistica__valor,.tarjeta-estadistica__etiqueta) { color: #1c1c1c; }
+
 /* Cliente: mismo diseño para las tarjetas de taller. */
 .aplicacion--cliente .tarjeta-taller { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-taller :is(.tarjeta-servicio__nombre,.tarjeta-servicio__direccion,.tarjeta-servicio__distancia-valor,.tarjeta-servicio__distancia-unidad,.tarjeta-servicio__calificacion) { color: #1c1c1c; }

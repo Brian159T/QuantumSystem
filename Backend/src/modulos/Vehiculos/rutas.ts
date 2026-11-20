@@ -1,14 +1,15 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
+import auth from '../../auth';
 
 const router = Router();
 
 router.get('/', todos);
 router.get('/:id', uno);
-router.post('/', agregar);
-router.put('/:id', actualizar);
-router.delete('/:id', eliminar);
+router.post('/', auth.soloAdmin, agregar);
+router.put('/:id', auth.soloAdmin, actualizar);
+router.delete('/:id', auth.soloAdmin, eliminar);
 
 async function todos(
     req: Request,
@@ -60,10 +61,6 @@ async function agregar(
 
     try {
 
-        console.log('========== POST /api/vehiculos ==========');
-        console.log('Headers:', req.headers);
-        console.log('Body recibido:', req.body);
-
         const body = req.body;
 
         await controlador.agregar(body);
@@ -71,13 +68,11 @@ async function agregar(
         respuesta.success(
             req,
             res,
-            'Vehículo agregado satisfactoriamente',
+            'Veh��culo agregado satisfactoriamente',
             201
         );
 
     } catch (error) {
-
-        console.error(error);
 
         next(error);
 
@@ -96,10 +91,6 @@ async function actualizar(
         const id = Number(req.params.id);
 
         const body = req.body;
-
-        console.log('========== PUT /api/vehiculos ==========');
-        console.log('ID:', id);
-        console.log('Body:', body);
 
         await controlador.actualizar(
             id,
@@ -132,9 +123,6 @@ async function eliminar(
     try {
 
         const id = Number(req.params.id);
-
-        console.log('========== DELETE /api/vehiculos ==========');
-        console.log('ID:', id);
 
         await controlador.eliminar(id);
 

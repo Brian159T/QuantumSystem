@@ -65,10 +65,15 @@ async function preguntarEnStream(
     } catch (error) {
         // Los headers ya salieron, asi que el sobre de error no cabe: se
         // avisa por el propio canal SSE y se cierra.
-        const mensaje = error instanceof Error ? error.message : String(error);
-        console.error('[chatbot]', mensaje);
+        const detalle = error instanceof Error ? error.message : String(error);
+        const validacion = (error as { statusCode?: number })?.statusCode === 400;
+        console.error('[chatbot]', detalle);
         try {
-            emitir(res)('error', { mensaje });
+            emitir(res)('error', {
+                mensaje: validacion
+                    ? detalle
+                    : 'No se pudo generar la respuesta. Intenta de nuevo.',
+            });
         } catch {
             // si el cliente se desconectó, no hay nada mas que hacer
         }

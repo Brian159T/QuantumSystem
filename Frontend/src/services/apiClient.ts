@@ -1,4 +1,4 @@
-import { obtenerTokenSesion } from '../utils/sesion'
+import { notificarSesionExpirada } from '../utils/sesion'
 
 export interface SobreApi<T> {
   error: boolean
@@ -16,19 +16,23 @@ function mensajeSinConexion(respuesta: Response | null): string {
 }
 
 export async function peticion<T>(ruta: string, opciones: RequestInit = {}): Promise<T> {
-  const token = obtenerTokenSesion()
   let respuesta: Response
   try {
     respuesta = await fetch(`${URL_BASE}${ruta}`, {
+      ...opciones,
+      credentials: 'include',
       headers: {
         'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...opciones.headers,
       },
-      ...opciones,
     })
   } catch {
     throw new Error(mensajeSinConexion(null))
+  }
+
+  const esIntentoDeAcceso = ruta.startsWith('/auth/login') || ruta.startsWith('/auth/registro')
+  if (respuesta.status === 401 && !esIntentoDeAcceso) {
+    notificarSesionExpirada()
   }
 
   let datos: SobreApi<T>

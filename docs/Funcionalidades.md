@@ -8,11 +8,15 @@ Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil*
 
 > **Gráficos del administrador (web, estado consolidado al 11 de noviembre de 2026):** menú administrativo `Panel`, `Usuarios` y `Gráficos`; icono `ChartNoAxesCombined` de `lucide-react`. `PaginaGraficos.tsx` presenta, en orden, el panel de reservas, sus tarjetas de resultados e interpretación, el panel de estaciones y sus tarjetas de resultados e interpretación, y el panel **"Modelo más reservado"** (componente `GraficoModeloMasReservado.tsx`, iframe Grafana `adljdq9/modelo-mas-reservado`, panel `1`) debajo del último gráfico. Conserva encabezado privado, paleta oscura, tarjetas y distribución adaptable de dos columnas que pasa a una en pantallas pequeñas. No se muestran métricas simuladas ni se ha integrado esta pantalla en Mobile. Los iframes requieren acceso autorizado a Grafana; el login de Quantum no inicia sesión en Grafana. Ver operación y verificaciones en [Plan-Grafana.md](Plan-Grafana.md#integración-en-el-administrador-web-11-de-noviembre-de-2026).
 
+> **Inicio invitado (web, nov 2026):** las 3 cards del catálogo destacado muestran imágenes de detalle propias y textos cortos: `Equte volante.png` + confort al volante (KAIYI EQUTE), `Pantalla nexus plus.png` + tecnología de pantalla (NEXUS PLUS) y `E4 Montanero botones.png` + confort interior (E4). Las cards llevan borde de **2px** en negro suavizado (`rgba(0,0,0,0.65)`) y **24px** de radio. El bloque **"La experiencia de conducir un Quantum"** reproduce `video dentro del auto2.mp4` en **loop** y a **ancho completo de viewport**; el video de carga eléctrica se reemplazó por `carga electrica2.mp4` conservando su ancho. Cambios en `PaginaInicio.tsx`, `config/multimedia.ts` y `styles/paginas.css`.
+
+> **Estaciones del cliente (web, nov 2026):** las tarjetas de resumen "Estaciones cerca / Puntos libres / Operativas" adoptan el mismo relleno `#9DB69D`, borde blanco, radio de 12px y separación de 16px que las tarjetas de estación (por ejemplo, "Subestación de Villa Tunari (Cruce San Mateo)"). Cambio en `styles/diseno-privado.css`.
+
 Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
 
 > **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
 >
-> **Cambios sept 2026 (frontend web)**: se elimino el **fallback a mocks** de los services (si la API falla o devuelve lista vacia, la UI muestra **listas vacias**, nunca datos falsos); el CRUD de usuarios del admin ahora **crea/elimina via `/usuarios`** y envia el **token JWT** en todas las peticiones. El codigo de confirmacion de reserva sigue generado en el cliente (pendiente de campo en BD).
+> **Cambios sept 2026 (frontend web)**: se elimino el **fallback a mocks** de los services (si la API falla o devuelve lista vacia, la UI muestra **listas vacias**, nunca datos falsos); el CRUD de usuarios del admin ahora **crea/elimina via `/usuarios`** y el token JWT viaja en **cookie httpOnly** en todas las peticiones. El codigo de confirmacion de reserva sigue generado en el cliente (pendiente de campo en BD).
 >
 > **▶ Trabajo pendiente (a realizar durante los proximos dias)**: ver la **seccion 6 "Pendientes funcionales (tablero de kanban)"** al final de este archivo. Incluye la mejora de CSS del frontend web y mobile.
 
@@ -99,7 +103,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 - **Mapa** con las estaciones (react-native-maps en movil; **Leaflet en web**, ver `components/MapaLugar.tsx`).
 - **Ruta en auto (web)**: `useRutaCercana` compara tiempos de viaje con OSRM Table entre las estaciones filtradas y dibuja con Route el recorrido al destino accesible mas rapido. Ubicacion mediante `useUbicacion`; permite elegir otro marcador o volver al mas cercano. Muestra distancia y tiempo; si falla, informa el error sin dibujar una recta.
 - **Buscador** y **filtros por tipo de conector** (CCS, CHAdeMO, Tipo 2, Tesla).
-- Toggle de **solo disponibles/abiertas** y **estadisticas** (total, activas).
+- Toggle de **solo disponibles/abiertas** y **estadisticas** (total, activas). Las 3 tarjetas de resumen ("Estaciones cerca", "Puntos libres", "Operativas") usan desde nov 2026 el mismo relleno `#9DB69D`, borde blanco, radio de 12px y separacion de 16px que las tarjetas de estación del cliente (`styles/diseno-privado.css`).
 - Tarjetas de servicio con disponibilidad, precio, rating, conectores, 24 horas.
 
 ### 2.3 Talleres Autorizados (Movil: `TalleresScreen_usuario_vehiculo.tsx` / Web: `PaginaTalleres.tsx`)
@@ -150,7 +154,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 | `Interfaz_Administrador_Inicio.tsx` | Mock (`OVERVIEW`, `MANAGEMENT_SECTIONS`, `RECENT_ACTIVITY`) |
 | `Interfaz_Administrador_usuarios.tsx` | Mock (`INITIAL_USERS`) |
 | Login (`AuthService`) | **Real API** (`POST /auth/login`) |
-| Registro (`AuthService`) | **Roto**: la ruta `POST /auth/registro` **ya existe** en el backend, pero el movil envia `{correo, contrasena}` sin `nombre_usuario`, asi que responde `400` (campos obligatorios) |
+| Registro (`AuthService`) | **Real API** (`POST /auth/registro` con `nombre_usuario`, `correo` y `contrasena`); guarda el token en memoria |
 
 ### Frontend web (`Frontend/`)
 
@@ -158,7 +162,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 
 | Pagina | Uso de API |
 |--------|-----------|
-| `PaginaInicio.tsx` | API `/vehiculos` (si falla, carrera vacia) |
+| `PaginaInicio.tsx` | API `/vehiculos` (si falla, carrera vacia); 3 cards con imágenes/textos de detalle y videos `video dentro del auto2.mp4` + `carga electrica2.mp4` |
 | `PaginaVehiculos.tsx` | Via `useVehiculos()` / `vehiculosService` |
 | `PaginaReservas.tsx` | **Real API** (POST /reservas, GET /vehiculos, GET /colores) |
 | `PaginaInicioCliente.tsx` | Mock |
@@ -173,7 +177,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 
 ## 5. Funcionalidades transversales
 
-- **Autenticacion** (login/registro) con JWT; estado en contexto (`useAuth`).
+- **Autenticacion** (login/registro) con JWT; estado en contexto (`useAuth`). El web usa cookie httpOnly y el movil `Authorization: Bearer` desde un cliente axios comun. Tras **6 intentos fallidos de login** en 15 minutos, el backend responde `429` y el modal web muestra una alerta amplia con `"Demasiados intentos fallidos. Espera 15 minutos antes de volver a intentar."`; un login correcto reinicia el contador.
 - **Logout** (vuelve a flujo de invitado).
 - **Saludo** con iniciales y rol del usuario logueado.
 - **Navegacion por tabs/rol** (movil: react-navigation; web: navegacion por estado).
@@ -182,7 +186,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 
 ### Aspecto visual del rol invitado (web, sept 2026)
 
-Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pagina paso de blanco a un **gris medio** (y el navbar se oscurecio); los textos/titulos destacados, iconos de estadisticas y enlaces se muestran en **negro**; el footer tiene **fondo negro con letras blancas**; los banners "Reserva ahora" y "Experiencia real / Test Drive" son **negros a todo el ancho** (pegados al navbar arriba y al footer abajo); el catalogo de modelos destacados va sobre una **franja gris** a todo el ancho. Estos ajustes se concentran en `Frontend/src/styles/paginas.css`, `temas.css` y `componentes.css`.
+Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pagina paso de blanco a un **gris medio** (y el navbar se oscurecio); los textos/titulos destacados, iconos de estadisticas y enlaces se muestran en **negro**; el footer tiene **fondo negro con letras blancas**; los banners "Reserva ahora" y "Experiencia real / Test Drive" son **negros a todo el ancho** (pegados al navbar arriba y al footer abajo); el catalogo de modelos destacados va sobre una **franja gris** a todo el ancho. Estos ajustes se concentran en `Frontend/src/styles/paginas.css`, `temas.css` y `componentes.css`. En nov 2026 se sumaron las cards con borde negro suave de 2px y radio de 24px, y el video de experiencia a ancho completo de viewport (detalle en el aviso del inicio de este archivo).
 
 ---
 
@@ -199,10 +203,10 @@ Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pag
 | M3 | Emergencias `EmergenciasScreen_usuario_vehiculo.tsx` | SOS, contactos y servicio de salud 100% local (sin backend) | Sin backend |
 | M4 | Panel admin `Interfaz_Administrador_Inicio.tsx` | Stats y gestion hardcodeados (`OVERVIEW`, `MANAGEMENT_SECTIONS`, `RECENT_ACTIVITY`) → conteos reales | Mock → API |
 | M5 | Usuarios admin `Interfaz_Administrador_usuarios.tsx` | CRUD mock (`INITIAL_USERS`) → GET/POST/DELETE `/usuarios` (como en el web) | Mock → API |
-| M6 | Registro (`AuthService.ts`) | La ruta `POST /auth/registro` **ya existe** en el backend, pero el movil envia `{correo, contrasena}` sin `nombre_usuario` → responde `400`. Falta enviar `nombre_usuario` (y el endpoint exige rol Cliente automaticamente) | **Roto a medias** |
+| M6 | Registro (`AuthService.ts`) | El formulario pide `nombre_usuario` y el service lo envia a `POST /auth/registro` | **Hecho** |
 | M7 | Chatbot `components/Chatbot.tsx` | Solo capa visual, sin respuestas (falta RAG + Gemini) | Sin backend |
 | M8 | Reservas `ReservasScreen.tsx` | Pago simulado ("EFECTUAR PAGO Y CONFIRMAR") y codigo de confirmacion generado en el cliente (sin QR, sin campo en BD) | Parcial |
-| M9 | Global (todos los services) | No envia `Authorization: Bearer`; solo login/registro tocan la API | Seguridad |
+| M9 | Global (todos los services) | Token en memoria e interceptor axios que agrega `Authorization: Bearer` | **Hecho** |
 | M10 | Vehiculos / catalogo | Sin fotos reales (placeholder; `Vehiculos` no tiene columna de imagen) | Mejora |
 
 ### 6.2 Frontend web (`Frontend/`)

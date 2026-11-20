@@ -136,7 +136,14 @@ export default function LoginModal({ visible, onCerrar }: LoginModalProps) {
                 />
               </div>
 
-              {errorLogin && <div className="alerta alerta--error">{errorLogin}</div>}
+              {errorLogin && (
+                <div
+                  className={`alerta alerta--error${errorLogin.startsWith('Demasiados intentos') ? ' alerta--intentos' : ''}`}
+                  role="alert"
+                >
+                  {errorLogin}
+                </div>
+              )}
 
               <button
                 className="boton boton--primario boton--completo"

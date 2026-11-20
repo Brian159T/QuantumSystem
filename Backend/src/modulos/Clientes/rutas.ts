@@ -1,8 +1,11 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import respuesta from '../../red/respuestas';
 import controlador from './index';
+import auth from '../../auth';
 
 const router = Router();
+
+router.use(auth.soloAdmin);
 
 router.get('/', todos);
 router.get('/:id', uno);

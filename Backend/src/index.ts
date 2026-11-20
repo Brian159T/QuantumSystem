@@ -4,6 +4,13 @@ import db from './DB/pg';
 
 const port = app.get('port');
 
+async function asegurarIndices(): Promise<void> {
+    await db.ejecutar(
+        'CREATE UNIQUE INDEX IF NOT EXISTS "Usuarios_correo_unique" ON "Usuarios" ("correo")'
+    );
+    console.log('Indices de seguridad verificados al iniciar el backend');
+}
+
 async function vencerReservasExpiradas(): Promise<void> {
     await db.ejecutar(
         `UPDATE "Reservas"
@@ -16,6 +23,11 @@ async function vencerReservasExpiradas(): Promise<void> {
 
 app.listen(port, async () => {
     console.log(`Servidor escuchando en el puerto ${port}`);
+    try {
+        await asegurarIndices();
+    } catch (error) {
+        console.error('Error al verificar indices de seguridad:', error);
+    }
     try {
         await vencerReservasExpiradas();
     } catch (error) {

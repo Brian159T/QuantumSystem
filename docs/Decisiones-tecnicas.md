@@ -28,7 +28,8 @@ El proyecto se sostiene en decisiones de arquitectura que responden a problemas 
 | Runtime | Node.js + TypeScript (ts-node / nodemon) |
 | Framework | Express 5 |
 | Base de datos | PostgreSQL `QuantumSystemDB` (driver `pg`) — **activo**; `pgvector` + embeddings Gemini poblados |
-| Autenticacion | JWT (`jsonwebtoken`) + `bcrypt` (salt 5) |
+| Autenticacion | JWT (`jsonwebtoken`, expira 8h) + `bcrypt` (salt 10) |
+| Seguridad HTTP | `helmet`, `cors` con allowlist, `express-rate-limit` |
 | Logging | `morgan` ('dev') |
 | Variables de entorno | `dotenv` (via `.env`, cargado con `require('dotenv').config()`) |
 | TypeScript | `strict: true`, `target ES2020`, `module Node16` |
@@ -100,35 +101,43 @@ Ojo: cada `styles.ts` define sus propias constantes (no hay un archivo central u
 
 1. **CRUD generico por modulo con inyeccion de DB** (backend). Duplicar la carpeta de un modulo = nuevo modulo CRUD.
 2. **Sobre de respuesta JSON uniforme**: `{ error, status, body }`.
-3. **Autenticacion JWT** (sin expiracion configurada) + **bcrypt salt 5** para contrasenas.
+3. **Autenticacion JWT** (expira en 8h, `JWT_SECRET` obligatorio en produccion, `JET_SECRET` como legado) + **bcrypt salt 10** con rehash al iniciar sesion. Rutas publicas solo para catalogo/log in/registro/reservas POST/chatbot; el resto exige rol admin.
 4. **Auth context con flags derivados de rol** (`esInvitado/esCliente/esAdministrador`) para navegacion por tabs.
 5. **Estilos por pantalla** en `*.styles.ts` con paleta compartida; NativeWind instalado pero **inactivo** (`global.css` comentado en movil).
-6. **Frontend-web separado** (Vite) como app independiente, con **arquitectura basada en componentes** (components/pages/hooks/services/utils/types/routes), hooks que envuelven a los services y fallback a mocks si la API falla. El **fondo de pagina se aclara por rol** (`componentes.css`: gradientes claros verde/azul/gris-azul para invitado/cliente/admin) con textos de pagina adaptados (`--texto-pagina` / `--texto-pagina-suave`), mientras la cabecera y las tarjetas mantienen el tema oscuro. **Sept 2026**: el rol invitado se re-estilizo (fondo gris medio en vez de blanco, navbar mas oscuro, textos/iconos clave en negro, footer negro con letras blancas, banners negros a ancho completo pegados a navbar/footer, catalogo destacado sobre franja gris) sin cambiar logica.
-7. **Deteccion automatica de IP** en el movil (`Config/api.ts`): usa `Constants.expoConfig?.hostUri` para construir `API_URL`, con **fallback a `http://localhost:4000/api`** cuando no hay `hostUri` (p. ej. en web). En web, `react-native-maps` se sustituye por un **stub** (`src/stubs/react-native-maps.web.tsx`) via alias en `metro.config.js`.
+6. **Frontend-web separado** (Vite) como app independiente, con **arquitectura basada en componentes** (components/pages/hooks/services/utils/types/routes), hooks que envuelven a los services; **sin fallback a mocks** desde sept 2026 (devuelven `[]` si la API falla o trae lista vacia). El **fondo de pagina se aclara por rol** (`componentes.css`: gradientes claros verde/azul/gris-azul para invitado/cliente/admin) con textos de pagina adaptados (`--texto-pagina` / `--texto-pagina-suave`), mientras la cabecera y las tarjetas mantienen el tema oscuro. **Sept 2026**: el rol invitado se re-estilizo (fondo gris medio en vez de blanco, navbar mas oscuro, textos/iconos clave en negro, footer negro con letras blancas, banners negros a ancho completo pegados a navbar/footer, catalogo destacado sobre franja gris) sin cambiar logica.
+7. **Deteccion automatica de IP** en el movil (`Config/api.ts`): usa `EXPO_PUBLIC_API_URL` si esta definida; si no, en desarrollo usa `Constants.expoConfig?.hostUri` y cae a `http://localhost:4000/api`. En produccion exige `https://`. En web, `react-native-maps` se sustituye por un **stub** (`src/stubs/react-native-maps.web.tsx`) via alias en `metro.config.js`.
 8. **Backend con PostgreSQL**: el backend **ya corre con el driver `pg`** contra `QuantumSystemDB` local. La capa `src/DB/pg.ts` preserva la interfaz de la anterior `mysql.ts` (misma inyeccion de DB), usando identificadores entre comillas dobles (`"Vehiculos"`), parametros `$n` (`??` = identificador, `?` = valor en queries en crudo) y upsert con `ON CONFLICT DO NOTHING`.
 9. **Chatbot visual en web**: el componentes `components/Chatbot.tsx` replica al del movil (FAB flotante + panel "Asistente Quantum") y se monta **una sola vez** en `AppNavigator.tsx`, visible en todas las paginas y roles. Es **solo la capa visual** (sin respuestas ni API); el flujo RAG con Gemini sigue pendiente (roadmap paso 7).
 10. **Mapas web (actualizado nov 2026)**: Leaflet en `MapaLugar`, ubicacion real con `useUbicacion` y flujo paginas -> `useRutaCercana` -> `rutasService` -> OSRM publico. Table compara tiempos hacia los destinos filtrados y descarta los inaccesibles; Route obtiene la geometria en auto. No garantiza minima distancia en km. Hay seleccion manual, retorno al mas cercano y errores explicitos sin recta de respaldo. Se cancelan solicitudes obsoletas, se espera 400 ms al cambiar filtros y se espacian consultas al menos 1,1 s por sesion (no es un limite global entre usuarios). `VITE_OSRM_URL` configura el servidor para produccion. Mobile queda pendiente.
 11. **Registro web NO auto-loguea (oct 2026)**: `AuthProvider.registrar()` crea la cuenta (`POST /auth/registro`, rol Cliente) pero **descarta** el `{token, usuario}` que devuelve la API: no guarda sesion. `LoginModal.tsx` muestra una pantalla de **"Registro exitoso"** (verde del sistema, botones "Ir a iniciar sesion" / "Cerrar") y el usuario entra manualmente con la cuenta recien creada. La API sigue devolviendo token (los controladores no cambian); el cambio es solo de comportamiento en el frontend.
 12. **Colores disponibles para el chatbot (nov 2026)**: el chatbot no respondia "que colores tiene cada modelo" porque el RAG **solo lee las columnas de la allowlist de `Vehiculos`** y los colores vivian en la tabla N:M `Vehiculos_Colores` (fuera del `embedding`). Se agrego la columna **derivada** `Vehiculos."Colores_Disponibles"` (TEXT) —todos los colores del modelo desde la N:M, con fallback al color principal—, mantenida por un **trigger** (`fn_vehiculos_colores_disponibles` + `trg_vc_colores` y `trg_vehiculo_color_principal`). Se sumo la columna a `COLUMNAS_POR_TABLA.Vehiculos` (`Backend/src/embeddings/index.ts`) y a las etiquetas del RAG (`Backend/src/rag/index.ts`), y se re-vectorizaron los 6 vehiculos. **El trigger no re-vectoriza**: si cambian los colores por `/api/vehiculos-colores` hay que poner el `embedding` de ese vehiculo en `NULL` y correr `Backend/scripts/vectorizar_datos.ts`. Detalle en `docs/base-datos.md` ("Colores disponibles en `Vehiculos`").
 13. **Reservas: código, expiración y vencimiento automático (nov 2026)**: en `Reservas` se agregaron `Codigo_Reserva` (VARCHAR(6), UNIQUE, generado en BD A-Z/0-9 sin repetirse) y `Fecha_expiracion` (DATE, +7 días desde `Fecha_Reserva`), autocompletados por `fn_reservas_autocompletar`/`trg_reservas_autocompletar` (BEFORE INSERT). `fn_reservas_estado_vencido`/`trg_reservas_estado_vencido` fuerza `Estado='Vencido'` en INSERT/UPDATE si ya expiró (salvo `Cancelada`/`Completada`). Como `pg_cron` no está disponible en PostgreSQL 17 Windows local, la función `vencer_reservas()` se ejecuta **al iniciar el backend** (`Backend/src/index.ts`) para marcar expiradas por paso del tiempo; en la nube se puede programar con `pg_cron` (Supabase). Detalle y SQL en `docs/base-datos.md`.
+14. **Multimedia y cards del inicio invitado (nov 2026)**: `MULTIMEDIA.videoCarga` apunta a `carga electrica2.mp4` y se agregó `MULTIMEDIA.videoExperiencia` con `video dentro del auto2.mp4` (loop/muted/autoplay vía `MedioVisual`, sin control visible). El bloque "Imagina el camino que viene" es full-bleed (`width:100vw; margin-left:calc(50% - 50vw)`). Las 3 cards del catálogo usan `Equte volante.png`, `Pantalla nexus plus.png` y `E4 Montanero botones.png` con textos de confort/pantalla, y llevan borde de 2px `rgba(0,0,0,0.65)` con radio de 24px. Fuentes: `Frontend/src/pages/invitado/PaginaInicio.tsx`, `Frontend/src/config/multimedia.ts` y `Frontend/src/styles/paginas.css`.
+15. **Resumen de estaciones del cliente (nov 2026)**: las 3 tarjetas estadísticas de `PaginaEstaciones.tsx` ("Estaciones cerca", "Puntos libres", "Operativas") se alinearon visualmente con las tarjetas de estación: relleno `#9DB69D`, borde `1px solid #fff`, radio 12px, padding 24px, gap 16px y texto/iconos oscuros. Reglas en `Frontend/src/styles/diseno-privado.css`; se respeta el diseño ya aplicado a tarjetas como "Subestación de Villa Tunari (Cruce San Mateo)".
 
 ---
 
 ## 5. Gotchas / errores conocidos (importante para la IA)
 
-1. **`config.ts` lee `process.env.JET_SECRET`** (typo de "JWT"), no `JWT_SECRET`. El `.env` no la define, asi que el secret siempre cae a `'notasecreta!'`.
+1. **`config.ts` lee `JWT_SECRET`** (con `JET_SECRET` como legado). En desarrollo, si falta, genera un secreto aleatorio temporal; en produccion **lanza error**. El `.env.example` ya no trae un placeholder inseguro.
 2. **`.env` del backend** no esta versionado. Defaults de `config.ts`: puerto HTTP 4000, host `localhost`, user `postgres`, password `''`, db `QuantumSystemDB`, puerto PG `5432`.
 3. **`Mobile/cesconfig.jsonc`**: archivo de debug de NativeWind, ignorable/eliminable.
 4. **`tsconfigPaths` (alias `@/*`)** habilitado en Expo, pero las pantallas importan por **ruta relativa**.
 5. **`Modulo Clientes`** apunta a la tabla **`Roles`** (nombre heredado del modulo; es el CRUD de roles). No lo consume el frontend.
-6. **`POST /api/auth/registro` existe (oct 2026)** y crea el usuario siempre con rol Cliente. El **movil** lo llama con `{correo, contrasena}` sin `nombre_usuario` → responde `400` (M6 del tablero). El **web** lo consume bien y **no auto-loguea** (decision 11).
-7. **Token JWT**: el **web** ya lo envia en todas las peticiones (`Authorization: Bearer` via `utils/sesion.ts`, token persistido en `localStorage` desde sept 2026). El **movil** aun no lo envia (solo login/registro hacen requests).
+6. **`POST /api/auth/registro` existe (oct 2026)** y crea el usuario siempre con rol Cliente. El **movil** envia `nombre_usuario` desde el formulario (M6 cerrado). El **web** lo consume bien y **no auto-loguea** (decision 11).
+7. **Token JWT**: el **web** lo recibe como cookie httpOnly `quantum_token` y lo envia automaticamente con `credentials: 'include'`; JS solo guarda el usuario en `localStorage`. `GET /auth/sesion` revalida al montar. El **movil** guarda el token en memoria (`Mobile/src/Config/token.ts`) y lo envia con `Authorization: Bearer` via `Mobile/src/Config/http.ts`.
 8. **`Roles.Nombre` se compara como string** en el movil (`rol === 'cliente'` / `'administrador'` en minuscula); depende del dato en la BD.
-9. **Vehiculos**: handlers con `console.log` de debug.
+9. **Vehiculos**: los `console.log` de debug (headers/body/id) se eliminaron; no volver a loguear credenciales ni headers.
 10. **Login 401 (corregido sept 2026)**: credenciales invalidas responden **401** con `{error:true, status:401, body:"Correo o contraseña incorrectos"}`. Antes devolvian 500 porque el controlador lanzaba `new Error` sin `statusCode`; ahora usa `error(msg, 401)` de `middleware/errors.ts`.
 11. **Sin fallback a mocks (web, sept 2026)**: los services devuelven `[]` si la API falla o trae lista vacia (la UI no inventa datos). Los antiguos `Frontend/src/services/mocks/*` se eliminaron.
 12. **Suspender usuarios (web)**: la tabla `Usuarios` no tiene campo de estado; el toggle "suspender/reactivar" se quito del admin para no simular datos.
-13. **`dotenv` en devDependencies**: `require('dotenv').config()` puede fallar en produccion.
+13. **`dotenv` esta en `dependencies`** (corregido oct 2026); en Render debe instalarse con `npm ci`, no `--omit=dev`.
+14. **`CORS_ORIGINS` es obligatorio en produccion**; en desarrollo se permiten `localhost:5173`, `4173`, `8081` y `19006`. El backend usa `helmet` (CSP desactivada), `cookie-parser` y rate limit compartido en la tabla `Rate_Limits` (300/15 min general, **6 intentos fallidos/15 min en login** con reset al iniciar sesion correctamente, 20/15 min en registro, 30/min chatbot). Login y registro usan claves prefijadas distintas para no compartir contador. `TRUST_PROXY` es configurable (vacio = `false` en dev y `1` en prod).
+15. **`Usuarios.correo` tiene indice unico** (`Usuarios_correo_unique`); se crea automaticamente al arrancar el backend y tambien esta en `Backend/scripts/seguridad_usuario_correo.sql`. El registro responde `409` generico y hace el hash antes de chequear duplicados para igualar tiempos.
+16. **Mutaciones solo admin**: `Usuarios`, `Clientes`, escritura del catalogo y `GET|PUT|DELETE /reservas`. El rol se consulta en la BD en cada request admin (no se confia solo en el claim del token). El movil ya envia token via interceptor.
+17. **Embeddings sin fallback**: si falta `API_KEY_GOOGLE_AI_STUDIO`, `vectorizar()` devuelve `null` con warning y el script `vectorizar_datos.ts` falla con mensaje claro. No hay feature hashing.
+18. **Dependencias**: `nodemon` actualizado y `image-size` forzado a `^2.0.3` en Mobile. Quedan 11 moderadas del toolchain de Expo 54; corregirlas exige subir a SDK 58 (cambio grande, no hecho).
+19. **Orden de CSS en el web**: `main.tsx` importa `paginas.css` **antes** que `diseno.css`. Una regla de una sola clase en `paginas.css` puede ser sobrescrita por `diseno.css`; por eso el video full-bleed usa `.editorial__seccion.editorial__seccion--video` (especificidad doble) en vez de `!important`.
 
 ---
 
@@ -143,8 +152,8 @@ Plan acordado para publicar el proyecto en la nube. Estado al **septiembre 2026*
    - Detalle de tipos, tablas y estado migrado: ver `docs/base-datos.md`.
 2. **Configurar los campos vectoriales (`pgvector`) localmente** — ✅ **HECHO** (parcial: solo las tablas de la app).
    - `CREATE EXTENSION vector;` (extension `pgvector` ya instalada a nivel de sistema en PostgreSQL 17 Windows; el instalador de una sola ejecucion se elimino tras reproducirla).
-   - Columnas `"embedding" vector(768)` en **Usuarios, Vehiculos, Reservas, Servicios_Tecnicos y Estaciones_Carga**.
-   - **Embeddings generados con Gemini** (`gemini-embedding-001`, dimension 768) y poblados via `Backend/scripts/vectorizar_datos.ts` (lee la clave `API_KEY_GOOGLE_AI_STUDIO` de `Backend/.env`; fallback local sin IA si no hay clave).
+   - Columnas `"embedding" vector(768)` inicialmente en 5 tablas; **hoy solo quedan en `Vehiculos`, `Servicios_Tecnicos` y `Estaciones_Carga`** (ver decision 9 de seguridad).
+   - **Embeddings generados con Gemini** (`gemini-embedding-001`, dimension 768) y poblados via `Backend/scripts/vectorizar_datos.ts` (lee la clave `API_KEY_GOOGLE_AI_STUDIO` de `Backend/.env`; si falta, falla con mensaje claro, sin fallback local).
    - Pendiente (cuando corresponda): documentos de la empresa (PDFs) e imagenes (catalogo) en tablas/columnas adicionales. Ver la subseccion **"Mejoras propuestas (pendiente de decidir)"** mas abajo.
 3. **Adaptar el backend a PostgreSQL local** — ✅ **HECHO** (septiembre 2026).
    - Nueva capa `Backend/src/DB/pg.ts` con la **misma interfaz** que tenia `mysql.ts` (se elimino) y mismos modulos/rutas (arquitectura intacta).
@@ -336,9 +345,10 @@ Justificacion funcional: el chatbot responde sobre el **catalogo** (vehiculos, e
 | 7 | Log de huella SHA-256 del texto enviado (tabla, id, modelo, nº chars) | Medio | Evidencia para auditoria | Pendiente |
 | 8 | Mover la key de `?key=` a header `x-goog-api-key` | Bajo | La query string acaba en logs de proxy/plataforma | **Hecho** |
 | 9 | Rotar la clave actual de `Backend/.env` y restrictarla en la consola de Google | Bajo | Superficie de credenciales | Pendiente |
-| 10 | Banner de proveedor al arrancar + eliminar el fallback silencioso | Bajo | Detecta la averia antes que el usuario | Pendiente |
-| 11 | `.env.example` (ya whitelisteado en `.gitignore:7`, nunca creado) | Bajo | Documenta que variables existen | Pendiente |
-| 12 | Mover `dotenv` de `devDependencies` a `dependencies` | Bajo | El backend no arranca en `npm ci --omit=dev` | Pendiente |
+| 10 | Banner de proveedor al arrancar + eliminar el fallback silencioso | Bajo | Detecta la averia antes que el usuario | **Hecho** |
+| 11 | `.env.example` (ya whitelisteado en `.gitignore:7`, nunca creado) | Bajo | Documenta que variables existen | **Hecho** (Backend, Frontend y Mobile) |
+| 12 | Mover `dotenv` de `devDependencies` a `dependencies` | Bajo | El backend no arranca en `npm ci --omit=dev` | **Hecho** |
+| 13 | Defensas específicas contra **prompt injection** en `src/rag/index.ts` y `src/modulos/Chatbot/controlador.ts`: denylist de patrones en pregunta/historial, valores del contexto como JSON literal, omisión de valores sospechosos, respuesta fija ante detección y validación de la salida antes de emitirla (también en SSE) | Medio | Reduce prompt injection directo e indirecto sin tocar otras rutas | **Hecho** (nov 2026) |
 
 #### Como quedo implementado
 
@@ -357,9 +367,7 @@ Justificacion funcional: el chatbot responde sobre el **catalogo** (vehiculos, e
 
 #### El segundo fallo, independiente de la privacidad
 
-**El fallback silencioso es peor que el problema de datos.** En `index.ts`, si falta la clave o falla la API, `vectorizar` captura el error y devuelve `null`; si la clave falta del todo, escribe `vectorHashing`: vectores de 768 dims **aparentemente validos pero semanticamente inservibles**. El endpoint responde 200, la columna se llena y nadie se entera hasta que el chatbot responde absurdo.
-
-Un fallback que produce basura y no se distingue del camino bueno es peor que no tener fallback. Opciones: loguear en `error` con banner visible al arrancar, o escribir `NULL` para que el RAG detecte que falta indexar. **Al construir el chatbot hay que resolverlo**, porque el RAG depende de que los vectores significen algo.
+**El fallback silencioso era peor que el problema de datos.** Antes, si faltaba la clave, `vectorizar` escribia `vectorHashing`: vectores de 768 dims **aparentemente validos pero semanticamente inservibles**. Ahora `vectorizar()` devuelve `null` con warning, `scripts/vectorizar_datos.ts` falla con mensaje claro y el RAG se detiene si no hay clave. Ninguna fila se llena con vectores falsos.
 
 #### Nota sobre la privacidad frente al coste
 
@@ -445,7 +453,7 @@ Eso significa que hoy se envian datos personales:
 | `Usuarios` | `correo`, `contrasena` (hash bcrypt), `nombre_usuario` |
 | `Reservas` | `nombres`, `apellidos`, **`cedula_identidad`** |
 
-- `contrasena` es un hash bcrypt con **salt 5** (debil) y **no deberia salir del servidor** aunque no sea reversible.
+- `contrasena` es un hash bcrypt con **salt 10** y **no sale del servidor** (los controladores seleccionan solo campos publicos).
 - `cedula_identidad`, correos y nombres son datos personales; el chatbot no los necesita para responder.
 - **Mejora propuesta:** sustituir el "todo menos `embedding`" por una **allowlist por tabla** (solo las columnas que aportan significado semantico), excluyendo `contrasena`, `cedula_identidad`, `correo` y cualquier otra sin valor para el RAG. Alternativa mas simple si no se quiere tocar codigo: **no vectorizar `Usuarios` ni `Reservas`** (el chatbot catalogo/estaciones/talleres no las necesita).
 

@@ -1,7 +1,8 @@
 import type { Usuario } from '../types/Usuario'
 
-const CLAVE_TOKEN = 'quantum_token'
 const CLAVE_USUARIO = 'quantum_usuario'
+
+export const EVENTO_SESION_EXPIRADA = 'quantum:sesion-expirada'
 
 function disponibleLocalStorage(): boolean {
   try {
@@ -9,11 +10,6 @@ function disponibleLocalStorage(): boolean {
   } catch {
     return false
   }
-}
-
-export function obtenerTokenSesion(): string | null {
-  if (!disponibleLocalStorage()) return null
-  return localStorage.getItem(CLAVE_TOKEN)
 }
 
 export function obtenerUsuarioSesion(): Usuario | null {
@@ -28,14 +24,18 @@ export function obtenerUsuarioSesion(): Usuario | null {
   }
 }
 
-export function guardarSesion(token: string, usuario: Usuario): void {
+export function guardarSesion(usuario: Usuario): void {
   if (!disponibleLocalStorage()) return
-  localStorage.setItem(CLAVE_TOKEN, token)
   localStorage.setItem(CLAVE_USUARIO, JSON.stringify(usuario))
 }
 
 export function limpiarSesion(): void {
   if (!disponibleLocalStorage()) return
-  localStorage.removeItem(CLAVE_TOKEN)
   localStorage.removeItem(CLAVE_USUARIO)
+}
+
+export function notificarSesionExpirada(): void {
+  limpiarSesion()
+  if (typeof window === 'undefined') return
+  window.dispatchEvent(new Event(EVENTO_SESION_EXPIRADA))
 }

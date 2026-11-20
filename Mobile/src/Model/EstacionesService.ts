@@ -1,7 +1,6 @@
-import axios from 'axios'
-import { API_URL } from '../Config/api'
+import http from '../Config/http'
 
-const ESTACIONES_URL = `${API_URL}/estaciones-carga`
+const ESTACIONES_URL = '/estaciones-carga'
 
 export interface EstacionCarga {
   id_estacion: number
@@ -19,7 +18,7 @@ interface ApiResponse {
 }
 
 async function obtenerEstaciones(): Promise<EstacionCarga[]> {
-  const response = await axios.get<ApiResponse>(
+  const response = await http.get<ApiResponse>(
     ESTACIONES_URL
   )
 

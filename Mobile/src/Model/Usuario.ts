@@ -12,6 +12,7 @@ export interface AuthResponse {
 }
 
 export interface Credenciales {
+  nombre_usuario?: string
   correo: string
   contrasena: string
 }

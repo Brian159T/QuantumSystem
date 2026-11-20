@@ -1,5 +1,9 @@
 import { peticion } from './apiClient'
-import type { Credenciales, DatosRegistro, RespuestaAuth } from '../types/Usuario'
+import type { Credenciales, DatosRegistro, RespuestaAuth, Usuario } from '../types/Usuario'
+
+export interface RespuestaSesion {
+  usuario: Usuario
+}
 
 function validarSesion(datos: RespuestaAuth): RespuestaAuth {
   const tieneToken = typeof datos?.token === 'string' && datos.token.length > 0
@@ -19,6 +23,20 @@ export async function iniciarSesion(credenciales: Credenciales): Promise<Respues
   })
 
   return validarSesion(datos)
+}
+
+export async function cerrarSesion(): Promise<void> {
+  await peticion<void>('/auth/logout', { method: 'POST' })
+}
+
+export async function obtenerSesion(): Promise<RespuestaSesion> {
+  const datos = await peticion<RespuestaSesion>('/auth/sesion')
+
+  if (typeof datos?.usuario !== 'object' || datos.usuario === null) {
+    throw new Error('La sesion devuelta por el backend no es valida')
+  }
+
+  return datos
 }
 
 export async function registrar(datos: DatosRegistro): Promise<RespuestaAuth> {

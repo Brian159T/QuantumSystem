@@ -1,39 +1,31 @@
-import axios from 'axios'
+import http from '../Config/http'
+import { guardarToken } from '../Config/token'
 import { AuthResponse, Credenciales } from './Usuario'
-import { API_URL } from '../Config/api'
 
-const AUTH_URL = `${API_URL}/auth`
+const AUTH_URL = '/auth'
 
-async function login({
-  correo,
-  contrasena,
-}: Credenciales): Promise<AuthResponse> {
+async function login({ correo, contrasena }: Credenciales): Promise<AuthResponse> {
+  const response = await http.post(`${AUTH_URL}/login`, { correo, contrasena })
+  const datos: AuthResponse = response.data.body
 
-  const response = await axios.post(
-    `${AUTH_URL}/login`,
-    {
-      correo,
-      contrasena,
-    }
-  )
-
-  return response.data.body
+  guardarToken(datos.token)
+  return datos
 }
 
 async function registro({
+  nombre_usuario,
   correo,
   contrasena,
 }: Credenciales): Promise<AuthResponse> {
+  const response = await http.post(`${AUTH_URL}/registro`, {
+    nombre_usuario,
+    correo,
+    contrasena,
+  })
+  const datos: AuthResponse = response.data.body
 
-  const response = await axios.post<AuthResponse>(
-    `${AUTH_URL}/registro`,
-    {
-      correo,
-      contrasena,
-    }
-  )
-
-  return response.data
+  guardarToken(datos.token)
+  return datos
 }
 
 export default {

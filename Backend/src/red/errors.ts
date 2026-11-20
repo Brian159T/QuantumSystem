@@ -7,12 +7,15 @@ function errors(
     res: Response,
     next: NextFunction
 ): void {
-    console.log('[error]', err);
+    console.error('[error]', err);
 
-    const message = err.message || 'Error interno';
-    const status = err.statusCode || 500;
+    const status = Number(err?.statusCode) || 500;
+    const mensaje =
+        status >= 500
+            ? 'Error interno del servidor'
+            : err?.message || 'Solicitud invalida';
 
-    respuesta.error(req, res, message, status);
+    respuesta.error(req, res, mensaje, status);
 }
 
 export default errors;

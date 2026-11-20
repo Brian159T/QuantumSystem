@@ -33,6 +33,7 @@ const LoginButton = ({ onPress }: Props) => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
+  const [regNombre, setRegNombre] = useState('')
   const [regEmail, setRegEmail] = useState('')
   const [regPassword, setRegPassword] = useState('')
   const [regConfirm, setRegConfirm] = useState('')
@@ -49,7 +50,11 @@ const LoginButton = ({ onPress }: Props) => {
       setRegConfirmError('Las contraseñas no coinciden')
       return
     }
-    const ok = await registro({ correo: regEmail, contrasena: regPassword })
+    const ok = await registro({
+      nombre_usuario: regNombre.trim(),
+      correo: regEmail,
+      contrasena: regPassword,
+    })
     if (ok) close()
   }
 
@@ -111,6 +116,8 @@ const LoginButton = ({ onPress }: Props) => {
                       focused={focused}
                       setFocused={setFocused}
                       onBack={() => setScreen('login')}
+                      nombre={regNombre}
+                      setNombre={setRegNombre}
                       email={regEmail}
                       password={regPassword}
                       confirm={regConfirm}
@@ -246,6 +253,8 @@ type RegisterFormProps = {
   focused: string | null
   setFocused: (v: string | null) => void
   onBack?: () => void
+  nombre: string
+  setNombre: (v: string) => void
   email: string
   password: string
   confirm: string
@@ -257,7 +266,7 @@ type RegisterFormProps = {
   loading: boolean
 }
 
-const RegisterForm = ({ focused, setFocused, onBack, email, password, confirm, setEmail, setPassword, setConfirm, onRegister, error, loading }: RegisterFormProps) => (
+const RegisterForm = ({ focused, setFocused, onBack, nombre, setNombre, email, password, confirm, setEmail, setPassword, setConfirm, onRegister, error, loading }: RegisterFormProps) => (
   <View>
     <View style={styles.iconHeaderWrap}>
       <View style={styles.iconCircle}>
@@ -269,6 +278,11 @@ const RegisterForm = ({ focused, setFocused, onBack, email, password, confirm, s
     <Text style={styles.subtitle}>
       Completa los datos para registrarte
     </Text>
+
+    <View style={styles.fieldWrapper}>
+      <Text style={styles.fieldLabel}>Nombre de usuario</Text>
+      <Field id="reg-nombre" icon="account-outline" placeholder="Tu nombre" focused={focused} setFocused={setFocused} value={nombre} onChangeText={setNombre} />
+    </View>
 
     <View style={styles.fieldWrapper}>
       <Text style={styles.fieldLabel}>Correo electrónico</Text>

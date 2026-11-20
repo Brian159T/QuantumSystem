@@ -1,7 +1,7 @@
 // Modulo Chatbot:_endpoint del asistente con IA.
 //
 // POST /            -> respuesta completa en el sobre {error,status,body}
-// POST /stream      -> SSE, la respuesta llega por trozos mientras se genera
+// POST /stream      -> SSE; el texto se valida completo y se emite en un solo token
 // GET  /estado      -> proveedor, modelo y si el chat puede funcionar
 //
 // El controlador no sabe quien es el proveedor de IA ni como se buscan las
@@ -22,23 +22,38 @@ export interface Turno {
     texto: string;
 }
 
+function limpiarTexto(entrada: any, limite: number): string {
+    return String(entrada ?? '')
+        .replace(/[\u0000-\u001f\u007f]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim()
+        .slice(0, limite)
+        .trim();
+}
+
 // El historial llega del cliente, asi que se sanea: solo rol user/assistant
 // y texto plano recortado. Nunca se interpola en SQL ni se reenvia crudo.
 function limpiarHistorial(entrada: any): Turno[] {
     if (!Array.isArray(entrada)) return [];
     return entrada
         .slice(-MAX_MENSAJES_HISTORIAL)
-        .map((turno: any): Turno => ({
-            rol: turno?.rol === 'assistant' ? 'assistant' : 'user',
-            texto: String(turno?.texto ?? '').slice(0, MAX_LARGO_TURNO).trim(),
-        }))
-        .filter((turno) => turno.texto.length > 0);
+        .map((turno: any): Turno | null => {
+            const texto = limpiarTexto(turno?.texto, MAX_LARGO_TURNO);
+            if (!texto || rag.contieneInyeccion(texto)) return null;
+            return {
+                rol: turno?.rol === 'assistant' ? 'assistant' : 'user',
+                texto,
+            };
+        })
+        .filter((turno): turno is Turno => turno !== null);
 }
 
 function limpiarPregunta(mensaje: any): string {
-    return String(mensaje ?? '')
-        .slice(0, MAX_LARGO_PREGUNTA)
-        .trim();
+    return limpiarTexto(mensaje, MAX_LARGO_PREGUNTA);
+}
+
+function respuestaSegura(texto: string): string {
+    return rag.contieneInyeccion(texto) ? rag.RESPUESTA_INYECCION : texto;
 }
 
 // Paso 1 y 2: recuperar el contexto en la base y armar lo que se le pide
@@ -49,6 +64,10 @@ async function preparar(mensaje: any, historial: any) {
 
     if (!pregunta) {
         throw error('Escribe una pregunta para el asistente', 400);
+    }
+
+    if (rag.contieneInyeccion(pregunta)) {
+        throw error(rag.RESPUESTA_INYECCION, 400);
     }
 
     const turnos = limpiarHistorial(historial);
@@ -73,7 +92,7 @@ async function preguntar(mensaje: any, historial: any): Promise<any> {
     });
 
     return {
-        texto,
+        texto: respuestaSegura(texto),
         fuentes: preparado.fuentes,
         proveedor: ia.nombre,
         modelo: ia.modelo,
@@ -100,12 +119,14 @@ async function preguntarEnStream(
     const texto = await ia.generarEnStream(
         preparado.mensajes,
         { systemPrompt: preparado.systemPrompt },
-        (trozo) => alEmitir('token', { texto: trozo })
+        () => undefined
     );
+    const seguro = respuestaSegura(texto);
 
-    alEmitir('fin', { texto, fuentes: preparado.fuentes });
+    alEmitir('token', { texto: seguro });
+    alEmitir('fin', { texto: seguro, fuentes: preparado.fuentes });
 
-    return { texto, fuentes: preparado.fuentes };
+    return { texto: seguro, fuentes: preparado.fuentes };
 }
 
 // GET /api/chatbot/estado: la UI lo usa para mostrar "En linea" o el

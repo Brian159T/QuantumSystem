@@ -1,5 +1,4 @@
 import { URL_BASE } from './apiClient'
-import { obtenerTokenSesion } from '../utils/sesion'
 
 // Cliente del chatbot. El backend expone dos modos:
 //   POST /chatbot          -> respuesta completa en el sobre {error,status,body}
@@ -46,11 +45,7 @@ export type EventoChatbot =
   | { tipo: 'error'; mensaje: string }
 
 function cabeceras(): Record<string, string> {
-  const token = obtenerTokenSesion()
-  return {
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-  }
+  return { 'Content-Type': 'application/json' }
 }
 
 // El historial solo se manda si hay al menos un turno: enviarlo vacio
@@ -63,6 +58,7 @@ export async function obtenerEstado(): Promise<EstadoChatbot | null> {
   try {
     const respuesta = await fetch(`${URL_BASE}/chatbot/estado`, {
       headers: cabeceras(),
+      credentials: 'include',
     })
     const sobre = await respuesta.json()
     return sobre?.error ? null : (sobre.body as EstadoChatbot)
@@ -78,6 +74,7 @@ export async function preguntar(
   const respuesta = await fetch(`${URL_BASE}/chatbot`, {
     method: 'POST',
     headers: cabeceras(),
+    credentials: 'include',
     body: JSON.stringify(cuerpo(mensaje, historial)),
   })
 
@@ -99,6 +96,7 @@ export async function preguntarEnStream(
   const respuesta = await fetch(`${URL_BASE}/chatbot/stream`, {
     method: 'POST',
     headers: cabeceras(),
+    credentials: 'include',
     body: JSON.stringify(cuerpo(mensaje, historial)),
   })
 
