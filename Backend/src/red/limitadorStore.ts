@@ -3,7 +3,7 @@ import dbPg from '../DB/pg';
 
 const TABLA = 'Rate_Limits';
 
-function crearLimitadorStore(): Store {
+function crearLimitadorStore(prefijo: string): Store {
     let ventanaMs = 60 * 1000;
     let avisado = false;
 
@@ -17,6 +17,8 @@ function crearLimitadorStore(): Store {
     }
 
     return {
+        prefix: prefijo,
+        localKeys: true,
         async init(opciones: any): Promise<void> {
             ventanaMs = opciones?.windowMs || ventanaMs;
             try {

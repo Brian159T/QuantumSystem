@@ -4,7 +4,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 import clientes from './modulos/Clientes/rutas';
 import usuarios from './modulos/Usuarios/rutas';
@@ -36,15 +36,19 @@ const limitadorGeneral = rateLimit({
     limit: 300,
     standardHeaders: true,
     legacyHeaders: false,
-    store: crearLimitadorStore(),
+    store: crearLimitadorStore('general'),
+    skip: (req) =>
+        req.originalUrl.startsWith('/api/chatbot') ||
+        (req.method === 'POST' && req.originalUrl.split('?')[0] === '/api/reservas'),
+    keyGenerator: (req) => `general:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
     message: sobreLimite('Demasiadas peticiones. Intenta mas tarde.'),
 });
 
 function claveLogin(ip: string | undefined): string {
-    return `login:${ip ?? 'desconocida'}`;
+    return `login:${ipKeyGenerator(ip ?? 'desconocida')}`;
 }
 
-const almacenLogin = crearLimitadorStore();
+const almacenLogin = crearLimitadorStore('login');
 
 const limitadorLogin = rateLimit({
     windowMs: 15 * 60 * 1000,
@@ -53,7 +57,7 @@ const limitadorLogin = rateLimit({
     standardHeaders: true,
     legacyHeaders: false,
     store: almacenLogin,
-    keyGenerator: (req) => claveLogin(req.ip),
+    keyGenerator: (req) => `login:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
     message: sobreLimite('Demasiados intentos fallidos. Espera 15 minutos antes de volver a intentar.'),
 });
 
@@ -62,18 +66,49 @@ const limitadorRegistro = rateLimit({
     limit: 20,
     standardHeaders: true,
     legacyHeaders: false,
-    store: crearLimitadorStore(),
-    keyGenerator: (req) => `registro:${req.ip ?? 'desconocida'}`,
+    store: crearLimitadorStore('registro'),
+    keyGenerator: (req) => `registro:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
     message: sobreLimite('Demasiados registros. Intenta mas tarde.'),
 });
 
 const limitadorChatbot = rateLimit({
     windowMs: 60 * 1000,
-    limit: 30,
+    limit: 60,
     standardHeaders: true,
     legacyHeaders: false,
-    store: crearLimitadorStore(),
+    store: crearLimitadorStore('chatbot'),
+    keyGenerator: (req) => `chatbot:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
     message: sobreLimite('Demasiadas consultas al asistente. Espera un momento.'),
+});
+
+const limitadorChatbotRafaga = rateLimit({
+    windowMs: 5 * 1000,
+    limit: 3,
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: crearLimitadorStore('chatbot-rafaga'),
+    keyGenerator: (req) => `chatbot-rafaga:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
+    message: sobreLimite('Estas enviando consultas muy rapido. Espera unos segundos.'),
+});
+
+const limitadorReservas = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: crearLimitadorStore('reservas'),
+    keyGenerator: (req) => `reservas:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
+    message: sobreLimite('Demasiadas reservas. Intenta mas tarde.'),
+});
+
+const limitadorReservasRafaga = rateLimit({
+    windowMs: 5 * 1000,
+    limit: 2,
+    standardHeaders: true,
+    legacyHeaders: false,
+    store: crearLimitadorStore('reservas-rafaga'),
+    keyGenerator: (req) => `reservas-rafaga:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
+    message: sobreLimite('Estas enviando reservas muy rapido. Espera unos segundos.'),
 });
 
 app.disable('x-powered-by');
@@ -120,6 +155,14 @@ app.use('/api/auth/login', (req, res, next) => {
 });
 app.use('/api/auth/registro', limitadorRegistro);
 app.use('/api/chatbot', limitadorChatbot);
+app.use('/api/chatbot', (req, res, next) => {
+    if (req.method === 'POST') {
+        limitadorChatbotRafaga(req, res, next);
+        return;
+    }
+    next();
+});
+app.post('/api/reservas', limitadorReservas, limitadorReservasRafaga);
 
 app.set('port', config.app.port);
 

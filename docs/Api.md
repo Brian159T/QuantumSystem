@@ -173,7 +173,7 @@ El resto de modulos siguen la misma convencion CRUD. Se listan a continuacion co
 
 Campos (tabla `Vehiculos`): `Velocidad_Maxima`, `Autonomia`, `Tipo`, `Carga_Rapida`, `Nombre_Modelo`, `Capacidad_Bateria`, `Tiempo_Carga_Normal`, `Traccion`, `Nro_Asientos` (todos string), `id_color` (number) y `Precio_USD` (DECIMAL).
 
-- GET `/api/vehiculos` / GET `/api/vehiculos/:id` — **cada vehiculo incluye un array `colores`** con los colores de la tabla N:M `Vehiculos_Colores` (JOIN con `Colores` → `{id_color, Color}`). Si el vehiculo no tiene relaciones, `colores` es `[]`.
+- GET `/api/vehiculos` / GET `/api/vehiculos/:id` — **cada vehiculo incluye un array `colores`** con los colores de la tabla N:M `Vehiculos_Colores` (JOIN con `Colores` → `{id_color, Color}`). Si el vehiculo no tiene relaciones N:M, se devuelve su **color principal** (`Vehiculos.id_color`) como unico elemento, igual que la columna derivada `Colores_Disponibles`.
 - POST `/api/vehiculos` (201) / PUT `/api/vehiculos/:id` (200) / DELETE `/api/vehiculos/:id` (200) — POST/PUT **persisten `Precio_USD`** (corregido).
 - Las mutaciones (POST/PUT/DELETE) **requieren rol admin**; el GET es publico.
 

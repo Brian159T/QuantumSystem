@@ -50,25 +50,24 @@ export default function (dbInyectada?: any) {
         if (!vehiculo) {
             return vehiculo;
         }
-        const colores = await db.ejecutar(
-            `SELECT c."id_color", c."Color"
-             FROM "Vehiculos_Colores" vc
-             INNER JOIN "Colores" c ON c."id_color" = vc."id_color"
-             WHERE vc."id_vehiculo" = $1`,
-            [id]
-        );
-        return { ...vehiculo, colores };
+        const enriquecidos = await enriquecerConColores([vehiculo]);
+        return enriquecidos[0];
     }
 
     async function enriquecerConColores(vehiculos: any[]) {
         if (!vehiculos.length) {
             return [];
         }
-        const relaciones = await db.ejecutar(
-            `SELECT vc."id_vehiculo", c."id_color", c."Color"
-             FROM "Vehiculos_Colores" vc
-             INNER JOIN "Colores" c ON c."id_color" = vc."id_color"`
-        );
+        const [relaciones, colores] = await Promise.all([
+            db.ejecutar(
+                `SELECT vc."id_vehiculo", c."id_color", c."Color"
+                 FROM "Vehiculos_Colores" vc
+                 INNER JOIN "Colores" c ON c."id_color" = vc."id_color"`
+            ),
+            db.ejecutar(`SELECT "id_color", "Color" FROM "Colores"`),
+        ]);
+        const coloresPorId = new Map<number, any>();
+        colores.forEach((c: any) => coloresPorId.set(Number(c.id_color), c));
         const coloresPorVehiculo = new Map<number, any[]>();
         relaciones.forEach((r: any) => {
             if (!coloresPorVehiculo.has(r.id_vehiculo)) {
@@ -79,10 +78,19 @@ export default function (dbInyectada?: any) {
                 Color: r.Color,
             });
         });
-        return vehiculos.map((v: any) => ({
-            ...v,
-            colores: coloresPorVehiculo.get(v.id_vehiculo) || [],
-        }));
+        return vehiculos.map((v: any) => {
+            const deRelacion = coloresPorVehiculo.get(v.id_vehiculo);
+            if (deRelacion?.length) {
+                return { ...v, colores: deRelacion };
+            }
+            const principal = coloresPorId.get(Number(v.id_color));
+            return {
+                ...v,
+                colores: principal
+                    ? [{ id_color: principal.id_color, Color: principal.Color }]
+                    : [],
+            };
+        });
     }
 
     function eliminar(id: number) {

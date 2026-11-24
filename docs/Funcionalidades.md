@@ -2,6 +2,12 @@
 
 Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil** (`Mobile/`) y el **frontend web** (`Frontend/`).
 
+### Actualizacion visual del frontend web (noviembre de 2026)
+
+Las interfaces privadas de cliente y administrador usan fondo general `#070f0f`; el sidebar conserva su diseno original. Las tarjetas y divs principales usan relleno `#edf7f5`, texto negro en negrilla, bordes suaves, sombras ligeras, franja verde superior y lineas separadoras decorativas. Los iconos tienen marco circular negro delgado y los botones de rutas tienen borde negro de 1px.
+
+En el inicio del cliente, este diseno se aplica al vehiculo propio, las acciones "Buscar estacion", "Iniciar carga", "Planificar viaje" e "Historial", las estaciones cercanas, el historial de cargas y la tarjeta "Ruta inteligente". Los titulos de seccion y encabezados privados se muestran en mayusculas y una sola linea horizontal cuando el espacio lo permite. Se elimino el mensaje auxiliar de ubicacion en la pantalla de Emergencias.
+
 > **Estaciones en Gráficos (noviembre 2026):** `components/GraficoEstaciones.tsx` incorpora el dashboard `add5j8r`, panel `1`, debajo del análisis de reservas, con tema oscuro y actualización cada 10 segundos. Las tarjetas inferiores consultan `GET /api/estaciones-carga` y muestran total, estado «Disponible», registros sin estado y distribución de estados. Reflejan el catálogo actual, sin inferir ocupación, uso ni conectores libres; incluyen estados de carga, error y catálogo vacío. La autenticación de Grafana continúa siendo independiente y el SQL interno del panel no se ha verificado.
 
 > **Actualización de Gráficos (noviembre 2026):** el iframe de reservas utiliza `panelId=panel-1`. Las tarjetas inferiores muestran resultados e interpretaciones desde `GET /api/reservas`: total, pendientes, confirmadas/entregadas, modelos con mayor cantidad y fechas de mayor actividad (incluye empates). La consulta se repite cada 10 segundos y distingue errores de períodos sin reservas. El resumen abarca fechas desde hace 30 días hasta hoy, inclusive; es independiente del SQL interno de Grafana, cuya equivalencia aún requiere validación. El login de Grafana sigue siendo necesario y el contenido del panel no se ha verificado en una sesión autenticada.
@@ -71,7 +77,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 - **Integrado con la API real** (movil: `VehiculosService.obtenerVehiculos` + `ColoresService.obtenerColores`).
 - Listado del catalogo con datos de la tabla `Vehiculos` (nombre, tipo, autonomia, carga rapida, precio `Precio_USD`).
 - **Espacio reservado para la foto** de cada modelo (placeholder con icono; las imagenes se agregaran despues; la tabla no tiene columna de imagen aun).
-- **Vista de detalle** (web) por modelo: selector de **colores** con la paleta del API; se muestran **solo los colores realmente disponibles** de ese modelo (los de la N:M `Vehiculos_Colores`). En el movil, si el array `colores` viene vacio cae al `id_color`. Ademas la **ficha tecnica** (autonomia, bateria, velocidad maxima, carga, asientos, traccion).
+- **Vista de detalle** (web) por modelo: selector de **colores** con la paleta del API; se muestran los colores de la N:M `Vehiculos_Colores` y, si el modelo no tiene relaciones, su **color principal** (`id_color`, devuelto por el GET como fallback). En el movil, si el array `colores` viene vacio cae al `id_color`. Ademas la **ficha tecnica** (autonomia, bateria, velocidad maxima, carga, asientos, traccion).
 - Sombras/colores con opacidad calculados en JS.
 - Web: boton para **reservar** un vehiculo (pasa el vehiculo a la pantalla de reservas).
 

@@ -111,7 +111,7 @@ Relacion muchos-a-muchos entre Vehiculos y Colores: **un modelo se ofrece en var
 | `id_vehiculo` | INT | PK compuesto, FK → Vehiculos(id_vehiculo), NOT NULL, CASCADE |
 | `id_color` | INT | PK compuesto, FK → Colores(id_color), NOT NULL, CASCADE |
 
-> Con endpoints: modulo `Vehiculos_Colores` en el backend (`/api/vehiculos-colores`, ver `docs/Api.md`). El `GET /api/vehiculos` devuelve un array `colores` por vehiculo (JOIN con `Colores`).
+> Con endpoints: modulo `Vehiculos_Colores` en el backend (`/api/vehiculos-colores`, ver `docs/Api.md`). El `GET /api/vehiculos` devuelve un array `colores` por vehiculo (JOIN con `Colores`); si no hay filas N:M, devuelve el color principal (`id_color`) como unico elemento, igual que `Colores_Disponibles`.
 
 ### Colores disponibles en `Vehiculos` (columna derivada)
 

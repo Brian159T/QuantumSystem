@@ -1,7 +1,8 @@
-import jwt, { JwtPayload, SignOptions } from 'jsonwebtoken';
+import jwt, { JsonWebTokenError, JwtPayload, SignOptions } from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
 import config from '../config';
 import error from '../middleware/errors';
+import respuesta from '../red/respuestas';
 import dbPg from '../DB/pg';
 
 const secret = config.jwt.secret;
@@ -52,7 +53,14 @@ function asignarToken(data: object): string {
 }
 
 function verificarToken(token: string): UsuarioToken {
-    return jwt.verify(token, secret, { algorithms: ['HS256'] }) as UsuarioToken;
+    try {
+        return jwt.verify(token, secret, { algorithms: ['HS256'] }) as UsuarioToken;
+    } catch (err) {
+        if (err instanceof JsonWebTokenError) {
+            throw error('La sesion ya no es valida', 401);
+        }
+        throw err;
+    }
 }
 
 function obtenerToken(req: Request): string {
@@ -101,11 +109,24 @@ async function rolEnBase(idUsuario: number): Promise<{ id_rol: number; rol: stri
     return filas[0] || null;
 }
 
+function esSesionInvalida(err: unknown): boolean {
+    return Number((err as { statusCode?: number })?.statusCode) === 401;
+}
+
+function responderSesionInvalida(req: Request, res: Response): void {
+    limpiarCookie(res);
+    respuesta.error(req, res, 'La sesion ya no es valida', 401);
+}
+
 function autenticar(req: Request, res: Response, next: NextFunction): void {
     try {
         decodificar(req);
         next();
     } catch (err) {
+        if (esSesionInvalida(err)) {
+            responderSesionInvalida(req, res);
+            return;
+        }
         next(err);
     }
 }
@@ -132,6 +153,10 @@ async function soloAdmin(req: Request, res: Response, next: NextFunction): Promi
 
         next();
     } catch (err) {
+        if (esSesionInvalida(err)) {
+            responderSesionInvalida(req, res);
+            return;
+        }
         next(err);
     }
 }

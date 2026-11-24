@@ -35,11 +35,10 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
     formulario.nombres.trim() &&
     formulario.apellidos.trim() &&
     formulario.ci.trim() &&
-    formulario.modelo &&
-    formulario.color
+    formulario.modelo
 
   const confirmarReserva = async () => {
-    if (!formulario.modelo || !formulario.color) return
+    if (!formulario.modelo) return
     setCargandoReserva(true)
     setErrorReserva('')
     try {
@@ -175,7 +174,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 <span className="vacio__icono">
                   <Palette size={24} />
                 </span>
-                Este modelo aún no tiene colores disponibles
+                Se reservará con el color principal del modelo
               </div>
             ) : (
               <div className="rejilla-colores">
@@ -218,7 +217,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
         </div>
       </div>
 
-      {modalConfirmacion && formulario.modelo && formulario.color && (
+      {modalConfirmacion && formulario.modelo && (
         <div className="fondo-modal">
           <div className="modal">
             <div className="modal__encabezado">
@@ -244,7 +243,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 <div>
                   <div style={{ fontWeight: 700 }}>{formulario.modelo.Nombre_Modelo}</div>
                   <div style={{ fontSize: 12, color: 'var(--texto-suave)' }}>
-                    {formulario.color.nombre}
+                    {formulario.color?.nombre ?? 'Color principal del modelo'}
                   </div>
                 </div>
               </div>
@@ -314,7 +313,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                   <span className="campo__etiqueta">Color</span>
-                  <span>{formulario.color?.nombre}</span>
+                  <span>{formulario.color?.nombre ?? 'Color principal del modelo'}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                   <span className="campo__etiqueta">Costo de reserva</span>

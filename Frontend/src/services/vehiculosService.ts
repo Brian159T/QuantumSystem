@@ -7,6 +7,13 @@ const HEX_COLORES_MARCA: Record<string, string> = {
   'electric blue': '#4D9FFF',
   'midnight black': '#10131f',
   'pearl white': '#eef1f7',
+  verde: '#2fb676',
+  azul: '#4D9FFF',
+  negro: '#10131f',
+  blanco: '#eef1f7',
+  gris: '#9aa3b2',
+  rojo: '#e5484d',
+  amarillo: '#f5c451',
 }
 
 function hexParaColor(nombre: string): string | undefined {

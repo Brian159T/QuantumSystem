@@ -14,10 +14,10 @@
   --gradiente-verde: #24dad9; --gradiente-azul: #b3c6e8;
   --radio: 0px; --radio-suave: 0px; --radio-boton: 9999px;
   --espectro: linear-gradient(270deg,#9e3db2,#1b66f8,#24dad9,#b3c6e8);
-  background: #1c1c1c; color: #EDE6D8; font-size: 15px; font-weight: 300; line-height: 1.63;
+  background: #070f0f; color: #EDE6D8; font-size: 15px; font-weight: 300; line-height: 1.63;
   color-scheme: dark;
 }
-body:has(.espacio-privado) { background: #1c1c1c; }
+body:has(.espacio-privado) { background: #070f0f; }
 .control-barra-lateral { display: none; }
 @media(min-width: 768px) {
   .aplicacion.espacio-privado--barra-oculta { padding-left: 0; }
@@ -41,7 +41,17 @@ body:has(.espacio-privado) { background: #1c1c1c; }
 .encabezado-privado__descripcion { max-width: 540px; color: #e5e7eb; font-size: 15px; line-height: 1.63; }
 .espacio-privado .seccion { margin-top: 45px; }
 .espacio-privado :is(.titulo-seccion,.tarjeta__titulo,.banner__titulo) { font-weight: 300; letter-spacing: -.013em; }
-.espacio-privado .titulo-seccion { font-size: clamp(25px,3vw,38px); line-height: 1.2; }
+.espacio-privado .encabezado-seccion { min-width: 0; }
+.espacio-privado .titulo-seccion {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: clamp(16px, 2.4vw, 30px);
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
 .espacio-privado .tarjeta__titulo { font-size: 24px; }
 .espacio-privado :is(.tarjeta,.tarjeta--oscura,.tarjeta-servicio,.tarjeta-gestion,.tarjeta-contacto,.fila-actividad,.consejo,.tarjeta-ruta,.tabla-usuarios,.banner) { background: #1c1c1c; box-shadow: none; border: 0; border-radius: 0; }
 .espacio-privado :is(.tarjeta,.tarjeta-servicio,.tarjeta-contacto,.fila-actividad,.consejo,.tarjeta-ruta) { border-bottom: 1px solid #353535; padding: 28px 0; }
@@ -260,12 +270,32 @@ body:has(#root .aplicacion--administrador) {
   border-color: #EDE6D8;
 }
 
-/* Cliente: todo el lienzo y las superficies comparten el verde #273531. */
-.aplicacion--cliente.espacio-privado { background: #273531; }
-body:has(#root .aplicacion--cliente) { background: #273531; }
+/* Cliente: fondo general solicitado; el sidebar conserva su estilo actual. */
+.aplicacion--cliente.espacio-privado { background: #070f0f; }
+body:has(#root .aplicacion--cliente) { background: #070f0f; }
 .aplicacion--cliente .control-barra-lateral { background: #273531; }
 .aplicacion--cliente .control-barra-lateral:hover { background: #31423d; border-color: #9DB69D; }
 .aplicacion--cliente :is(.tarjeta,.tarjeta--oscura,.tarjeta-servicio,.tarjeta-gestion,.tarjeta-contacto,.fila-actividad,.consejo,.tarjeta-ruta,.tabla-usuarios,.banner) { background: #273531; }
+.aplicacion--cliente .banner {
+  background: #edf7f5;
+  color: #000;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  margin-block: 16px;
+}
+.aplicacion--cliente .banner :is(.banner__ceja,.banner__titulo,.banner__subtitulo) { color: #000; }
+.aplicacion--cliente .banner .boton { background: #e8efe8; color: #000; border-color: #000; }
+.aplicacion--cliente .banner .boton:hover { background: #c6d9d3; border-color: #000; color: #000; }
+.aplicacion--cliente .tarjeta-ruta {
+  background: #edf7f5;
+  color: #000;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  margin-block: 16px;
+  padding: 24px;
+}
+.aplicacion--cliente .tarjeta-ruta :is(.tarjeta-ruta__nombre,.tarjeta-ruta__direccion,.tarjeta-ruta__dato,.tarjeta-ruta__nota,.tarjeta-ruta__dato strong) { color: #000; }
+.aplicacion--cliente .tarjeta-ruta__dato { border-color: #000; }
 .aplicacion--cliente .anillo-bateria__centro { background: #273531; }
 .aplicacion--cliente :is(.campo__entrada,.buscador__entrada) { background: #273531; }
 .aplicacion--cliente .campo__entrada option { background: #273531; }
@@ -280,22 +310,22 @@ body:has(#root .aplicacion--cliente) { background: #273531; }
 .aplicacion--cliente .fila-actividad { padding: 18px 20px; border: 1px solid #9DB69D; border-radius: 12px; }
 
 /* Cliente: tarjetas de estación rellenas con el color del margen y texto negro. */
-.aplicacion--cliente .tarjeta-estacion { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion { background: #edf7f5; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-estacion :is(.tarjeta-servicio__nombre,.tarjeta-servicio__direccion,.tarjeta-servicio__distancia-valor,.tarjeta-servicio__distancia-unidad,.tarjeta-servicio__calificacion) { color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__calificacion svg { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__pie { border-top-color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-estacion .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-estacion .chip { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
-.aplicacion--cliente .tarjeta-estacion .boton--primario { background: #fff; border-color: #fff; color: #1c1c1c; }
-.aplicacion--cliente .tarjeta-estacion .boton--primario:hover { background: #e8efe8; border-color: #e8efe8; }
+.aplicacion--cliente .tarjeta-estacion .boton--primario { background: #fff; border: 1px solid #000; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-estacion .boton--primario:hover { background: #e8efe8; border-color: #000; }
 
 /* Cliente: resumen de estaciones con el mismo relleno y margen que las tarjetas de estación. */
 .aplicacion--cliente .fila-estadisticas { gap: 16px; padding-block: 32px; }
 .aplicacion--cliente .fila-estadisticas .tarjeta-estadistica,
 .aplicacion--cliente .fila-estadisticas .tarjeta-estadistica:first-child,
 .aplicacion--cliente .fila-estadisticas .tarjeta-estadistica + .tarjeta-estadistica {
-  background: #9DB69D;
+  background: #edf7f5;
   border: 1px solid #fff;
   border-radius: 12px;
   padding: 24px;
@@ -303,58 +333,133 @@ body:has(#root .aplicacion--cliente) { background: #273531; }
 }
 .aplicacion--cliente .fila-estadisticas .tarjeta-estadistica__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
 .aplicacion--cliente .fila-estadisticas .tarjeta-estadistica :is(.tarjeta-estadistica__valor,.tarjeta-estadistica__etiqueta) { color: #1c1c1c; }
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica__valor,
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica__valor {
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #000;
+}
 
 /* Cliente: mismo diseño para las tarjetas de taller. */
-.aplicacion--cliente .tarjeta-taller { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller { background: #edf7f5; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-taller :is(.tarjeta-servicio__nombre,.tarjeta-servicio__direccion,.tarjeta-servicio__distancia-valor,.tarjeta-servicio__distancia-unidad,.tarjeta-servicio__calificacion) { color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-taller .tarjeta-servicio__calificacion svg { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-taller .tarjeta-servicio__pie { border-top-color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-taller .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-taller .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-taller .chip { background: rgba(255,255,255,.35); border-color: #1c1c1c; color: #1c1c1c; }
-.aplicacion--cliente .tarjeta-taller .boton--azul { background: #fff; border-color: #fff; color: #1c1c1c; }
-.aplicacion--cliente .tarjeta-taller .boton--azul:hover { background: #e8efe8; border-color: #e8efe8; }
+.aplicacion--cliente .tarjeta-taller .boton--azul { background: #fff; border: 1px solid #000; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-taller .boton--azul:hover { background: #e8efe8; border-color: #000; }
 
 /* Cliente: Inicio — mismas tarjetas rellenas y texto negro. */
-.aplicacion--cliente .tarjeta--oscura { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta--oscura { background: #edf7f5; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta--oscura .tarjeta__titulo { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta--oscura [style*="color"] { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta--oscura .tarjeta-servicio__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta--oscura .insignia { background: rgba(255,255,255,.35) !important; border-color: #1c1c1c !important; color: #1c1c1c !important; }
-.aplicacion--cliente .tarjeta--oscura .anillo-bateria__centro { background: #9DB69D; }
+.aplicacion--cliente .tarjeta--oscura .anillo-bateria__centro { background: #edf7f5; }
 .aplicacion--cliente .tarjeta--oscura :is(.anillo-bateria__porcentaje,.anillo-bateria__etiqueta) { color: #1c1c1c; }
 .aplicacion--cliente .tarjeta--oscura .barra-bateria { background: rgba(28,28,28,.25); }
 .aplicacion--cliente .tarjeta-estacion .tarjeta__titulo { color: #1c1c1c !important; }
-.aplicacion--cliente .fila-actividad { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; padding: 12px 16px; color: #1c1c1c; }
+.aplicacion--cliente .fila-actividad { background: #edf7f5; border: 1px solid #fff; border-radius: 12px; padding: 12px 16px; color: #1c1c1c; }
 .aplicacion--cliente .fila-actividad :is(.fila-actividad__accion,.fila-actividad__detalle) { color: #1c1c1c; }
 .aplicacion--cliente .fila-actividad .fila-actividad__icono { background: rgba(255,255,255,.35) !important; color: #1c1c1c !important; }
 
 /* Cliente: banner de emergencia con el mismo relleno y texto negro. */
-.aplicacion--cliente .banner-emergencia { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .banner-emergencia { background: #edf7f5; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .banner-emergencia :is(.banner-emergencia__titulo,.banner-emergencia__subtitulo) { color: #1c1c1c; }
 .aplicacion--cliente .banner-emergencia .banner-emergencia__icono { background: rgba(255,255,255,.35); color: #1c1c1c; }
 .aplicacion--cliente .banner-emergencia .boton--claro { background: #fff; border-color: #1c1c1c; color: #1c1c1c; }
 .aplicacion--cliente .banner-emergencia .boton--claro:hover { background: #e8efe8; border-color: #1c1c1c; }
 
 /* Cliente: contactos de emergencia con el mismo relleno y texto negro. */
-.aplicacion--cliente .tarjeta-contacto { background: #9DB69D; border: 1px solid #fff; border-radius: 12px; padding: 14px 16px; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-contacto { background: #edf7f5; border: 1px solid #fff; border-radius: 12px; padding: 14px 16px; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-contacto :is(.tarjeta-contacto__nombre,.tarjeta-contacto__numero,.tarjeta-contacto__accion) { color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-contacto .tarjeta-contacto__icono { background: rgba(255,255,255,.35); color: #1c1c1c; }
 
 /* Cliente: servicio de salud con el mismo relleno y texto negro. */
-.aplicacion--cliente .tarjeta-salud { background: #9DB69D; border-color: #fff; color: #1c1c1c; }
+.aplicacion--cliente .tarjeta-salud { background: #edf7f5; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-salud :is(.tarjeta__titulo,.tarjeta__subtitulo) { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-salud svg { color: #1c1c1c !important; }
 .aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro) { background: #fff; border-color: #fff; color: #1c1c1c; }
 .aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro):hover { background: #e8efe8; border-color: #e8efe8; }
+.aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro) { border: 1px solid #000; }
+.aplicacion--cliente .tarjeta-salud :is(.boton--azul,.boton--claro):hover { border-color: #000; }
+
+/* Inicio del cliente: línea decorativa visible en el vehículo y estaciones cercanas. */
+.aplicacion--cliente .tarjeta--oscura:not(.tarjeta-estacion)::before,
+.aplicacion--cliente .estaciones-inicio .tarjeta-estacion::before {
+  display: block;
+  height: 3px;
+  background: #2fb676;
+}
+
+.aplicacion--cliente .tarjeta--oscura:not(.tarjeta-estacion) .vehiculo-propio__superior {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #000;
+}
+
+.aplicacion--cliente .tarjeta--oscura:not(.tarjeta-estacion) .vehiculo-propio__bateria {
+  padding-top: 16px;
+}
+
+.aplicacion--cliente .estaciones-inicio .tarjeta-estacion .tarjeta-servicio__superior {
+  border-bottom: 1px solid #000;
+}
+
+.aplicacion--cliente .seccion .fila-actividad {
+  border-bottom: 1px solid #000;
+}
+
+/* Encabezado principal: mayúsculas y una sola línea horizontal. */
+.espacio-privado .encabezado-privado h1 {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-transform: uppercase;
+  font-size: clamp(24px, 5vw, 72px);
+}
+
+/* Inicio del cliente: línea negra decorativa en cada bloque visual. */
+.aplicacion--cliente .seccion > .banner::after {
+  content: '';
+  position: absolute;
+  right: 18px;
+  bottom: 9px;
+  left: 18px;
+  height: 1px;
+  background: #000;
+}
+
+.aplicacion--cliente .estaciones-inicio .tarjeta-estacion .tarjeta-servicio__pie {
+  border-top: 1px solid #000;
+}
+
+.aplicacion--cliente .estaciones-inicio .tarjeta-estacion > div:first-child {
+  padding-bottom: 12px;
+  margin-bottom: 12px !important;
+  border-bottom: 1px solid #000;
+}
+
+.aplicacion--cliente .acciones-rapidas .accion-rapida__etiqueta {
+  width: 100%;
+  padding-top: 10px;
+  border-top: 1px solid #000;
+}
+
+.aplicacion--cliente .seccion:has(.estaciones-inicio) .encabezado-seccion {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #000;
+}
 
 /* Administrador: mismo diseño y colores que el cliente. */
 .aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) {
-  background: #9DB69D; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c;
+  background: #edf7f5; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c;
 }
 .aplicacion--administrador .fila-estadisticas .tarjeta-estadistica { border: 1px solid #fff; }
 .aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) :is(p,span,div,h2,h3,h4,dt,dd,strong,label,footer) { color: #1c1c1c; }
-.aplicacion--administrador .tabla-usuarios__fila { background: #9DB69D; border-bottom: 1px solid #1c1c1c; }
+.aplicacion--administrador .tabla-usuarios__fila { background: #edf7f5; border-bottom: 1px solid #1c1c1c; }
 .aplicacion--administrador .tabla-usuarios__fila--encabezado { background: #8aa78a; color: #1c1c1c; }
 .aplicacion--administrador :is(.tarjeta,.modal) :is(.campo__entrada,.buscador__entrada) { background: #fff; border-color: #1c1c1c; color: #1c1c1c; }
 .aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-gestion,.modal) :is(.boton--primario,.boton--azul,.boton--claro) { background: #fff; border-color: #fff; color: #1c1c1c; }
@@ -373,3 +478,196 @@ body:has(#root .aplicacion--cliente) { background: #273531; }
 .aplicacion--administrador :is(.grafico-tarjeta,.graficos-resumen) :is(.grafico-tarjeta__icono,.graficos-resumen__icono,.grafico-tarjeta__simbolo) { color: #fff; border-color: #fff; }
 .aplicacion--administrador :is(.grafico-tarjeta__icono,.graficos-resumen__icono) { border-radius: 12px; }
 .aplicacion--administrador .graficos-resumen .graficos-etiqueta { background: #1c1c1c; border: 1px solid #fff; border-radius: 12px; color: #fff; }
+
+/* Texto destacado dentro de las tarjetas privadas. */
+.aplicacion--cliente :is(.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta--oscura,.fila-actividad,.banner-emergencia,.tarjeta-contacto,.tarjeta-salud,.tarjeta-ruta,.banner) :is(p,span,div,strong,button,h2,h3,h4) {
+  font-weight: 700;
+}
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) :is(p,span,div,strong,button,h2,h3,h4,dt,dd,label,footer) {
+  font-weight: 700;
+}
+
+/* Separadores decorativos para distinguir las secciones de cada tarjeta. */
+.aplicacion--cliente :is(.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta--oscura,.fila-actividad,.banner-emergencia,.tarjeta-contacto,.tarjeta-salud,.tarjeta-ruta,.banner),
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) {
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+}
+
+.aplicacion--cliente :is(.tarjeta-salud,.tarjeta-ruta) :is(.tarjeta__encabezado,.tarjeta-ruta__destino) {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.28);
+}
+
+.aplicacion--cliente .fila-estadisticas .tarjeta-estadistica + .tarjeta-estadistica,
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica + .tarjeta-estadistica {
+  border-left: 1px solid rgba(0, 0, 0, 0.28);
+}
+
+.aplicacion--cliente .tarjeta-ruta__datos {
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+  margin-top: 16px;
+}
+
+.aplicacion--cliente .tarjeta-salud .tarjeta__encabezado {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.28);
+  padding-bottom: 16px;
+}
+
+.aplicacion--cliente .tarjeta-ruta__dato + .tarjeta-ruta__dato {
+  border-left: 1px solid rgba(0, 0, 0, 0.28);
+  border-radius: 0;
+  padding-left: 16px;
+}
+
+.aplicacion--cliente .tarjeta-contacto + .tarjeta-contacto {
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+}
+
+/* Estaciones: separadores claros entre identidad, disponibilidad, conectores y acciones. */
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__superior {
+  padding-bottom: 16px;
+  border-bottom: 2px solid #000;
+}
+
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__fila + .tarjeta-servicio__fila {
+  padding-top: 12px;
+  border-top: 0;
+}
+
+.aplicacion--cliente .tarjeta-estacion .tarjeta-servicio__pie {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 0;
+}
+
+.aplicacion--cliente .tarjeta-estacion {
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+}
+
+.aplicacion--cliente .tarjeta-estacion::before {
+  display: none;
+}
+
+/* Acabado visual profesional para las tarjetas privadas. */
+.aplicacion--cliente :is(.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta--oscura,.fila-actividad,.banner-emergencia,.tarjeta-contacto,.tarjeta-salud,.tarjeta-ruta,.banner),
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(15, 74, 44, 0.24);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.aplicacion--cliente :is(.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta--oscura,.fila-actividad,.banner-emergencia,.tarjeta-contacto,.tarjeta-salud,.tarjeta-ruta,.banner)::before,
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal)::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #2fb676;
+}
+
+.aplicacion--cliente :is(.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta--oscura,.fila-actividad,.banner-emergencia,.tarjeta-contacto,.tarjeta-salud,.tarjeta-ruta,.banner):hover,
+.aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal):hover {
+  transform: translateY(-2px);
+  border-color: rgba(15, 74, 44, 0.48);
+  box-shadow: 0 12px 26px rgba(0, 20, 16, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+/* Acciones rápidas con el mismo diseño de tarjeta y franja verde. */
+.aplicacion--cliente .accion-rapida {
+  position: relative;
+  overflow: hidden;
+  padding: 24px 16px;
+  background: #edf7f5;
+  border: 1px solid rgba(15, 74, 44, 0.24);
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+  color: #000;
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.aplicacion--cliente .accion-rapida::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #2fb676;
+}
+
+.aplicacion--cliente .accion-rapida__icono {
+  background: rgba(47, 182, 118, 0.14) !important;
+  border: 1px solid rgba(15, 74, 44, 0.3);
+  color: #000 !important;
+}
+
+.aplicacion--cliente .accion-rapida__etiqueta {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--cliente .accion-rapida:hover {
+  transform: translateY(-2px);
+  border-color: rgba(15, 74, 44, 0.48);
+  box-shadow: 0 12px 26px rgba(0, 20, 16, 0.16);
+}
+
+/* Filtros de conectores con el mismo diseño de tarjeta. */
+.aplicacion--cliente .fila-filtros .chip {
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+  padding: 12px 18px 10px;
+  background: #edf7f5;
+  border: 1px solid rgba(15, 74, 44, 0.24);
+  border-radius: 12px;
+  color: #000;
+  font-weight: 700;
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+  transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+}
+
+.aplicacion--cliente .fila-filtros .chip::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #2fb676;
+}
+
+.aplicacion--cliente .fila-filtros .chip--activo {
+  background: #edf7f5;
+  border-color: #0f4a2c;
+  color: #000;
+}
+
+.aplicacion--cliente .fila-filtros .chip:hover {
+  transform: translateY(-2px);
+  border-color: #0f4a2c;
+  box-shadow: 0 12px 26px rgba(0, 20, 16, 0.16);
+}
+
+/* Marcos circulares para los iconos de las tarjetas. */
+.aplicacion--cliente :is(.accion-rapida__icono,.tarjeta-estadistica__icono,.tarjeta-servicio__icono,.tarjeta-ruta__icono,.tarjeta-contacto__icono,.fila-actividad__icono,.banner-emergencia__icono) {
+  border-radius: 50%;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.aplicacion--cliente .fila-filtros .chip svg,
+.aplicacion--cliente .tarjeta-salud .tarjeta__encabezado > svg {
+  padding: 7px;
+  border-radius: 50%;
+  background: rgba(47, 182, 118, 0.14);
+  color: #000 !important;
+  box-sizing: content-box;
+}
+
+/* Marco circular negro y destacado para los iconos. */
+.aplicacion--cliente :is(.accion-rapida__icono,.tarjeta-estadistica__icono,.tarjeta-servicio__icono,.tarjeta-ruta__icono,.tarjeta-contacto__icono,.fila-actividad__icono,.banner-emergencia__icono),
+.aplicacion--cliente .fila-filtros .chip svg,
+.aplicacion--cliente .tarjeta-salud .tarjeta__encabezado > svg {
+  border: 1px solid #000;
+  background: #edf7f5 !important;
+  color: #000 !important;
+}

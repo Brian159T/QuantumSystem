@@ -1,5 +1,11 @@
 # Arquitectura - Quantum / Voltus
 
+### Actualizacion visual del frontend web (noviembre de 2026)
+
+El contenedor `.espacio-privado` reune el diseno visual de cliente y administrador: fondo general `#070f0f`, tarjetas con relleno `#edf7f5`, texto negro en negrilla, franja verde superior, sombras suaves y lineas separadoras. El sidebar mantiene sus estilos originales. Los iconos usan marcos circulares negros de 1px y los botones de rutas usan bordes negros delgados.
+
+En `PaginaInicioCliente.tsx`, el mismo tratamiento visual se aplica al vehiculo propio, acciones rapidas, estaciones cercanas, historial de cargas y ruta inteligente. `EncabezadoSeccion` y `EncabezadoPrivado` muestran titulos en mayusculas y en una sola linea horizontal con truncado responsive.
+
 Documento de referencia para que una IA (u otro desarrollador) entienda rapidamente **como esta armado** el proyecto antes de tocar c�digo.
 
 > **Nota de naming**: La marca/producto que muestra la UI se llama **Voltus**, pero el nombre interno del proyecto y la base de datos es **Quantum**. App movil = **QuantumApp**. Ver `React Navigation` para la app movil y un SPA propio para web.

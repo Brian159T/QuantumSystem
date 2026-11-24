@@ -1,5 +1,9 @@
 # Decisiones Tecnicas - Quantum / Voltus
 
+### Decision visual privada (noviembre de 2026)
+
+Se centraliza en `Frontend/src/styles/diseno-privado.css` el diseno de las interfaces de cliente y administrador: fondo `#070f0f`, superficies `#edf7f5`, texto negro en negrilla, franja verde decorativa, separadores, sombras y marcos circulares negros de 1px para iconos. Los botones de rutas usan borde negro delgado y estados hover diferenciados. Los titulos privados se muestran en mayusculas y una sola linea horizontal. El sidebar queda fuera de esta modificacion y conserva su diseno original.
+
 Registro del **stack**, **herramientas** y **decisiones de diseno** tomadas en el proyecto, para mantener consistencia y no revertir sin motivo.
 
 ---

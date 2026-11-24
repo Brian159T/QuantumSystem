@@ -173,7 +173,7 @@ try   -> peticion('/vehiculos')          (apiClient desempaqueta el sobre)
 catch -> mocks
 ```
 
-- `vehiculosService.ts` `adaptar()`: rellena `imagen` con `placehold.co`. `colores` refleja **solo los colores reales del modelo** (los que trae el backend, con `id_color`); si un modelo no tiene relaciones N:M, queda `colores: []` (sin paleta generica inventada).
+- `vehiculosService.ts` `adaptar()`: rellena `imagen` con `placehold.co`. `colores` refleja los colores que trae el backend (N:M, con `id_color`); si el modelo no tiene relaciones, el backend devuelve su color principal (`id_color`) como unico elemento.
 - `estacionesService.ts` / `talleresService.ts`: `adaptarEstacion` pone `nombre ?? direccion`, `conectores ?? ['Tipo 2']`, `velocidad ?? 'Rápida'`; `adaptarTaller` analogo.
 - `usuariosService.ts` `adaptar()`: traduce `UsuarioApi` → `UsuarioAdministracion` (`role` segun `id_rol === 1`, `status: 'Activo'` fijo, etc.).
 - `authService.ts` `registrar()`: hace **2 peticiones encadenadas** (POST `/usuarios` con `id_rol: 2` y luego POST `/auth/login`) porque el backend no tiene ruta `/auth/registro`.

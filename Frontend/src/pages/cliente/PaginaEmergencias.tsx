@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Siren, Phone, MapPin, PhoneCall, ShieldAlert, Clock } from 'lucide-react'
+import { Siren, Phone, MapPin, PhoneCall, ShieldAlert } from 'lucide-react'
 import EncabezadoSeccion from '../../components/EncabezadoSeccion'
 
 const CONTACTOS = [
@@ -79,16 +79,6 @@ export default function PaginaEmergencias() {
         </div>
       </section>
 
-      <section className="seccion">
-        <div className="consejo">
-          <span className="consejo__icono">
-            <Clock size={18} />
-          </span>
-          <span>
-            Compartir tu ubicación en tiempo real ayuda a que la asistencia llegue más rápido.
-          </span>
-        </div>
-      </section>
     </div>
   )
 }
