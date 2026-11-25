@@ -4,6 +4,8 @@ Fecha: 16 de octubre de 2026.
 
 Estado al 11 de noviembre de 2026: implementación parcial. Grafana local responde y el frontend web incorpora paneles de reservas y estaciones con resúmenes desde la API. La conexión PostgreSQL y la creación de los dashboards fueron informadas por el usuario. Prometheus, eventos de uso, predicción, despliegue e inicio de sesión único siguen pendientes; el contenido de los paneles no se ha verificado con una sesión autenticada.
 
+Actualización al 25 de noviembre de 2026: el panel administrativo mantiene los iframes de Grafana y ahora ofrece reportes PDF descargables con PDFMake. Las tablas y descripciones de los reportes se obtienen desde el backend y PostgreSQL, sin capturar los iframes ni introducir datos simulados.
+
 ## Integración en el administrador web (11 de noviembre de 2026)
 
 ### Pantalla y componentes
@@ -19,7 +21,7 @@ Ambos utilizan `http://localhost:3000/d-solo/`, `orgId=1`, `timezone=browser`, `
 
 ### Resultados e interpretaciones
 
-Los componentes `InterpretacionReservas.tsx` e `InterpretacionEstaciones.tsx` consumen sus hooks y servicios de análisis, que usan `apiClient`. No se añadieron endpoints ni tablas. Cada hook consulta al montar y programa la siguiente consulta 10 segundos después de terminar la anterior; cancela el temporizador al desmontar. Hay estados de carga, error y ausencia real de registros. Si falla una actualización se conservan las últimas cifras con aviso de antigüedad y no se presenta una interpretación vigente.
+Los componentes `InterpretacionReservas.tsx` e `InterpretacionEstaciones.tsx` consumen sus hooks y servicios de análisis, que usan `apiClient`. Además, el módulo administrativo `Reportes` expone `/api/reportes/graficos` para entregar las tablas usadas por los PDFs. Cada hook consulta al montar y programa la siguiente consulta 10 segundos después de terminar la anterior; cancela el temporizador al desmontar. Hay estados de carga, error y ausencia real de registros. Si falla una actualización se conservan las últimas cifras con aviso de antigüedad y no se presenta una interpretación vigente.
 
 | Fuente existente | Cálculos y alcance |
 |---|---|
@@ -27,6 +29,21 @@ Los componentes `InterpretacionReservas.tsx` e `InterpretacionEstaciones.tsx` co
 | `GET /api/estaciones-carga` | Catálogo actual completo: total, estado `Disponible`, estados vacíos y distribución de los valores de `Estado` |
 
 Los resúmenes son cálculos independientes de la API, no lectura del contenido del iframe. Para confirmar su coincidencia con los gráficos se debe revisar el SQL de Grafana, los filtros y la zona horaria. El rango de fechas de reservas incluye días completos, mientras el iframe solicita un rango relativo con horas. Estaciones no tiene un filtro temporal equivalente en el resumen. No se infieren ingresos monetarios, ocupación en tiempo real, conectores libres, uso de estaciones ni causalidad. Las interpretaciones son deterministas y no utilizan Gemini.
+
+### Reportes PDF con tablas de PostgreSQL (25 de noviembre de 2026)
+
+El enfoque definitivo de reportes no captura el iframe ni depende del plugin `grafana-image-renderer`. El backend incorpora el módulo `Backend/src/modulos/Reportes`, protegido por `auth.soloAdmin`, y expone `GET /api/reportes/graficos`. Este módulo consulta la misma base PostgreSQL del proyecto y devuelve tanto los indicadores como las tablas que alimentan cada reporte:
+
+| Reporte | Tabla incluida en el PDF | Interpretación |
+|---|---|---|
+| Evolución de reservas | Fecha, modelo y estado de cada reserva de los últimos 30 días | Total, pendientes, modelo líder y máximo diario |
+| Modelo más reservado | Modelo y cantidad de reservas | Ranking y concentración de preferencia |
+| Estaciones de carga | Estado y cantidad de estaciones | Disponibilidad y registros sin estado |
+| Gráfico complementario de estaciones | Estado y cantidad de estaciones | Lectura resumida de la red registrada |
+
+El frontend sigue el flujo `PaginaGraficos → hooks → reportesService.ts → apiClient → /api/reportes/graficos`. La utilidad `reportesGraficos.ts` recibe el `body` del endpoint y usa `pdfmake` para construir y descargar directamente el PDF. Cada documento conserva la franja verde oscura, la identidad visual administrativa, una tabla con encabezados y filas, y una descripción breve calculada desde los mismos datos. Las tablas excluyen nombres, apellidos y cédulas; no se envían datos personales a PDFMake.
+
+Esta decisión evita diferencias entre una imagen capturada de Grafana y el contenido de la base: el reporte documenta explícitamente las filas y agregaciones consultadas por el backend. Si el SQL de un dashboard de Grafana cambia, se debe actualizar también el módulo `Reportes` y esta tabla documental para conservar la equivalencia.
 
 ### Configuración local y diagnóstico realizado
 

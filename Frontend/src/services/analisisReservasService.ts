@@ -1,12 +1,25 @@
 import { peticion } from './apiClient'
 
+export interface AnalisisReservas {
+  total: number
+  pendientes: number
+  confirmadas: number
+  modelosPrincipales: string[]
+  maximoModelo: number
+  diasPrincipales: string[]
+  maximoDia: number
+  modelos: Array<[string, number]>
+  dias: Array<[string, number]>
+  actualizado: string
+}
+
 interface ReservaAnalitica {
   Fecha_Reserva: string
   Estado: string
   modelo: string
 }
 
-export async function obtenerAnalisisReservas() {
+export async function obtenerAnalisisReservas(): Promise<AnalisisReservas> {
   const filas = await peticion<ReservaAnalitica[]>('/reservas')
   if (!Array.isArray(filas) || filas.some(fila => typeof fila.Fecha_Reserva !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(fila.Fecha_Reserva))) {
     throw new Error('Las fechas de las reservas no tienen el formato esperado.')
@@ -33,6 +46,8 @@ export async function obtenerAnalisisReservas() {
     maximoModelo,
     diasPrincipales: [...dias].filter(([, total]) => total === maximoDia).map(([dia]) => dia).sort(),
     maximoDia,
+    modelos: [...modelos].sort(([, a], [, b]) => b - a),
+    dias: [...dias].sort(([a], [b]) => a.localeCompare(b)),
     actualizado: ahora.toLocaleTimeString('es'),
   }
 }

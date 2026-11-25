@@ -1,5 +1,7 @@
 // Período móvil para incluir las nuevas reservas en cada actualización.
-const URL_PANEL = 'http://localhost:3000/d-solo/ad5j5kw/grafico-de-reservas?from=now-30d&to=now&timezone=browser&orgId=1&panelId=panel-1&theme=dark&refresh=10s'
+import { URL_PANELES_GRAFANA } from '../config/grafana'
+
+const URL_PANEL = URL_PANELES_GRAFANA.reservas
 
 export default function GraficosReservas() {
   return (

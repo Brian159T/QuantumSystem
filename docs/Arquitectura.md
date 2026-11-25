@@ -408,11 +408,12 @@ En `pages/cliente/PaginaEstaciones.tsx`, las tarjetas "Estaciones cerca", "Punto
 
 `routes/config.ts` incorpora `graficos` exclusivamente al menú administrador. `AppNavigator.tsx` monta `PaginaGraficos` condicionado al rol, con el icono `ChartNoAxesCombined` de Lucide. `EncabezadoPrivado.tsx` define el título y descripción de esta pantalla.
 
-Hay dos flujos independientes:
+Hay tres flujos coordinados:
 
 ```text
 PaginaGraficos → GraficosReservas / GraficoEstaciones → iframe → Grafana local → fuente PostgreSQL configurada en Grafana
 PaginaGraficos → InterpretacionReservas / InterpretacionEstaciones → hooks de análisis → services de análisis → apiClient → API REST → PostgreSQL
+PaginaGraficos → botones de reporte → hooks de análisis → reportesService → GET /api/reportes/graficos → PostgreSQL → reportesGraficos.ts → PDFMake → descarga PDF
 ```
 
 | Archivo bajo `Frontend/src/` | Responsabilidad |
@@ -425,8 +426,13 @@ PaginaGraficos → InterpretacionReservas / InterpretacionEstaciones → hooks d
 | `hooks/useAnalisisReservas.ts`, `hooks/useAnalisisEstaciones.ts` | Consulta inicial, reintentos cada 10 segundos tras finalizar cada petición y limpieza al desmontar |
 | `services/analisisReservasService.ts`, `services/analisisEstacionesService.ts` | Consultan los endpoints existentes y calculan resúmenes, propagando errores |
 | `styles/graficos.css` | Tarjetas, estados vacíos, cifras e iframes adaptables, según los tokens visuales existentes |
+| `services/reportesService.ts` | Consume el endpoint administrativo de reportes y recibe las tablas sin datos personales |
+| `utils/reportesGraficos.ts` | Construye y descarga el PDFMake con tabla, descripción analítica, franja verde oscura y estilos del administrador |
+| `config/grafana.ts` | Centraliza las URLs compartidas por los iframes de Grafana |
 
-Las URLs de Grafana están actualmente en los componentes y apuntan a `http://localhost:3000`. Solicitan tema oscuro, rango `now-30d` a `now` y `refresh=10s`. Los resúmenes no extraen datos del iframe ni leen el SQL del dashboard; su equivalencia requiere contrastar consultas, períodos y filtros. No se añadieron rutas de backend, migraciones ni dependencias npm.
+Los reportes PDF no capturan el iframe ni reconstruyen una imagen del gráfico. El backend consulta la misma base PostgreSQL del proyecto y entrega filas agregadas o detalladas según el panel: reservas por fecha/modelo/estado, modelos por cantidad y estados de estaciones. PDFMake presenta esa tabla y una descripción determinista debajo, con descarga directa desde el navegador. La ruta exige rol administrador y mantiene el sobre JSON uniforme.
+
+Las URLs de Grafana están centralizadas en `Frontend/src/config/grafana.ts` y son reutilizadas por los cuatro componentes iframe. Apuntan a `http://localhost:3000` y solicitan tema oscuro, rango `now-30d` a `now` y `refresh=10s` cuando corresponde. Los reportes no extraen datos del iframe: consultan PostgreSQL a través de `/api/reportes/graficos`, respetando la separación frontend → services → API → DB. PDFMake se usa únicamente para presentar y descargar el resultado.
 
 La restricción por rol pertenece a la navegación web y no sustituye la autorización en Grafana. No hay proxy autenticado ni inicio de sesión único. Detalles de configuración y límites en [Plan-Grafana.md](Plan-Grafana.md).
 

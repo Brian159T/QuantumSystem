@@ -32,6 +32,22 @@
 .grafico-tarjeta h4 { margin: 0 0 10px; color: var(--texto-principal); font-size: 14px; font-weight: 500; }
 .grafico-tarjeta__vacio p { margin: 0 0 18px; font-size: 12px; line-height: 1.8; color: var(--texto-suave); }
 .grafico-tarjeta__pie { padding: 14px 24px; border-top: 1px solid var(--borde-claro); font-size: 11px; color: var(--texto-suave); }
+.boton-reporte__envoltura { padding: 16px 24px 24px; }
+.boton-reporte {
+    display: inline-flex;
+    margin: 0 !important;
+    border: 1px solid #000 !important;
+    background-color: #ffffff !important;
+    color: #1c1c1c !important;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.boton-reporte:hover {
+    background-color: #d9d9d9 !important;
+    border-color: #000 !important;
+    color: #1c1c1c !important;
+}
 .graficos-nota { margin: 0; color: var(--texto-suave); font-size: 12px; line-height: 1.8; }
 @media (max-width: 900px) {
   .graficos-resumen { flex-wrap: wrap; }
@@ -47,4 +63,5 @@
   .grafico-tarjeta__cabecera { padding: 18px; }
   .grafico-tarjeta__espacio { margin: 0 16px 16px; }
   .grafico-tarjeta--amplia .grafico-tarjeta__espacio { min-height: 265px; }
+  .boton-reporte__envoltura { padding: 16px 16px 20px; }
 }

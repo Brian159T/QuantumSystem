@@ -1,6 +1,5 @@
 {
   "expo": {
-    
     "name": "QuantumApp",
     "slug": "QuantumApp",
     "version": "1.0.0",
@@ -32,6 +31,12 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "com.brianz14.QuantumApp"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "fbcd56e2-3af0-4486-a7fe-5368fb127512"
       }
     }
   }

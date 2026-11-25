@@ -36,6 +36,7 @@ Documentacion de los **endpoints REST** disponibles en el backend. Todos respond
 | GET | `/api/reservas/:id` | Reservas | Obtener reserva |
 | PUT | `/api/reservas/:id` | Reservas | Actualizar reserva |
 | DELETE | `/api/reservas/:id` | Reservas | Eliminar reserva |
+| GET | `/api/reportes/graficos` | Reportes | Obtener tablas y resumen para los reportes PDF (solo admin) |
 | GET | `/api/vehiculos-colores` | Vehiculos_Colores | Listar relaciones N:M |
 | GET | `/api/vehiculos-colores/vehiculo/:id` | Vehiculos_Colores | Colores de un vehiculo |
 | GET | `/api/vehiculos-colores/color/:id` | Vehiculos_Colores | Vehiculos de un color |
@@ -341,3 +342,14 @@ Respuesta:
 | POST `/api/auth/login` (credenciales invalidas) | **401** con `{error:true, status:401, body:"Correo o contraseña incorrectos"}` (corregido; antes 500) |
 
 Conclusion: contrato API ↔ frontend web alineado (sobre uniforme y campos por endpoint). Los cambios aplicados en el web (CRUD admin real, sin mocks, token enviado) se documentan en `Funcionalidades.md` y `Decisiones-tecnicas.md`.
+
+### `GET /api/reportes/graficos`
+
+Ruta protegida con `auth.soloAdmin`. Consulta PostgreSQL desde el módulo `Reportes` y devuelve el resumen analítico junto con las tablas utilizadas para los reportes PDF:
+
+- `reservas`: filas con `Fecha_Reserva`, `modelo` y `Estado` de los últimos 30 días.
+- `modelo`: agrupación de reservas por modelo y cantidad.
+- `estaciones`: agrupación del catálogo por `Estado` y cantidad.
+- `red`: la misma distribución de estados usada para el gráfico complementario de estaciones.
+
+El `body` también incluye `periodoDias`, `actualizado`, los conteos de reservas/estaciones, máximos diarios y modelos principales. No devuelve nombres, apellidos ni cédulas. El frontend consume esta ruta mediante `services/reportesService.ts` y PDFMake genera la descarga directamente.

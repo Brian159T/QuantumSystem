@@ -1,4 +1,6 @@
-const URL_PANEL = 'http://localhost:3000/d-solo/add5j8r/grafico-de-tabla-de-estaciones-de-carga?from=now-30d&to=now&timezone=browser&orgId=1&panelId=1&theme=dark&refresh=10s'
+import { URL_PANELES_GRAFANA } from '../config/grafana'
+
+const URL_PANEL = URL_PANELES_GRAFANA.estaciones
 
 export default function GraficoEstaciones() {
   return (

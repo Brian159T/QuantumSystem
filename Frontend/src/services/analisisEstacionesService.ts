@@ -1,7 +1,15 @@
 import { peticion } from './apiClient'
 import type { EstacionCarga } from '../types/EstacionesYTalleres'
 
-export async function obtenerAnalisisEstaciones() {
+export interface AnalisisEstaciones {
+  total: number
+  disponibles: number
+  sinEstado: number
+  estados: [string, number][]
+  actualizado: string
+}
+
+export async function obtenerAnalisisEstaciones(): Promise<AnalisisEstaciones> {
   const estaciones = await peticion<EstacionCarga[]>('/estaciones-carga')
   if (!Array.isArray(estaciones)) throw new Error('La respuesta de estaciones no es válida.')
   const estados = new Map<string, number>()

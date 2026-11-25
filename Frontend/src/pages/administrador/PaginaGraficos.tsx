@@ -1,4 +1,4 @@
-import { Activity, BarChart3, ChartNoAxesCombined, PanelsTopLeft, PlugZap } from 'lucide-react'
+import { Activity, BarChart3, ChartNoAxesCombined, FileDown, PanelsTopLeft, PlugZap } from 'lucide-react'
 import '../../styles/graficos.css'
 import GraficosReservas from '../../components/GraficosReservas'
 import InterpretacionReservas from '../../components/InterpretacionReservas'
@@ -6,6 +6,9 @@ import GraficoEstaciones from '../../components/GraficoEstaciones'
 import InterpretacionEstaciones from '../../components/InterpretacionEstaciones'
 import GraficoModeloMasReservado from '../../components/GraficoModeloMasReservado'
 import GraficoEstacionesCarga from '../../components/GraficoEstacionesCarga'
+import useAnalisisReservas from '../../hooks/useAnalisisReservas'
+import useAnalisisEstaciones from '../../hooks/useAnalisisEstaciones'
+import { abrirReporteGrafico } from '../../utils/reportesGraficos'
 
 // Los espacios restantes se mantienen pendientes hasta disponer de sus paneles.
 const PANELES = [
@@ -13,6 +16,17 @@ const PANELES = [
 ]
 
 export default function PaginaGraficos() {
+  const { datos: reservas, reporte: reporteReservas } = useAnalisisReservas()
+  const { datos: estaciones, reporte: reporteEstaciones } = useAnalisisEstaciones()
+  const datos = { reservas, estaciones, tablas: reporteReservas?.tablas ?? reporteEstaciones?.tablas ?? null }
+  const botonReporte = (tipo: 'reservas' | 'estaciones' | 'modelo' | 'red') => (
+    <div className="boton-reporte__envoltura">
+      <button className="boton boton--primario boton--compacto boton-reporte" type="button" onClick={() => void abrirReporteGrafico({ tipo, datos })}>
+        <FileDown size={16} aria-hidden="true" /> Generar reporte PDF
+      </button>
+    </div>
+  )
+
   return (
     <div className="pagina-graficos">
       <section className="graficos-resumen" aria-labelledby="titulo-analitica">
@@ -51,6 +65,7 @@ export default function PaginaGraficos() {
               </div>
               )}
             </div>
+            {botonReporte('reservas')}
             <footer className="grafico-tarjeta__pie">
               {id === 'reservas' ? 'Últimos 30 días · Actualización cada 10 s · Fuente: Grafana' : 'Sin datos conectados'}
             </footer>
@@ -67,6 +82,7 @@ export default function PaginaGraficos() {
             </div>
           </header>
           <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoEstaciones /></div>
+          {botonReporte('estaciones')}
           <footer className="grafico-tarjeta__pie">Actualización cada 10 s · Fuente: Grafana</footer>
         </section>
         <InterpretacionEstaciones />
@@ -80,6 +96,7 @@ export default function PaginaGraficos() {
             </div>
           </header>
           <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoModeloMasReservado /></div>
+          {botonReporte('modelo')}
           <footer className="grafico-tarjeta__pie">Fuente: Grafana</footer>
         </section>
         <section className="grafico-tarjeta grafico-tarjeta--amplia" aria-labelledby="grafico-estaciones-carga">
@@ -92,6 +109,7 @@ export default function PaginaGraficos() {
             </div>
           </header>
           <div className="grafico-tarjeta__espacio grafico-tarjeta__espacio--panel"><GraficoEstacionesCarga /></div>
+          {botonReporte('red')}
           <footer className="grafico-tarjeta__pie">Actualización cada 10 s · Fuente: Grafana</footer>
         </section>
       </div>

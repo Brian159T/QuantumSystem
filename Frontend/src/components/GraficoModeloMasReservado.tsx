@@ -1,4 +1,6 @@
-const URL_PANEL = 'http://localhost:3000/d-solo/adljdq9/modelo-mas-reservado?from=1794855861776&to=1794859461776&timezone=browser&orgId=1&panelId=1'
+import { URL_PANELES_GRAFANA } from '../config/grafana'
+
+const URL_PANEL = URL_PANELES_GRAFANA.modelo
 
 export default function GraficoModeloMasReservado() {
   return (

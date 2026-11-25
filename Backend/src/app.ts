@@ -20,6 +20,7 @@ import colores from './modulos/Colores/rutas';
 import reservas from './modulos/Reservas/rutas';
 import vehiculosColores from './modulos/Vehiculos_Colores/rutas';
 import chatbot from './modulos/Chatbot/rutas';
+import reportes from './modulos/Reportes/rutas';
 
 const app = express();
 
@@ -176,6 +177,7 @@ app.use('/api/colores', colores);
 app.use('/api/reservas', reservas);
 app.use('/api/vehiculos-colores', vehiculosColores);
 app.use('/api/chatbot', chatbot);
+app.use('/api/reportes', reportes);
 
 app.use(manejadorErrores);
 

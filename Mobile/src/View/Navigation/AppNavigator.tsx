@@ -17,6 +17,7 @@ import TalleresScreen_usuario_vehiculo from '../Screens/Usuario_Vehiculo_electri
 import EmergenciasScreen_usuario_vehiculo from '../Screens/Usuario_Vehiculo_electrico/EmergenciasScreen_usuario_vehiculo';
 import Interfaz_Administrador from '../Screens/Usuario_Administrador/Interfaz_Administrador_Inicio';
 import Interfaz_Administrador_Usuarios from '../Screens/Usuario_Administrador/Interfaz_Administrador_usuarios';
+import ReportesAdministradorScreen from '../Screens/Usuario_Administrador/ReportesAdministradorScreen';
 
 import { AuthProvider, useAuth } from '../../ViewModel/AuthViewModel';
 
@@ -152,6 +153,15 @@ function Tabs() {
                     size={size + 2}
                     color={color}
                   />
+                ),
+              }}
+            />
+            <Tab.Screen
+              name="Graficos"
+              component={ReportesAdministradorScreen}
+              options={{
+                tabBarIcon: ({ color, size }) => (
+                  <MaterialCommunityIcons name="chart-box-outline" size={size + 2} color={color} />
                 ),
               }}
             />
