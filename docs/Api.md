@@ -345,6 +345,14 @@ Conclusion: contrato API ↔ frontend web alineado (sobre uniforme y campos por 
 
 ### `GET /api/reportes/graficos`
 
+### Actualizacion: proyeccion de reservas y QR (noviembre de 2026)
+
+`GET /api/reportes/proyeccion-reservas?horizonte=7|30` es una ruta protegida para administradores. Consulta la tabla `Reservas`, agrupa las reservas por fecha de los ultimos 30 dias (incluyendo dias con cero reservas), calcula una regresion lineal y proyecta los siguientes 7 o 30 dias. El grafico se genera en el backend con `chartjs-node-canvas`.
+
+La respuesta incluye `horizonteDias`, `historico`, `proyeccion`, `pendiente`, `generado` e `imagen` como data URL PNG. Solo acepta `horizonte=7` o `horizonte=30`; cualquier otro valor responde `400`. No expone nombres, apellidos ni cedulas.
+
+En `POST /api/reservas`, el backend devuelve el `Codigo_Reserva` generado por PostgreSQL. El controlador confirma la reserva consultandola por fecha actual, nombres, apellidos y cedula, tomando el registro mas reciente. El frontend web muestra un resumen antes de confirmar y luego genera un QR con `qrcode` a partir de ese codigo, con descarga en PNG.
+
 Ruta protegida con `auth.soloAdmin`. Consulta PostgreSQL desde el módulo `Reportes` y devuelve el resumen analítico junto con las tablas utilizadas para los reportes PDF:
 
 - `reservas`: filas con `Fecha_Reserva`, `modelo` y `Estado` de los últimos 30 días.

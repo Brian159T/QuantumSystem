@@ -22,6 +22,7 @@ export const NAVEGACION: Record<Rol, Navegacion[]> = {
     { id: 'panel', etiqueta: 'Panel', icono: 'panel' },
     { id: 'usuarios', etiqueta: 'Usuarios', icono: 'usuarios' },
     { id: 'graficos', etiqueta: 'Gráficos', icono: 'graficos' },
+    { id: 'proyeccion', etiqueta: 'Proyección', icono: 'proyeccion' },
   ],
 }
 

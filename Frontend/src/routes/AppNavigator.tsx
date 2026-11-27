@@ -1,7 +1,7 @@
 import BarraLateral from '../components/BarraLateral'
 import EncabezadoPrivado from '../components/EncabezadoPrivado'
 import { useState } from 'react'
-import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users, ChartNoAxesCombined } from 'lucide-react';
+import { Home, Car, CalendarCheck, Plug, Wrench, Siren, LayoutDashboard, Users, ChartNoAxesCombined, BarChart3 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth'
 import Saludo from '../components/Saludo'
 import LoginButton from '../components/LoginButton'
@@ -17,6 +17,7 @@ import PaginaEmergencias from '../pages/cliente/PaginaEmergencias'
 import PaginaPanel from '../pages/administrador/PaginaPanel'
 import PaginaUsuarios from '../pages/administrador/PaginaUsuarios'
 import PaginaGraficos from '../pages/administrador/PaginaGraficos'
+import PaginaProyeccionReservas from '../pages/administrador/PaginaProyeccionReservas'
 import type { Vehiculo } from '../types/Vehiculo'
 import { INICIO_POR_ROL, NAVEGACION, type Rol } from './config'
 
@@ -36,6 +37,7 @@ const ICONOS: Record<string, React.ReactNode> = {
   panel: <LayoutDashboard size={16} />,
   usuarios: <Users size={16} />,
   graficos: <ChartNoAxesCombined size={16} />,
+  proyeccion: <BarChart3 size={16} />,
 }
 
 function IconoNav({ nombre }: { nombre: string }) {
@@ -123,6 +125,7 @@ function Aplicacion() {
           {rol === 'administrador' && pantallaActual === 'panel' && <PaginaPanel />}
           {rol === 'administrador' && pantallaActual === 'usuarios' && <PaginaUsuarios />}
           {rol === 'administrador' && pantallaActual === 'graficos' && <PaginaGraficos />}
+          {rol === 'administrador' && pantallaActual === 'proyeccion' && <PaginaProyeccionReservas />}
         </div>
       </main>
 

@@ -29,7 +29,6 @@ export default function PaginaPanel() {
           <div className="banner__ceja">Panel de administración</div>
           <div className="banner__titulo">Hola, Admin</div>
           <div className="banner__subtitulo">
-            <span className="punto-estado punto-estado--verde" />
             Accede a los módulos para gestionar el contenido
           </div>
         </div>
@@ -64,7 +63,6 @@ export default function PaginaPanel() {
             </span>
             <div>
               <div className="tarjeta-gestion__titulo">Catálogo de vehículos</div>
-              <div className="tarjeta-gestion__detalle">Editar modelos, precios y disponibilidad</div>
             </div>
             <span className="tarjeta-gestion__cantidad">{conteos.vehiculos}</span>
           </button>
@@ -74,7 +72,6 @@ export default function PaginaPanel() {
             </span>
             <div>
               <div className="tarjeta-gestion__titulo">Estaciones de carga</div>
-              <div className="tarjeta-gestion__detalle">Administrar red de carga y horarios</div>
             </div>
             <span className="tarjeta-gestion__cantidad">{conteos.estaciones}</span>
           </button>
@@ -84,7 +81,6 @@ export default function PaginaPanel() {
             </span>
             <div>
               <div className="tarjeta-gestion__titulo">Usuarios</div>
-              <div className="tarjeta-gestion__detalle">Gestionar cuentas y roles</div>
             </div>
             <span className="tarjeta-gestion__cantidad">{conteos.usuarios}</span>
           </button>
@@ -94,7 +90,6 @@ export default function PaginaPanel() {
             </span>
             <div>
               <div className="tarjeta-gestion__titulo">Talleres autorizados</div>
-              <div className="tarjeta-gestion__detalle">Gestionar red de talleres</div>
             </div>
             <span className="tarjeta-gestion__cantidad">{conteos.talleres}</span>
           </button>

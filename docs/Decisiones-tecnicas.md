@@ -2,7 +2,7 @@
 
 ### Decision visual privada (noviembre de 2026)
 
-Se centraliza en `Frontend/src/styles/diseno-privado.css` el diseno de las interfaces de cliente y administrador: fondo `#070f0f`, superficies `#edf7f5`, texto negro en negrilla, franja verde decorativa, separadores, sombras y marcos circulares negros de 1px para iconos. Los botones de rutas usan borde negro delgado y estados hover diferenciados. Los titulos privados se muestran en mayusculas y una sola linea horizontal. El sidebar queda fuera de esta modificacion y conserva su diseno original.
+Se centraliza en `Frontend/src/styles/diseno-privado.css` el diseno de las interfaces de cliente y administrador: fondo `#e1ffbd`, superficies `#edf7f5`, texto negro en negrilla, franja verde decorativa, separadores, sombras y contenedores blancos con borde negro y radio de 16px para iconos. Los botones y datos de rutas usan borde negro redondeado y estados hover diferenciados. Los titulos privados se muestran en mayusculas y una sola linea horizontal. El sidebar conserva sus opciones y funcionalidades por rol.
 
 Registro del **stack**, **herramientas** y **decisiones de diseno** tomadas en el proyecto, para mantener consistencia y no revertir sin motivo.
 
@@ -513,3 +513,10 @@ cd Frontend && npm run dev | build | lint | preview
 - Base de datos: `docs/base-datos.md`
 - Endpoints: `docs/Api.md`
 - Funcionalidades por rol: `docs/Funcionalidades.md`
+
+## Actualizaciones implementadas en noviembre de 2026
+
+1. **QR de reserva desde la BD**: el codigo mostrado al invitado no se inventa en el frontend. `POST /api/reservas` devuelve el `Codigo_Reserva` generado por PostgreSQL y `CreacionQr.tsx` genera el PNG con `qrcode`. La UI usa una ventana de confirmacion con resumen, titulo "Este es el QR de tu reserva" y descarga.
+2. **Proyeccion separada del modulo de graficos**: la proyeccion vive en su propia pestana administrativa. `Reportes.proyeccion` usa los ultimos 30 dias de `Reservas`, rellena dias sin registros con cero, calcula regresion lineal y permite horizontes 7/30. `chartjs-node-canvas` genera el grafico en backend.
+3. **Consistencia visual privada**: los estilos de cliente y administrador se centralizan en `diseno-privado.css`. El fondo actual es `#e1ffbd`; se conservan tarjetas, franjas, sombras y colores existentes, y se unifican iconos en contenedores blancos de 56px con borde negro, radio de 16px, padding y centrado flex. Los textos exteriores relevantes son negros y negrita.
+4. **Accesibilidad visual de rutas y filtros**: los datos "5 min / En auto", el filtro "Mostrar solo disponibles ahora", "Ver todas", la nota de ruta y la ayuda de emergencias tienen contraste negro y pesos tipograficos consistentes, sin alterar su comportamiento.

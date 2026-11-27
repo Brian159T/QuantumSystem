@@ -80,7 +80,7 @@ export default function (dbInyectada?: any) {
 
         const fechaHoy = new Date().toISOString().slice(0, 10);
 
-        return db.agregar(TABLA, {
+        await db.agregar(TABLA, {
             Fecha_Reserva: fechaHoy,
             Estado: 'Pendiente',
             nombres,
@@ -89,6 +89,24 @@ export default function (dbInyectada?: any) {
             modelo,
             color,
         });
+
+        const filas = await db.ejecutar(
+            `SELECT "id_reserva", "Codigo_Reserva", "Fecha_Reserva", "Fecha_expiracion", "Estado", "modelo", "color"
+             FROM "Reservas"
+             WHERE "Fecha_Reserva" = $1
+             AND "nombres" = $2
+             AND "apellidos" = $3
+             AND "cedula_identidad" = $4
+             ORDER BY "id_reserva" DESC
+             LIMIT 1`,
+            [fechaHoy, nombres, apellidos, cedula]
+        );
+
+        const reservaCreada = Array.isArray(filas) ? filas[0] : null;
+        if (!reservaCreada?.Codigo_Reserva) {
+            throw error('La reserva fue guardada, pero no se pudo recuperar su Codigo_Reserva', 500);
+        }
+        return reservaCreada;
     }
 
     function actualizar(

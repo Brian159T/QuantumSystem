@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { Car, CalendarCheck, CheckCircle2, X, Palette } from 'lucide-react'
 import { useVehiculos } from '../../hooks/useDatos'
-import { crearReserva, resolverIdColor } from '../../services/reservasService'
+import { crearReserva, resolverIdColor, type ReservaCreada } from '../../services/reservasService'
+import CreacionQr from '../../components/CreacionQr'
 import type { ColorVehiculo, Vehiculo } from '../../types/Vehiculo'
 
 interface PaginaReservasProps {
@@ -16,6 +17,9 @@ interface FormularioReserva {
   color: ColorVehiculo | null
 }
 
+const SOLO_LETRAS = /[^A-Za-zÁÉÍÓÚáéíóúÑñÜü\s'-]/g
+const SOLO_DIGITOS = /\D/g
+
 export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps) {
   const { datos: modelos } = useVehiculos()
   const [formulario, setFormulario] = useState<FormularioReserva>({
@@ -28,37 +32,50 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
   const [modalConfirmacion, setModalConfirmacion] = useState(false)
   const [modalExito, setModalExito] = useState(false)
   const [codigoConfirmacion, setCodigoConfirmacion] = useState('')
+  const [reservaCreada, setReservaCreada] = useState<ReservaCreada | null>(null)
   const [cargandoReserva, setCargandoReserva] = useState(false)
   const [errorReserva, setErrorReserva] = useState('')
 
-  const formularioValido =
+  const formularioValido = Boolean(
     formulario.nombres.trim() &&
-    formulario.apellidos.trim() &&
-    formulario.ci.trim() &&
-    formulario.modelo
+      formulario.apellidos.trim() &&
+      /^\d{7,11}$/.test(formulario.ci.trim()) &&
+      formulario.modelo,
+  )
 
-  const confirmarReserva = async () => {
+  const revisarReserva = async () => {
     if (!formulario.modelo) return
     setCargandoReserva(true)
     setErrorReserva('')
     try {
       const idColor = await resolverIdColor(formulario.color, formulario.modelo)
-      await crearReserva({
+      const reserva = await crearReserva({
         nombres: formulario.nombres.trim(),
         apellidos: formulario.apellidos.trim(),
         cedula_identidad: formulario.ci.trim(),
         modelo: formulario.modelo.Nombre_Modelo,
         color: idColor,
       })
-      const codigo = `VT-${Math.floor(1000 + Math.random() * 9000)}-ABC`
-      setCodigoConfirmacion(codigo)
-      setModalConfirmacion(false)
-      setModalExito(true)
+      if (!reserva?.Codigo_Reserva) {
+        throw new Error('La base de datos no devolvió el Codigo_Reserva generado.')
+      }
+      setReservaCreada(reserva)
+      setCodigoConfirmacion(reserva.Codigo_Reserva)
+      setModalConfirmacion(true)
     } catch (error) {
       setErrorReserva(error instanceof Error ? error.message : 'No se pudo guardar la reserva')
     } finally {
       setCargandoReserva(false)
     }
+  }
+
+  const confirmarReserva = () => {
+    if (!reservaCreada?.Codigo_Reserva) {
+      setErrorReserva('No hay una reserva guardada para confirmar.')
+      return
+    }
+    setModalConfirmacion(false)
+    setModalExito(true)
   }
 
   const cerrarExito = () => {
@@ -92,10 +109,10 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 <input
                   className="campo__entrada"
                   placeholder="Ej. Juan Pérez"
+                  maxLength={50}
+                  autoComplete="given-name"
                   value={formulario.nombres}
-                  onChange={(evento) =>
-                    setFormulario({ ...formulario, nombres: evento.target.value })
-                  }
+                  onChange={(evento) => setFormulario({ ...formulario, nombres: evento.target.value.replace(SOLO_LETRAS, '') })}
                 />
               </div>
               <div className="campo">
@@ -103,10 +120,10 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 <input
                   className="campo__entrada"
                   placeholder="Ej. Mamani Flores"
+                  maxLength={50}
+                  autoComplete="family-name"
                   value={formulario.apellidos}
-                  onChange={(evento) =>
-                    setFormulario({ ...formulario, apellidos: evento.target.value })
-                  }
+                  onChange={(evento) => setFormulario({ ...formulario, apellidos: evento.target.value.replace(SOLO_LETRAS, '') })}
                 />
               </div>
               <div className="campo">
@@ -114,8 +131,11 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                 <input
                   className="campo__entrada"
                   placeholder="Ej. 12345678"
+                  inputMode="numeric"
+                  maxLength={11}
+                  autoComplete="off"
                   value={formulario.ci}
-                  onChange={(evento) => setFormulario({ ...formulario, ci: evento.target.value })}
+                  onChange={(evento) => setFormulario({ ...formulario, ci: evento.target.value.replace(SOLO_DIGITOS, '') })}
                 />
               </div>
             </div>
@@ -200,11 +220,11 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
           <button
             className="boton boton--primario boton--completo"
             style={{ padding: '16px' }}
-            disabled={!formularioValido}
-            onClick={() => setModalConfirmacion(true)}
+            disabled={cargandoReserva || !formularioValido}
+            onClick={() => void revisarReserva()}
           >
             <CalendarCheck size={18} />
-            Confirmar reserva
+            {cargandoReserva ? 'Guardando...' : 'Revisar reserva'}
           </button>
           {!formularioValido && (
             <p style={{ fontSize: 12, color: 'var(--texto-pagina-suave)', textAlign: 'center' }}>
@@ -219,9 +239,9 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
 
       {modalConfirmacion && formulario.modelo && (
         <div className="fondo-modal">
-          <div className="modal">
+          <div className="modal modal--qr">
             <div className="modal__encabezado">
-              <div className="modal__titulo">Confirmar reserva</div>
+              <div className="modal__titulo">Resumen de la reserva</div>
               <button className="boton boton--icono" onClick={() => setModalConfirmacion(false)}>
                 <X size={18} />
               </button>
@@ -259,6 +279,14 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
                 <span className="campo__etiqueta">Cédula</span>
                 <span>{formulario.ci}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span className="campo__etiqueta">Fecha</span>
+                <span>{new Date().toLocaleDateString('es-VE')}</span>
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13 }}>
+                <span className="campo__etiqueta">Estado inicial</span>
+                <span>Pendiente</span>
               </div>
               <p style={{ fontSize: 12, color: 'var(--texto-suave)', textAlign: 'center' }}>
                 Reserva sin costo, reembolsable y sin compromiso de compra.
@@ -320,6 +348,7 @@ export default function PaginaReservas({ vehiculoInicial }: PaginaReservasProps)
                   <strong style={{ color: 'var(--verde)' }}>Sin costo</strong>
                 </div>
               </div>
+              <CreacionQr codigo={codigoConfirmacion} />
               <button className="boton boton--primario boton--completo" onClick={cerrarExito}>
                 Volver al inicio
               </button>

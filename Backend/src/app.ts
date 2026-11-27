@@ -93,23 +93,26 @@ const limitadorChatbotRafaga = rateLimit({
 });
 
 const limitadorReservas = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    limit: 60,
+    windowMs: 10 * 60 * 1000,
+    limit: 30,
     standardHeaders: true,
     legacyHeaders: false,
     store: crearLimitadorStore('reservas'),
     keyGenerator: (req) => `reservas:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
-    message: sobreLimite('Demasiadas reservas. Intenta mas tarde.'),
+    message: sobreLimite('Alcanzaste el límite de 30 reservas. Intenta nuevamente en 10 minutos.'),
 });
 
 const limitadorReservasRafaga = rateLimit({
-    windowMs: 5 * 1000,
-    limit: 2,
+    // Mantiene la misma política pública: 30 intentos cada 10 minutos.
+    // El límite anterior de 2 intentos en 5 segundos bloqueaba el formulario
+    // aunque todavía no se hubiera alcanzado el límite de reservas.
+    windowMs: 10 * 60 * 1000,
+    limit: 30,
     standardHeaders: true,
     legacyHeaders: false,
     store: crearLimitadorStore('reservas-rafaga'),
     keyGenerator: (req) => `reservas-rafaga:${ipKeyGenerator(req.ip ?? 'desconocida')}`,
-    message: sobreLimite('Estas enviando reservas muy rapido. Espera unos segundos.'),
+    message: sobreLimite('Alcanzaste el límite de 30 reservas. Intenta nuevamente en 10 minutos.'),
 });
 
 app.disable('x-powered-by');

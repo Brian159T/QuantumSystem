@@ -4,7 +4,7 @@ Catalogo de funcionalidades de la app por **rol de usuario**, en la **app movil*
 
 ### Actualizacion visual del frontend web (noviembre de 2026)
 
-Las interfaces privadas de cliente y administrador usan fondo general `#070f0f`; el sidebar conserva su diseno original. Las tarjetas y divs principales usan relleno `#edf7f5`, texto negro en negrilla, bordes suaves, sombras ligeras, franja verde superior y lineas separadoras decorativas. Los iconos tienen marco circular negro delgado y los botones de rutas tienen borde negro de 1px.
+Las interfaces privadas de cliente y administrador usan fondo general `#e1ffbd`; el sidebar conserva sus opciones por rol. Las tarjetas y divs principales usan relleno `#edf7f5`, texto negro en negrilla, bordes suaves, sombras ligeras, franja verde superior y lineas separadoras decorativas. Los iconos tienen contenedores blancos con borde negro, esquinas redondeadas, margen y alineacion centrada; los datos de rutas tienen borde negro redondeado.
 
 En el inicio del cliente, este diseno se aplica al vehiculo propio, las acciones "Buscar estacion", "Iniciar carga", "Planificar viaje" e "Historial", las estaciones cercanas, el historial de cargas y la tarjeta "Ruta inteligente". Los titulos de seccion y encabezados privados se muestran en mayusculas y una sola linea horizontal cuando el espacio lo permite. Se elimino el mensaje auxiliar de ubicacion en la pantalla de Emergencias.
 
@@ -21,6 +21,14 @@ En el inicio del cliente, este diseno se aplica al vehiculo propio, las acciones
 > **Estaciones del cliente (web, nov 2026):** las tarjetas de resumen "Estaciones cerca / Puntos libres / Operativas" adoptan el mismo relleno `#9DB69D`, borde blanco, radio de 12px y separación de 16px que las tarjetas de estación (por ejemplo, "Subestación de Villa Tunari (Cruce San Mateo)"). Cambio en `styles/diseno-privado.css`.
 
 Los roles se determinan por `Roles.Nombre` (string) y se reflejan en los flags de `useAuth()`: `esInvitado`, `esCliente`, `esAdministrador`.
+
+### Actualizacion funcional consolidada (noviembre de 2026)
+
+- El frontend web privado usa fondo general `#e1ffbd`; las tarjetas conservan superficies claras, franjas verdes, separadores, sombras y texto exterior negro en negrita.
+- Los iconos de cliente y administrador usan contenedores blancos con borde negro, radio de 16px, padding, margen y centrado flex. Los datos de rutas tambien usan bordes negros redondeados.
+- En las pantallas del cliente, textos como "Mostrar solo disponibles ahora", "Ver todas", la nota de ruta y la ayuda de emergencias se presentan en negro y negrita.
+- La reserva web del invitado muestra un resumen previo. Tras guardar y confirmar, aparece una ventana emergente titulada **"Este es el QR de tu reserva"**, con el codigo real de `Reservas.Codigo_Reserva`, QR legible generado con `qrcode` y descarga PNG.
+- El panel del administrador tiene una pestana independiente **Proyeccion** en el sidebar. Permite 7 dias o 1 mes, consulta la API protegida, usa regresion lineal sobre las reservas recientes y muestra una interpretacion automatica.
 
 > **Estado general**: La gran mayoria de pantallas usan **datos mock hardcodeados**. Solo login/registro, y (en el movil) las pantallas de Estaciones, Talleres, Vehiculos y Reservas consumen la **API real**. Detalle por pantalla al final.
 >
@@ -92,7 +100,7 @@ Vender electricos tiene una barrera extra: la desconfianza sobre autonomia y car
 - Al confirmar **guarda la reserva en la API** (`POST /reservas`) con nombres, apellidos, cedula, modelo y color (FK). Genera **codigo de confirmacion**.
 - En el web la reserva es **sin costo** (se quito el pago inicial de 1000 USD); el movil aun simula el pago.
 - Movil: es un **class component** (unico en el proyecto).
-- **No hay QR**: el pago se simula directamente con el boton de confirmar.
+- Tras confirmar, el web muestra el QR de la reserva en una ventana emergente y permite descargarlo como PNG.
 
 ---
 
@@ -225,7 +233,7 @@ Ajustes de estilo de la pagina de invitado (sin cambiar logica): el fondo de pag
 | W2 | `PaginaEmergencias.tsx` | Contactos de emergencia hardcodeados (`CONTACTOS`), SOS solo local | Sin backend |
 | W3 | Chatbot `components/Chatbot.tsx` | Solo visual en todas las paginas/roles, sin API (RAG pendiente) | Sin backend |
 | W4 | `PaginaEstaciones.tsx` y `PaginaTalleres.tsx` | Leaflet, ubicacion real, seleccion automatica por menor tiempo en auto (OSRM Table), recorrido por calles (Route), seleccion manual y manejo de errores | **Hecho** |
-| W5 | `PaginaReservas.tsx` | Codigo de confirmacion generado en el cliente (falta campo en BD / QR) | Parcial |
+| W5 | `PaginaReservas.tsx` | Codigo real de `Reservas.Codigo_Reserva`, QR descargable y confirmacion visual | Hecho |
 | W6 | `PaginaUsuarios.tsx` | Sin "suspender/reactivar" (la tabla `Usuarios` no tiene campo de estado) | Bloqueado por BD |
 | W7 | Vehiculos / catalogo | Sin fotos reales (placeholder) | Mejora |
 | W8 | Registro (`authService.ts` + `LoginModal.tsx`) | Consume `POST /auth/registro` (endpoint creado oct 2026; rol Cliente forzado). **No auto-loguea**: tras crear la cuenta muestra un mensaje de "Registro exitoso" (verde del sistema) y el usuario debe **iniciar sesion manualmente** con sus credenciales | **Hecho** |

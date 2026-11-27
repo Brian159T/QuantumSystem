@@ -49,10 +49,33 @@
     color: #1c1c1c !important;
 }
 .graficos-nota { margin: 0; color: var(--texto-suave); font-size: 12px; line-height: 1.8; }
+.pagina-proyeccion { display: grid; gap: 26px; padding-bottom: 24px; }
+.proyeccion-interpretacion { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; }
+.proyeccion-interpretacion .graficos-resumen__icono { align-self: start; }
+.proyeccion-interpretacion h2 { margin: 0 0 8px; color: var(--texto-principal); font-size: 21px; letter-spacing: -.5px; }
+.proyeccion-interpretacion__rejilla { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; padding-top: 18px; }
+.proyeccion-interpretacion__rejilla { grid-column: 1 / -1; width: 100%; }
+.proyeccion-interpretacion__bloque { padding: 18px; border: 1px solid var(--borde-claro); border-radius: var(--radio-suave); background: var(--fondo-claro); color: var(--texto-medio); }
+.proyeccion-interpretacion__bloque svg { color: var(--azul); }
+.proyeccion-interpretacion__bloque h3 { margin: 12px 0 8px; color: var(--texto-principal); font-size: 14px; }
+.proyeccion-interpretacion__bloque p { margin: 0; font-size: 12px; line-height: 1.7; }
+.proyeccion-resultado { padding: 24px; border: 1px solid var(--borde-claro); border-radius: var(--radio); background: var(--superficie); color: var(--texto-medio); }
+.proyeccion-resultado__encabezado { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--borde-claro); }
+.proyeccion-resultado h2 { margin: 0; color: var(--texto-principal); font-size: 17px; }
+.proyeccion-resultado p { margin: 16px 0 0; font-size: 13px; line-height: 1.8; }
+.proyeccion-resultado strong { color: var(--texto-principal); }
+.proyeccion-reservas__controles { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 0 24px 18px; font-size: 12px; }
+.proyeccion-reservas__espacio img { display: block; width: 100%; max-height: 420px; object-fit: contain; }
+.proyeccion-reservas__cargando { animation: proyeccion-giro 1s linear infinite; }
+@keyframes proyeccion-giro { to { transform: rotate(360deg); } }
 @media (max-width: 900px) {
   .graficos-resumen { flex-wrap: wrap; }
   .graficos-etiqueta { margin-left: 76px; }
   .graficos-rejilla { grid-template-columns: minmax(0, 1fr); }
+  .proyeccion-interpretacion__rejilla { grid-template-columns: minmax(0, 1fr); }
+  .proyeccion-interpretacion { grid-template-columns: auto minmax(0, 1fr); }
+  .proyeccion-interpretacion .graficos-etiqueta { grid-column: 2; margin-left: 0; }
+  .proyeccion-resultado__encabezado { align-items: flex-start; flex-direction: column; }
 }
 @media (max-width: 520px) {
   .grafico-reservas { height: 340px; }

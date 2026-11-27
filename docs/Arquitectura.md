@@ -2,7 +2,7 @@
 
 ### Actualizacion visual del frontend web (noviembre de 2026)
 
-El contenedor `.espacio-privado` reune el diseno visual de cliente y administrador: fondo general `#070f0f`, tarjetas con relleno `#edf7f5`, texto negro en negrilla, franja verde superior, sombras suaves y lineas separadoras. El sidebar mantiene sus estilos originales. Los iconos usan marcos circulares negros de 1px y los botones de rutas usan bordes negros delgados.
+El contenedor `.espacio-privado` reune el diseno visual de cliente y administrador: fondo general `#e1ffbd`, tarjetas con relleno `#edf7f5`, texto negro en negrilla, franja verde superior, sombras suaves y lineas separadoras. El sidebar mantiene sus opciones por rol. Los iconos usan contenedores blancos con borde negro y radio de 16px; los datos de rutas usan bordes negros redondeados.
 
 En `PaginaInicioCliente.tsx`, el mismo tratamiento visual se aplica al vehiculo propio, acciones rapidas, estaciones cercanas, historial de cargas y ruta inteligente. `EncabezadoSeccion` y `EncabezadoPrivado` muestran titulos en mayusculas y en una sola linea horizontal con truncado responsive.
 
@@ -502,3 +502,23 @@ Las paginas **no hacen fetch directamente**: consumen hooks custom que envuelven
 - **Endpoints** (metodos, rutas, body, respuestas): `docs/Api.md`
 - **Funcionalidades por rol**: `docs/Funcionalidades.md`
 - **Stack y decisiones detalladas**: `docs/Decisiones-tecnicas.md`
+
+## Funciones agregadas: QR y proyeccion
+
+### Reserva web con QR
+
+El flujo de `pages/invitado/PaginaReservas.tsx` conserva la separacion `pagina -> service -> apiClient -> Backend`. El servicio guarda la reserva mediante `POST /api/reservas`; el controlador obtiene el `Codigo_Reserva` de PostgreSQL usando la fecha actual, nombres, apellidos y cedula. `components/CreacionQr.tsx` recibe ese codigo, usa `qrcode.toDataURL`, muestra el QR en la ventana de confirmacion y expone un enlace de descarga PNG.
+
+### Proyeccion administrativa
+
+La navegacion de administrador agrega la pantalla `pages/administrador/PaginaProyeccionReservas.tsx` y el componente `components/ProyeccionReservas.tsx`. El flujo es:
+
+```text
+PaginaProyeccionReservas -> ProyeccionReservas -> apiClient -> GET /api/reportes/proyeccion-reservas -> Reportes -> PostgreSQL Reservas
+```
+
+El backend construye una serie diaria de 30 dias, aplica regresion lineal, calcula el horizonte seleccionado (7 o 30 dias) y genera el PNG mediante `chartjs-node-canvas`. La pagina muestra el grafico, pendiente, total, promedio diario e interpretaciones separadas.
+
+### Estilos privados
+
+Los ajustes visuales se centralizan en `Frontend/src/styles/diseno-privado.css`. Se mantienen los componentes y funcionalidades existentes: fondo `#e1ffbd`, tarjetas claras con franja verde, iconos en contenedores blancos con borde negro y radio de 16px, textos exteriores negros/negrita y diseno responsive.

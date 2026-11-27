@@ -10,8 +10,18 @@ export interface DatosReserva {
   color: number
 }
 
-export async function crearReserva(datos: DatosReserva): Promise<void> {
-  await peticion<void>('/reservas', {
+export interface ReservaCreada {
+  Codigo_Reserva: string
+  id_reserva: number
+  Fecha_Reserva: string
+  Fecha_expiracion: string
+  Estado: string
+  modelo: string
+  color: number
+}
+
+export async function crearReserva(datos: DatosReserva): Promise<ReservaCreada> {
+  return peticion<ReservaCreada>('/reservas', {
     method: 'POST',
     body: JSON.stringify(datos),
   })

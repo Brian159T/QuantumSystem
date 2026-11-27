@@ -5,6 +5,7 @@ interface Props {
 
 const CONTENIDO: Record<string, { titulo: string; acento: string; descripcion: string }> = {
   graficos: { titulo: 'Datos que inspiran', acento: 'decisiones.', descripcion: 'Una mirada a las reservas, la operación y la actividad de Quantum.' },
+  proyeccion: { titulo: 'Anticipa el', acento: 'movimiento.', descripcion: 'Interpreta la tendencia reciente de reservas y prepara tus siguientes decisiones.' },
   inicio: { titulo: 'Tu mundo, en', acento: 'movimiento.', descripcion: 'Tu vehículo, tus estaciones y tu próximo recorrido. Todo en un mismo lugar.' },
   estaciones: { titulo: 'Conecta con tu', acento: 'camino.', descripcion: 'Explora las estaciones de carga y encuentra la ruta para seguir avanzando.' },
   talleres: { titulo: 'Cuidamos cada', acento: 'recorrido.', descripcion: 'Encuentra talleres autorizados y consulta sus servicios y disponibilidad.' },

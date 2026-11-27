@@ -33,8 +33,8 @@ async function uno(req: Request, res: Response, next: NextFunction): Promise<voi
 async function agregar(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
         const body = req.body;
-        await controlador.agregar(body);
-        respuesta.success(req, res, 'Reserva agregada satisfactoriamente', 201);
+        const reserva = await controlador.agregar(body);
+        respuesta.success(req, res, reserva, 201);
     } catch (error) {
         next(error);
     }

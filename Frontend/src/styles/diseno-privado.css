@@ -72,7 +72,7 @@ body:has(.espacio-privado) { background: #070f0f; }
 .espacio-privado .tarjeta-gestion::before { content: counter(gestion,decimal-leading-zero); color: #b3b5bd; font-size: 13px; letter-spacing: .1em; min-width: 28px; }
 .espacio-privado .tarjeta-gestion__icono { display: none; }
 .espacio-privado .tarjeta-gestion__titulo { font-weight: 400; font-size: 18px; }
-.espacio-privado .tarjeta-gestion__cantidad { background: transparent; color: #EDE6D8; font-size: 30px; font-weight: 300; margin-left: auto; }
+.espacio-privado .tarjeta-gestion__cantidad { background: transparent; color: #EDE6D8; font-size: 30px; font-weight: 300; margin-left: 12px; }
 .espacio-privado .acciones-rapidas { gap: 20px; }
 .espacio-privado .accion-rapida { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 20px 0; align-items: flex-start; text-align: left; }
 .espacio-privado .accion-rapida:hover { transform: none; }
@@ -201,16 +201,221 @@ body:has(.espacio-privado) { background: #070f0f; }
   --acento-cliente: #9DB69D;
   --acento-cliente-suave: rgba(157, 182, 157, 0.16);
   --acento-cliente-borde: rgba(157, 182, 157, 0.62);
-  background: #273531;
+  background: #e1ffbd;
 }
 
 body:has(#root .aplicacion--administrador) {
-  background: #273531;
+  background: #e1ffbd;
+}
+
+/* Texto exterior del espacio administrativo: negro y destacado. */
+.aplicacion--administrador .contenido__cuerpo > .encabezado-privado,
+.aplicacion--administrador .contenido__cuerpo > .encabezado-privado :is(h1, h2, h3, h4, p, span),
+.aplicacion--administrador .contenido__cuerpo > .seccion > .encabezado-seccion,
+.aplicacion--administrador .contenido__cuerpo > .seccion > .encabezado-seccion :is(h1, h2, h3, h4, p, span),
+.aplicacion--administrador .contenido__cuerpo > .graficos-nota,
+.aplicacion--administrador .contenido__cuerpo > .graficos-separador :is(h1, h2, h3, h4, p, span),
+.aplicacion--administrador .contenido__cuerpo > hr {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--administrador .graficos-separador h2 {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--administrador .contenido__cuerpo :is(button, a) {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--administrador .contenido__cuerpo :is(button, a) svg {
+  color: #000;
+  stroke: currentColor;
+}
+
+.aplicacion--administrador .contenido__cuerpo svg {
+  margin: 4px;
+}
+
+.aplicacion--administrador .contenido__cuerpo .tarjeta-estadistica__icono,
+.aplicacion--administrador .contenido__cuerpo .tarjeta-gestion__icono,
+.aplicacion--administrador .contenido__cuerpo .banner__icono {
+  margin: 8px;
+}
+
+.aplicacion--administrador .banner__contenido {
+  width: 100%;
+  min-width: 0;
+}
+.aplicacion--administrador .banner__titulo,
+.aplicacion--administrador .banner__subtitulo {
+  white-space: nowrap;
+}
+
+@media (max-width: 767px) {
+  .aplicacion--administrador .rejilla-gestion {
+    grid-template-columns: 1fr;
+  }
+  .aplicacion--administrador .banner__titulo,
+  .aplicacion--administrador .banner__subtitulo {
+    white-space: normal;
+  }
+}
+
+/* Gestión de contenido: distribución horizontal y fluida de cada tarjeta. */
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  gap: 0;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion::before {
+  content: none;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__icono {
+  display: grid;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  margin: 0;
+  place-items: center;
+  background: #fff !important;
+  border-radius: 16px;
+  color: #000 !important;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion > div {
+  flex: 1 1 0;
+  min-width: 0;
+  margin-left: 16px;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__titulo {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__detalle {
+  overflow-wrap: anywhere;
+  white-space: normal;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__cantidad {
+  flex: 0 0 3ch;
+  width: 3ch;
+  min-width: 3ch;
+  margin-left: auto;
+  text-align: center;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion {
+  position: relative;
+  overflow: hidden;
+  min-height: 104px;
+  padding: 24px;
+  background: #edf7f5;
+  border: 1px solid rgba(15, 74, 44, 0.24);
+  border-bottom: 2px solid #1c1c1c;
+  border-radius: 12px;
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #2fb676;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__titulo,
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__detalle {
+  max-width: 100%;
+}
+
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__detalle {
+  display: block;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  line-height: 1.5;
+  margin-top: 6px;
+}
+
+@media (max-width: 767px) {
+  .aplicacion--administrador .rejilla-gestion .tarjeta-gestion__detalle {
+    white-space: normal;
+  }
+}
+
+/* Ajuste final de lectura para títulos y descripciones de Gestión de contenido. */
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion > div {
+  flex: 1 1 0;
+  width: auto;
+  max-width: none;
+}
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__titulo {
+  overflow: visible;
+  text-overflow: clip;
+  white-space: nowrap;
+  max-width: none;
+}
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__detalle {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: normal;
 }
 
 .aplicacion--administrador .encabezado-privado,
 .aplicacion--administrador .mapa-contenedor {
   border-color: #fff;
+}
+
+.aplicacion--administrador .encabezado-privado {
+  border-bottom-color: #000;
+}
+
+.aplicacion--administrador .proyeccion-resultado {
+  position: relative;
+  overflow: hidden;
+  background: #edf7f5;
+  border: 1px solid rgba(15, 74, 44, 0.24);
+  border-radius: 12px;
+  color: #1c1c1c;
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+}
+
+.aplicacion--administrador .proyeccion-resultado::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: #2fb676;
+}
+
+.aplicacion--administrador .proyeccion-resultado :is(h2, p, span, strong) {
+  color: #1c1c1c;
+  font-weight: 700;
+}
+
+.aplicacion--administrador .proyeccion-resultado .graficos-etiqueta {
+  background: #1c1c1c;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  color: #fff;
 }
 
 .aplicacion--administrador .boton--primario,
@@ -458,6 +663,79 @@ body:has(#root .aplicacion--cliente) { background: #070f0f; }
   background: #edf7f5; border: 1px solid #fff; border-radius: 12px; color: #1c1c1c;
 }
 .aplicacion--administrador .fila-estadisticas .tarjeta-estadistica { border: 1px solid #fff; }
+.aplicacion--administrador .tarjeta-gestion__icono { color: #1c1c1c !important; }
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica__icono,
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica__icono svg {
+  color: #000 !important;
+  stroke: currentColor;
+}
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica__icono {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 16px 0 0;
+  padding: 12px;
+  border: 1px solid #000;
+  border-radius: 16px;
+  background: #fff !important;
+}
+.aplicacion--administrador .fila-estadisticas .tarjeta-estadistica__icono svg,
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__icono svg {
+  display: block;
+  margin: 0 !important;
+}
+.aplicacion--administrador .tarjeta-gestion__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  color: #000 !important;
+  background: #fff !important;
+  box-sizing: border-box;
+  margin: 0 16px 0 0;
+  padding: 12px;
+  border: 1px solid #000;
+  border-radius: 16px;
+}
+.aplicacion--administrador .seccion:has(.rejilla-gestion) > .encabezado-seccion {
+  padding-left: 124px;
+}
+.aplicacion--administrador .seccion:has(.rejilla-gestion) > .encabezado-seccion .titulo-seccion {
+  color: #000;
+  font-weight: 700;
+}
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion {
+  display: grid;
+  grid-template-columns: 28px 48px minmax(0, 1fr) 3ch;
+  align-items: center;
+  column-gap: 24px;
+}
+.aplicacion--administrador .rejilla-gestion .tarjeta-gestion__cantidad {
+  width: 3ch;
+  margin-left: 0;
+  text-align: center;
+  justify-self: center;
+}
+.aplicacion--administrador .rejilla-gestion {
+  grid-template-columns: 1fr;
+  gap: 0;
+}
+.aplicacion--administrador .fila-filtros .chip { color: #000 !important; font-weight: 700; }
+.aplicacion--administrador .fila-filtros .chip:hover,
+.aplicacion--administrador .fila-filtros .chip--activo:hover { background: #808080; border-color: #808080; color: #000 !important; }
+.aplicacion--administrador .tabla-usuarios__acciones .boton--peligro:hover {
+  color: #dc2626 !important;
+  border-color: #dc2626 !important;
+  background: rgba(220, 38, 38, 0.12) !important;
+}
+.aplicacion--administrador .tabla-usuarios__acciones .boton--peligro:hover svg {
+  color: #dc2626 !important;
+  stroke: currentColor;
+}
 .aplicacion--administrador :is(.tarjeta,.banner,.tarjeta-estadistica,.tarjeta-gestion,.grafico-tarjeta,.graficos-resumen,.tarjeta-contacto,.fila-actividad,.tabla-usuarios,.modal) :is(p,span,div,h2,h3,h4,dt,dd,strong,label,footer) { color: #1c1c1c; }
 .aplicacion--administrador .tabla-usuarios__fila { background: #edf7f5; border-bottom: 1px solid #1c1c1c; }
 .aplicacion--administrador .tabla-usuarios__fila--encabezado { background: #8aa78a; color: #1c1c1c; }
@@ -518,6 +796,43 @@ body:has(#root .aplicacion--cliente) { background: #070f0f; }
   border-left: 1px solid rgba(0, 0, 0, 0.28);
   border-radius: 0;
   padding-left: 16px;
+}
+
+/* Cliente: datos de ruta dentro de contenedores redondeados y legibles. */
+.aplicacion--cliente .tarjeta-ruta__datos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.aplicacion--cliente .tarjeta-ruta__dato,
+.aplicacion--cliente .tarjeta-ruta__dato + .tarjeta-ruta__dato {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid #000;
+  border-radius: 16px;
+  padding: 8px 12px;
+}
+
+.aplicacion--cliente .interruptor {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--cliente .tarjeta-ruta__nota {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--cliente .ayuda-texto {
+  color: #000;
+  font-weight: 700;
+}
+
+.aplicacion--cliente .titulo-seccion__enlace {
+  color: #000;
+  font-weight: 700;
 }
 
 .aplicacion--cliente .tarjeta-contacto + .tarjeta-contacto {
@@ -670,4 +985,111 @@ body:has(#root .aplicacion--cliente) { background: #070f0f; }
   border: 1px solid #000;
   background: #edf7f5 !important;
   color: #000 !important;
+}
+
+/* Identidad visual compartida con el panel administrativo. */
+body:has(#root .aplicacion--cliente) {
+  background: #e1ffbd;
+}
+.aplicacion--cliente.espacio-privado {
+  background: #e1ffbd;
+}
+.aplicacion--cliente .barra-lateral,
+.aplicacion--cliente .panel-lateral {
+  background: #2fb676;
+  color: #1d1d1f;
+  border-right-color: #27a169;
+}
+.aplicacion--cliente .barra-lateral__nav a,
+.aplicacion--cliente .barra-lateral__cuenta,
+.aplicacion--cliente .barra-lateral__cuenta .saludo {
+  color: #1c1c1c;
+}
+.aplicacion--cliente .barra-lateral__nav a[aria-current='page'] {
+  background: #dedede;
+  color: #1c1c1c;
+}
+
+.aplicacion--cliente .contenido__cuerpo > .encabezado-privado,
+.aplicacion--cliente .contenido__cuerpo > .encabezado-privado :is(h1, h2, h3, h4, p, span),
+.aplicacion--cliente .contenido__cuerpo > .seccion > .encabezado-seccion :is(h1, h2, h3, h4, p, span),
+.aplicacion--cliente .contenido__cuerpo > .graficos-nota {
+  color: #000;
+  font-weight: 700;
+}
+.aplicacion--cliente .encabezado-privado,
+.aplicacion--cliente .contenido__cuerpo > .seccion > .encabezado-seccion {
+  border-bottom: 2px solid #000;
+}
+
+.aplicacion--cliente :is(.tarjeta,.tarjeta--oscura,.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta-servicio,.tarjeta-ruta,.tarjeta-contacto,.tarjeta-salud,.fila-actividad,.banner-emergencia,.banner,.accion-rapida) {
+  background: #edf7f5;
+  border: 1px solid #fff;
+  border-radius: 12px;
+  color: #1c1c1c;
+  box-shadow: 0 8px 18px rgba(0, 20, 16, 0.12);
+}
+.aplicacion--cliente :is(.tarjeta,.tarjeta--oscura,.tarjeta-estadistica,.tarjeta-estacion,.tarjeta-taller,.tarjeta-servicio,.tarjeta-ruta,.tarjeta-contacto,.tarjeta-salud,.fila-actividad,.banner-emergencia,.banner,.accion-rapida) :is(h1,h2,h3,h4,p,span,strong,button,label,dt,dd) {
+  color: #1c1c1c;
+}
+
+.aplicacion--cliente :is(.accion-rapida__icono,.tarjeta-estadistica__icono,.tarjeta-servicio__icono,.tarjeta-ruta__icono,.tarjeta-contacto__icono,.fila-actividad__icono,.banner-emergencia__icono) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  margin: 0 16px 0 0;
+  padding: 12px;
+  border: 1px solid #000;
+  border-radius: 16px;
+  background: #fff !important;
+  color: #000 !important;
+}
+.aplicacion--cliente :is(.accion-rapida__icono,.tarjeta-estadistica__icono,.tarjeta-servicio__icono,.tarjeta-ruta__icono,.tarjeta-contacto__icono,.fila-actividad__icono,.banner-emergencia__icono) svg,
+.aplicacion--cliente .tarjeta-salud .tarjeta__encabezado > svg {
+  display: block;
+  margin: 0 !important;
+  color: #000 !important;
+  stroke: currentColor;
+}
+
+@media (max-width: 767px) {
+  .aplicacion--cliente .encabezado-privado,
+  .aplicacion--cliente .contenido__cuerpo > .seccion > .encabezado-seccion {
+    border-bottom-width: 2px;
+  }
+}
+
+/* Estaciones del cliente: franja verde y encabezados exteriores negros. */
+.aplicacion--cliente .tarjeta-estacion::before {
+  display: block !important;
+  height: 4px;
+  background: #2fb676;
+}
+.aplicacion--cliente .contenido__cuerpo > .seccion > .encabezado-seccion .titulo-seccion {
+  color: #000;
+  font-weight: 700;
+}
+.aplicacion--cliente .contenido__cuerpo .encabezado-seccion .titulo-seccion,
+.aplicacion--cliente .tarjeta-taller .tarjeta-servicio__nombre,
+.aplicacion--cliente .tarjeta-taller .tarjeta-servicio__direccion {
+  color: #000 !important;
+  font-weight: 700;
+}
+.aplicacion--cliente .contenido__cuerpo .titulo-seccion {
+  color: #000 !important;
+  font-weight: 700;
+}
+.aplicacion--cliente .banner-emergencia__subtitulo {
+  color: #000 !important;
+  font-weight: 700;
+}
+.aplicacion--cliente .contenido__cuerpo .encabezado-seccion > div > div,
+.aplicacion--cliente .contenido__cuerpo .boton--claro {
+  color: #000 !important;
+  font-weight: 700;
 }

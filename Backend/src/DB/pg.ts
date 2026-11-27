@@ -173,11 +173,12 @@ function ejecutar(
     valores: any[] = []
 ): Promise<any> {
     const esSelect = /^\s*SELECT/i.test(sql);
+    const devuelveFilas = esSelect || /\bRETURNING\b/i.test(sql);
 
     if (!sql.includes('?')) {
         return pool
             .query({ text: sql, values: valores })
-            .then((resultado) => (esSelect ? resultado.rows : resultado));
+            .then((resultado) => (devuelveFilas ? resultado.rows : resultado));
     }
 
     let sqlConvertido = '';
@@ -210,7 +211,7 @@ function ejecutar(
 
     return pool
         .query({ text: sqlConvertido, values: parametros })
-        .then((resultado) => (esSelect ? resultado.rows : resultado));
+        .then((resultado) => (devuelveFilas ? resultado.rows : resultado));
 }
 
 export default {
